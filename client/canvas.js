@@ -41,8 +41,14 @@ class Player {
     projectiles: [],
   };
   visuals = {
-    sprite: ctx.createImageData(50, 50),
+    sprite: new Image(400, 280),
     width: 50,
     height: 50,
   };
+  constructor() {
+    this.visuals.sprite.src = './assets/sprites/player.png';
+    this.visuals.sprite.onload = () => {
+      console.log('Player sprite loaded');
+    };
+  }
 }

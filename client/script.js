@@ -47,7 +47,7 @@ const leaderboardData = {
 document.addEventListener('DOMContentLoaded', function () {
   initializeSettings();
   setupEventListeners();
-  loadLeaderboard('all-time');
+  //   loadLeaderboard('all-time');
 });
 
 function setupEventListeners() {
@@ -85,10 +85,11 @@ function setupEventListeners() {
       switchLeaderboardTab(tabType);
     });
   });
-
-  document
-    .querySelector('.clear-scores')
-    .addEventListener('click', clearScores);
+  startButton.addEventListener('click', () => {
+    gameMenu.classList.add('hidden');
+    text.classList.add('hidden');
+    document.getElementById('gameCanvas').classList.remove('hidden-canvas');
+  });
 }
 
 function showPanel(panelType) {
@@ -179,6 +180,4 @@ function switchLeaderboardTab(tabType) {
       tab.classList.add('active');
     }
   });
-
-  loadLeaderboard(tabType);
 }
