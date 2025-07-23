@@ -37,6 +37,9 @@ class Enemy {
     this.shootCooldown = 0;
     this.shootInterval = 60; // frames between shots
     this.bullets = [];
+
+    // Collision component (will be set by collision manager)
+    this.collisionComponent = null;
   }
 
   // Abstract methods that must be implemented by child classes
@@ -190,6 +193,21 @@ class Enemy {
   // Check if enemy should be removed
   shouldBeRemoved() {
     return this.markedForRemoval;
+  }
+
+  // Set collision component (called by collision manager)
+  setCollisionComponent(component) {
+    this.collisionComponent = component;
+  }
+
+  // Get collision bounds for collision system
+  getCollisionBounds() {
+    return {
+      x: this.position.x + this.width * 0.1,
+      y: this.position.y + this.height * 0.1,
+      width: this.width * 0.8,
+      height: this.height * 0.8,
+    };
   }
 }
 

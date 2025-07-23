@@ -13,6 +13,25 @@ const mouse = { x: 0, y: 0 };
 const player = new Player(ctx, canvas, './assets/sprites/player.png');
 const stage = new Stage(ctx, canvas);
 const blastManager = new BlastManager(ctx);
+const collisionManager = new CollisionManager(blastManager);
+
+// Initialize player collision component
+const playerCollision = CollisionManager.createForGameObject(player, 'player', {
+  width: player.visuals.width * 0.6,
+  height: player.visuals.height * 0.6,
+  damage: 25,
+  callbacks: {
+    onCollisionEnter: (other, collisionData) => {
+      console.log('Player collided with:', other.layer);
+    },
+    onDamageReceived: (other, damage) => {
+      console.log(`Player took ${damage} damage from ${other.layer}`);
+    },
+  },
+});
+
+collisionManager.addComponent(playerCollision);
+player.setCollisionComponent(playerCollision);
 
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
@@ -46,6 +65,11 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'c' || e.key === 'C') {
     blastManager.createEnemyExplosion(mouse.x, mouse.y, 'kamikaze');
   }
+
+  // Toggle collision debug mode with 'X' key
+  if (e.key === 'x' || e.key === 'X') {
+    collisionManager.setDebugMode(!collisionManager.debugMode);
+  }
 });
 
 document.addEventListener('keyup', (e) => {
@@ -71,10 +95,44 @@ function gameLoop() {
   stage.update(playerCenter);
   blastManager.update();
 
+  // Update collision system
+  collisionManager.update();
+
+  // Add collision components for new enemies
+  stage.enemies.forEach((enemy) => {
+    if (!enemy.collisionComponent) {
+      const enemyCollision = CollisionManager.createForGameObject(
+        enemy,
+        'enemy',
+        {
+          width: enemy.width * 0.8,
+          height: enemy.height * 0.8,
+          damage: enemy.damage,
+          callbacks: {
+            onCollisionEnter: (other, collisionData) => {
+              if (other.layer === 'player') {
+                console.log(`${enemy.constructor.name} collided with player`);
+              }
+            },
+            onDamageReceived: (other, damage) => {
+              console.log(`${enemy.constructor.name} took ${damage} damage`);
+            },
+          },
+        }
+      );
+
+      collisionManager.addComponent(enemyCollision);
+      enemy.setCollisionComponent(enemyCollision);
+    }
+  });
+
   // Draw game objects
   stage.draw(); // Draw enemies and stage UI
   player.draw();
   blastManager.draw(); // Draw explosions on top
+
+  // Draw collision debug if enabled
+  collisionManager.drawDebug(ctx);
 
   // Debug information
   ctx.fillStyle = 'white';
@@ -82,15 +140,20 @@ function gameLoop() {
   ctx.fillText(
     `Active Blasts: ${blastManager.getActiveBlasts()}`,
     10,
-    canvas.height - 60
+    canvas.height - 80
   );
   ctx.fillText(
     `Active Particles: ${blastManager.getActiveParticles()}`,
     10,
+    canvas.height - 60
+  );
+  ctx.fillText(
+    `Collision Components: ${collisionManager.collisionComponents.length}`,
+    10,
     canvas.height - 40
   );
   ctx.fillText(
-    `Test Controls: B=Normal Blast, V=Large Blast, C=Enemy Blast`,
+    `Test: B=Blast, V=Large, C=Enemy, X=Debug`,
     10,
     canvas.height - 20
   );

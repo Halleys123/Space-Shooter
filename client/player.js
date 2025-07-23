@@ -50,6 +50,9 @@ class Player {
     // Initialize particle system
     this.thrustParticles = new ThrustParticleSystem();
     this.collisionParticles = new CollisionParticleSystem();
+
+    // Initialize collision component (will be set by collision manager)
+    this.collisionComponent = null;
   }
 
   update(keys, mouse) {
@@ -234,5 +237,25 @@ class Player {
 
   heal(amount) {
     this.healthBar.heal(amount);
+  }
+
+  // Collision damage method (called by collision system)
+  takeDamage(amount) {
+    this.healthBar.damage(amount);
+  }
+
+  // Get collision bounds for collision system
+  getCollisionBounds() {
+    return {
+      x: this.control.position.x + this.visuals.width * 0.2,
+      y: this.control.position.y + this.visuals.height * 0.2,
+      width: this.visuals.width * 0.6,
+      height: this.visuals.height * 0.6,
+    };
+  }
+
+  // Set collision component (called by collision manager)
+  setCollisionComponent(component) {
+    this.collisionComponent = component;
   }
 }
