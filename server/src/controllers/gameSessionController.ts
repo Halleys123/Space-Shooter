@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { GameSession } from '../models/GameSession';
 import { validationResult } from 'express-validator';
 
-// Create a new game session
+
 export const createGameSession = async (
   req: Request,
   res: Response,
@@ -21,7 +21,7 @@ export const createGameSession = async (
 
     const { userId, username, difficulty = 'normal', gameVersion } = req.body;
 
-    // Generate unique session ID
+    
     const sessionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
     const newSession = new GameSession({
@@ -59,7 +59,7 @@ export const createGameSession = async (
   }
 };
 
-// End a game session
+
 export const endGameSession = async (
   req: Request,
   res: Response,
@@ -106,7 +106,7 @@ export const endGameSession = async (
       return;
     }
 
-    // Update session with final data
+    
     session.endTime = new Date();
     session.isActive = false;
     session.finalScore = finalScore;
@@ -145,7 +145,7 @@ export const endGameSession = async (
   }
 };
 
-// Get active game sessions
+
 export const getActiveSessions = async (
   req: Request,
   res: Response,
@@ -186,7 +186,7 @@ export const getActiveSessions = async (
   }
 };
 
-// Get session by ID
+
 export const getSessionById = async (
   req: Request,
   res: Response,
@@ -218,7 +218,7 @@ export const getSessionById = async (
   }
 };
 
-// Get user sessions
+
 export const getUserSessions = async (
   req: Request,
   res: Response,
@@ -228,7 +228,7 @@ export const getUserSessions = async (
     const { userId } = req.params;
     const { limit = 10, page = 1, isActive } = req.query;
 
-    // Validate ObjectId format
+    
     if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
       res.status(400).json({
         status: 'error',
@@ -241,7 +241,7 @@ export const getUserSessions = async (
     const pageNum = Math.max(1, Number(page));
     const skip = (pageNum - 1) * limitNum;
 
-    // Build query
+    
     const query: any = { userId };
     if (isActive !== undefined) {
       query.isActive = isActive === 'true';
@@ -275,7 +275,7 @@ export const getUserSessions = async (
   }
 };
 
-// Get session statistics
+
 export const getSessionStats = async (
   req: Request,
   res: Response,
@@ -284,7 +284,7 @@ export const getSessionStats = async (
   try {
     const { timeFrame = 'all-time' } = req.query;
 
-    // Build time filter
+    
     let timeFilter = {};
     if (timeFrame === 'today') {
       const today = new Date();

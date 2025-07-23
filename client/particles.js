@@ -40,7 +40,6 @@ class ThrustParticleSystem {
   constructor() {
     this.particles = [];
 
-    // Apply performance-based particle limits
     const performanceSettings = window.performanceManager
       ? window.performanceManager.getSettings()
       : null;
@@ -48,14 +47,12 @@ class ThrustParticleSystem {
       ? performanceSettings.maxParticles.thrust
       : 50;
 
-    // Frame skipping for low-end devices
     this.frameSkipCounter = 0;
   }
 
   emit(x, y, rotation, isAccelerating) {
     if (!isAccelerating) return;
 
-    // Reduce particle emission on low-end devices
     const performanceLevel = window.performanceManager
       ? window.performanceManager.performanceLevel
       : 'high';
@@ -106,7 +103,6 @@ class ThrustParticleSystem {
   }
 
   update() {
-    // Frame skipping for low-end devices
     if (
       window.performanceManager &&
       window.performanceManager.shouldSkipFrame()
@@ -128,7 +124,6 @@ class CollisionParticleSystem {
   constructor() {
     this.particles = [];
 
-    // Apply performance-based particle limits
     const performanceSettings = window.performanceManager
       ? window.performanceManager.getSettings()
       : null;
@@ -136,12 +131,10 @@ class CollisionParticleSystem {
       ? performanceSettings.maxParticles.collision
       : 30;
 
-    // Frame skipping for low-end devices
     this.frameSkipCounter = 0;
   }
 
   emit(x, y, collisionSide) {
-    // Reduce particle emission on low-end devices
     const performanceLevel = window.performanceManager
       ? window.performanceManager.performanceLevel
       : 'high';
@@ -203,7 +196,6 @@ class CollisionParticleSystem {
   }
 
   update() {
-    // Frame skipping for low-end devices
     if (
       window.performanceManager &&
       window.performanceManager.shouldSkipFrame()

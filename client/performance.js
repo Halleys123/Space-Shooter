@@ -1,4 +1,3 @@
-// Performance detection and configuration system
 class PerformanceManager {
   constructor() {
     this.performanceLevel = 'auto';

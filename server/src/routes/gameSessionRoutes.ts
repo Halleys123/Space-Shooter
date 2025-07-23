@@ -11,7 +11,6 @@ import {
 
 const router = Router();
 
-// Validation middleware
 const createSessionValidation = [
   body('userId').optional().isMongoId().withMessage('Invalid user ID format'),
   body('username')
@@ -99,7 +98,6 @@ const timeFrameQueryValidation = [
     .withMessage('Time frame must be today, this-week, or all-time'),
 ];
 
-// Routes
 router.post('/', createSessionValidation, createGameSession);
 router.put(
   '/:sessionId/end',

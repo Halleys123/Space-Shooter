@@ -98,7 +98,7 @@ const userSchema = new Schema<IUser>(
     },
     stats: {
       totalGamesPlayed: { type: Number, default: 0, min: 0 },
-      totalPlayTime: { type: Number, default: 0, min: 0 }, // in seconds
+      totalPlayTime: { type: Number, default: 0, min: 0 },
       highestScore: { type: Number, default: 0, min: 0 },
       totalEnemiesKilled: { type: Number, default: 0, min: 0 },
       bestAccuracy: { type: Number, default: 0, min: 0, max: 100 },
@@ -117,7 +117,6 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// Index for performance
 userSchema.index({ username: 1 });
 userSchema.index({ email: 1 });
 userSchema.index({ registrationDate: -1 });

@@ -5,9 +5,9 @@ export interface ILeaderboardEntry extends Document {
   score: number;
   stage: number;
   cycle: number;
-  playTime: number; // in seconds
+  playTime: number; 
   enemiesKilled: number;
-  accuracy: number; // percentage
+  accuracy: number; 
   powerupsCollected: number;
   date: Date;
   isValid: boolean;
@@ -51,7 +51,7 @@ const leaderboardSchema = new Schema<ILeaderboardEntry>(
       type: Number,
       required: [true, 'Play time is required'],
       min: [1, 'Play time must be at least 1 second'],
-      max: [86400, 'Play time cannot exceed 24 hours'], // 24 hours in seconds
+      max: [86400, 'Play time cannot exceed 24 hours'], 
     },
     enemiesKilled: {
       type: Number,
@@ -117,27 +117,27 @@ const leaderboardSchema = new Schema<ILeaderboardEntry>(
   }
 );
 
-// Compound indexes for efficient queries
-leaderboardSchema.index({ score: -1, date: -1 }); // For top scores
-leaderboardSchema.index({ date: -1 }); // For recent scores
-leaderboardSchema.index({ username: 1, score: -1 }); // For user's best scores
-leaderboardSchema.index({ isValid: 1, score: -1 }); // For valid scores only
+
+leaderboardSchema.index({ score: -1, date: -1 }); 
+leaderboardSchema.index({ date: -1 }); 
+leaderboardSchema.index({ username: 1, score: -1 }); 
+leaderboardSchema.index({ isValid: 1, score: -1 }); 
 leaderboardSchema.index({
   'metadata.difficulty': 1,
   score: -1,
-}); // For difficulty-based leaderboards
+}); 
 
-// Validation middleware
+
 leaderboardSchema.pre('save', function (next) {
-  // Validate that the score makes sense relative to other stats
+  
   const scorePerSecond = this.score / this.playTime;
-  const maxReasonableScorePerSecond = 1000; // Adjust based on your game mechanics
+  const maxReasonableScorePerSecond = 1000; 
 
   if (scorePerSecond > maxReasonableScorePerSecond) {
     this.isValid = false;
   }
 
-  // Validate accuracy makes sense
+  
   if (this.accuracy > 100 || this.accuracy < 0) {
     this.isValid = false;
   }

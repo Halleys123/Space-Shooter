@@ -11,7 +11,6 @@ import {
 
 const router = Router();
 
-// Validation middleware
 const userRegistrationValidation = [
   body('username')
     .trim()
@@ -104,7 +103,6 @@ const userStatsValidation = [
     .withMessage('Favorite weapon must be a string up to 50 characters'),
 ];
 
-// Routes
 router.post('/register', userRegistrationValidation, registerUser);
 router.post('/login', userLoginValidation, loginUser);
 router.get('/:userId', userIdParamValidation, getUserProfile);

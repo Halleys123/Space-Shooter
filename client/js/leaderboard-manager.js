@@ -1,8 +1,3 @@
-/**
- * Enhanced Leaderboard Manager
- * Handles leaderboard display, filtering, and backend integration
- */
-
 class LeaderboardManager {
   constructor(panelSelector, apiService, authUI) {
     this.panelSelector = panelSelector;
@@ -29,7 +24,6 @@ class LeaderboardManager {
   }
 
   bindEvents() {
-    // Tab switching
     document.querySelectorAll('.tab-button').forEach((button) => {
       button.addEventListener('click', (e) => {
         const timeFrame = e.target.dataset.tab;
@@ -37,7 +31,6 @@ class LeaderboardManager {
       });
     });
 
-    // Difficulty filter
     const difficultyFilter = document.getElementById('difficulty-filter');
     if (difficultyFilter) {
       difficultyFilter.addEventListener('change', (e) => {
@@ -46,7 +39,6 @@ class LeaderboardManager {
       });
     }
 
-    // Refresh button
     const refreshButton = document.querySelector('.refresh-leaderboard');
     if (refreshButton) {
       refreshButton.addEventListener('click', () => {
@@ -62,7 +54,6 @@ class LeaderboardManager {
     this.showLoadingState();
 
     try {
-      // Load leaderboard data
       const leaderboardData = await this.api.getLeaderboard(
         this.currentTimeFrame,
         this.currentDifficulty,
@@ -70,7 +61,6 @@ class LeaderboardManager {
         10
       );
 
-      // Load stats data
       const statsData = await this.api.getLeaderboardStats(
         this.currentDifficulty
       );
@@ -110,16 +100,13 @@ class LeaderboardManager {
     const entryDiv = document.createElement('div');
     entryDiv.className = 'leaderboard-entry';
 
-    // Highlight current user's entry
     const currentUser = this.api.getCurrentUser();
     if (currentUser && entry.username === currentUser.username) {
       entryDiv.classList.add('current-user');
     }
 
-    // Format date
     const date = new Date(entry.date).toLocaleDateString();
 
-    // Calculate additional metrics
     const timeText = this.formatPlayTime(entry.playTime);
 
     entryDiv.innerHTML = `
@@ -160,7 +147,6 @@ class LeaderboardManager {
 
     const stats = statsData.stats;
 
-    // Update individual stat elements
     const totalPlayersEl = document.getElementById('total-players');
     const highestScoreEl = document.getElementById('highest-score');
     const averageScoreEl = document.getElementById('average-score');
@@ -208,7 +194,6 @@ class LeaderboardManager {
   }
 
   switchTimeFrame(timeFrame) {
-    // Update active tab
     document.querySelectorAll('.tab-button').forEach((btn) => {
       btn.classList.remove('active');
     });
@@ -259,13 +244,11 @@ class LeaderboardManager {
   }
 
   showNotification(message, type = 'info') {
-    // Reuse the notification system from AuthUI
     if (window.authUI) {
       window.authUI.showNotification(message, type);
     }
   }
 
-  // Method to submit score (called from game)
   async submitScore(scoreData) {
     try {
       const response = await this.api.submitScore(scoreData);
@@ -277,7 +260,6 @@ class LeaderboardManager {
           'success'
         );
 
-        // Refresh leaderboard to show new score
         setTimeout(() => this.refreshLeaderboard(), 1000);
       }
 
@@ -292,9 +274,7 @@ class LeaderboardManager {
   }
 }
 
-// Initialize leaderboard manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  // Wait for other managers to be initialized
   if (window.apiService && window.authUI) {
     window.leaderboardManager = new LeaderboardManager(
       '.leaderboard-panel',
@@ -303,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     window.leaderboardManager.initialize();
   } else {
-    // Retry initialization after a short delay
     setTimeout(() => {
       if (window.apiService && window.authUI) {
         window.leaderboardManager = new LeaderboardManager(

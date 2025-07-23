@@ -1,8 +1,3 @@
-/**
- * API Service for Space Shooter Game
- * Handles all backend communication including authentication and leaderboard
- */
-
 class GameAPI {
   constructor() {
     this.baseURL = 'http://localhost:5000/api';
@@ -17,7 +12,6 @@ class GameAPI {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  // Helper method for making API requests
   async makeRequest(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const headers = {
@@ -48,7 +42,6 @@ class GameAPI {
     }
   }
 
-  // Authentication methods
   async register(username, email, password) {
     try {
       const response = await this.makeRequest('/users/register', {
@@ -104,7 +97,6 @@ class GameAPI {
     return this.currentUser;
   }
 
-  // Leaderboard methods
   async getLeaderboard(
     timeFrame = 'all-time',
     difficulty = 'normal',
@@ -172,7 +164,6 @@ class GameAPI {
     }
   }
 
-  // Game session methods
   async createGameSession(difficulty = 'normal') {
     try {
       const payload = {
@@ -213,7 +204,6 @@ class GameAPI {
     }
   }
 
-  // User settings methods
   async updateUserSettings(settings) {
     if (!this.isAuthenticated()) {
       throw new Error('Authentication required');
@@ -255,5 +245,4 @@ class GameAPI {
   }
 }
 
-// Create global API instance
 window.gameAPI = new GameAPI();

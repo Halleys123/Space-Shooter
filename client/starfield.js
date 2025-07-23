@@ -76,7 +76,6 @@ class Star {
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
 
-    // Only draw glow effect if enabled and star is bright enough
     if (enableGlow && this.size > 2 && this.brightness > 0.7) {
       ctx.globalAlpha = this.alpha * 0.3;
       ctx.beginPath();
@@ -99,7 +98,6 @@ class StarField {
     this.canvas = canvas;
     this.stars = [];
 
-    // Apply performance-based star count
     const performanceSettings = window.performanceManager
       ? window.performanceManager.getSettings()
       : null;
@@ -118,7 +116,6 @@ class StarField {
     this.warpIntensity = 0;
     this.warpDirection = 0;
 
-    // Performance optimization flags
     this.enableGlow = performanceSettings
       ? performanceSettings.enableGlow
       : true;
@@ -126,7 +123,6 @@ class StarField {
       ? performanceSettings.enableFilters
       : true;
 
-    // Frame skipping for low-end devices
     this.frameSkipCounter = 0;
 
     this.generateStars();
@@ -140,7 +136,6 @@ class StarField {
   }
 
   update() {
-    // Frame skipping for low-end devices
     if (
       window.performanceManager &&
       window.performanceManager.shouldSkipFrame()
@@ -159,7 +154,6 @@ class StarField {
   }
 
   draw(ctx) {
-    // Skip filters on low-end devices
     const shouldUseFilters =
       this.enableFilters &&
       (this.colorFilter.r !== 1 ||

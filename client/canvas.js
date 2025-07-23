@@ -74,13 +74,13 @@ document.addEventListener('keydown', (e) => {
 
       if (gameState.isPaused) {
         console.log('Game Paused - Press ESC to resume');
-        // Pause music when game is paused
+
         if (window.audioManager) {
           window.audioManager.pauseMusic();
         }
       } else {
         console.log('Game Resumed');
-        // Resume music when game is unpaused
+
         if (window.audioManager) {
           window.audioManager.resumeMusic();
         }
@@ -178,21 +178,17 @@ function initializeGame() {
   gameState.enemiesKilled = 0;
   gameState.powerUpsCollected = 0;
 
-  // Reset player state
-  player.healthBar.reset(); // Reset health using the HealthBar's reset method
+  player.healthBar.reset();
   player.score = 0;
 
-  // Reset collision damage timer
   player.health.collisionDamageTimer = 0;
 
-  // Reset player position
   player.control.position.x = canvas.width / 2 - player.visuals.width / 2;
   player.control.position.y = canvas.height - player.visuals.height - 50;
 
   console.log('Game started!');
 }
 
-// Make initializeGame available globally so script.js can call it
 window.initializeGame = initializeGame;
 function drawPauseScreen() {
   ctx.save();
@@ -265,13 +261,11 @@ async function addScoreToLeaderboard(score) {
   let playerName = 'Anonymous';
   let shouldSubmitToBackend = false;
 
-  // Check if user is authenticated
   if (window.authUI && window.authUI.isAuthenticated()) {
     const currentUser = window.authUI.getCurrentUser();
     playerName = currentUser.username;
     shouldSubmitToBackend = true;
   } else {
-    // Prompt for name for anonymous players
     const enteredName = prompt(
       'Game Over! Enter your name for the leaderboard:'
     );
@@ -288,13 +282,12 @@ async function addScoreToLeaderboard(score) {
     date: currentDate,
   };
 
-  // Submit to backend if user is authenticated
   if (shouldSubmitToBackend && window.apiService) {
     try {
       const gameData = {
         score: score,
         stage: gameState.currentStage || 1,
-        cycle: 1, // Add cycle field as required by backend
+        cycle: 1,
         difficulty:
           gameState.difficulty === 'medium'
             ? 'normal'
@@ -303,13 +296,12 @@ async function addScoreToLeaderboard(score) {
           Math.floor((Date.now() - gameState.gameStartTime) / 1000) || 1,
         enemiesKilled: gameState.enemiesKilled || 0,
         powerupsCollected: gameState.powerUpsCollected || 0,
-        accuracy: 85.0, // Add accuracy field as required by backend
+        accuracy: 85.0,
       };
 
       await window.apiService.submitScore(gameData);
       console.log('Score submitted to backend successfully');
 
-      // Show success notification
       if (window.showNotification) {
         window.showNotification('Score saved to your profile!', 'success');
       }
@@ -321,7 +313,6 @@ async function addScoreToLeaderboard(score) {
     }
   }
 
-  // Still save to local storage for offline functionality
   let leaderboardData = JSON.parse(
     localStorage.getItem('spaceShooterLeaderboard')
   ) || {
@@ -359,11 +350,9 @@ async function showGameOverLeaderboard() {
   const leaderboardPanel = document.querySelector('.leaderboard-panel');
   leaderboardPanel.classList.remove('hidden');
 
-  // Refresh leaderboard with new data
   if (window.leaderboardManager) {
     await window.leaderboardManager.refresh();
   } else {
-    // Fallback to local leaderboard display
     if (window.updateLeaderboardDisplay) {
       window.updateLeaderboardDisplay();
     }
@@ -466,16 +455,13 @@ function gameLoop() {
     fpsUpdateTime = 0;
   }
 
-  // Clear canvas regardless of game state
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // If game hasn't started yet, just continue the loop without rendering game elements
   if (!gameState.isGameStarted) {
     requestAnimationFrame(gameLoop);
     return;
   }
 
-  // If game is paused or game over, show pause/game over screen
   if (gameState.isPaused || gameState.isGameOver) {
     if (gameState.isPaused && !gameState.isGameOver) {
       drawPauseScreen();
@@ -530,7 +516,6 @@ function gameLoop() {
                   enemy.markedForRemoval = true;
                   enemy.isAlive = false;
                 } else if (enemy.constructor.name === 'BossEnemy') {
-                  // Boss collision creates larger explosion but doesn't destroy boss
                   blastManager.createExplosion(
                     collisionData.point.x,
                     collisionData.point.y,
@@ -538,14 +523,13 @@ function gameLoop() {
                     2.0
                   );
 
-                  player.takeDamage(enemy.damage * 0.7); // Boss does more collision damage
+                  player.takeDamage(enemy.damage * 0.7);
                 }
               }
             },
             onDamageReceived: (other, damage) => {
               console.log(`${enemy.constructor.name} took ${damage} damage`);
 
-              // Create hit effect for boss
               if (enemy.constructor.name === 'BossEnemy') {
                 blastManager.createExplosion(
                   enemy.position.x + enemy.width / 2,

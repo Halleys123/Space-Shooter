@@ -4,23 +4,19 @@ class AudioManager {
     this.musicTracks = {};
     this.currentMusic = null;
 
-    // Initialize with safe default values
     this.masterVolume = 50;
     this.musicVolume = 30;
     this.sfxVolume = 70;
 
-    // Initialize sound effects
     this.initializeSounds();
   }
 
-  // Call this method after game settings are loaded
   initialize() {
     this.loadSettings();
     this.updateAllVolumes();
   }
 
   initializeSounds() {
-    // Define all available sound effects
     const soundFiles = {
       playerShoot: './assets/audio/sfx/player_shoot.wav',
       enemyShoot: './assets/audio/sfx/enemy_shoot.wav',
@@ -30,21 +26,17 @@ class AudioManager {
       powerup: './assets/audio/sfx/powerup.ogg',
     };
 
-    // Load all sound effects
     Object.keys(soundFiles).forEach((soundName) => {
       this.sounds[soundName] = new Audio(soundFiles[soundName]);
       this.sounds[soundName].preload = 'auto';
 
-      // Set default volume to 0.5 initially, will be updated later
       this.sounds[soundName].volume = 0.5;
 
-      // Handle loading errors gracefully
       this.sounds[soundName].addEventListener('error', (e) => {
         console.warn(`Failed to load sound: ${soundName}`, e);
       });
     });
 
-    // Load music tracks
     const musicFiles = {
       menu: './assets/audio/music/menu_bg.mp3',
       game: './assets/audio/music/game_bg.mp3',
@@ -55,7 +47,7 @@ class AudioManager {
       this.musicTracks[trackName] = new Audio(musicFiles[trackName]);
       this.musicTracks[trackName].preload = 'auto';
       this.musicTracks[trackName].loop = true;
-      this.musicTracks[trackName].volume = 0.3; // Set default volume initially
+      this.musicTracks[trackName].volume = 0.3;
 
       this.musicTracks[trackName].addEventListener('error', (e) => {
         console.warn(`Failed to load music: ${trackName}`, e);
@@ -64,7 +56,6 @@ class AudioManager {
   }
 
   loadSettings() {
-    // Load settings from the global gameSettings if available
     if (typeof window.gameSettings !== 'undefined') {
       this.masterVolume = window.gameSettings.audio.masterVolume;
       this.musicVolume = window.gameSettings.audio.musicVolume;
@@ -97,13 +88,11 @@ class AudioManager {
   }
 
   updateAllVolumes() {
-    // Update all sound effects volumes
     Object.values(this.sounds).forEach((sound) => {
       const volume = this.calculateSfxVolume();
       sound.volume = Math.max(0, Math.min(1, volume));
     });
 
-    // Update all music track volumes
     Object.values(this.musicTracks).forEach((track) => {
       const volume = this.calculateMusicVolume();
       track.volume = Math.max(0, Math.min(1, volume));
@@ -118,25 +107,20 @@ class AudioManager {
 
     const sound = this.sounds[soundName];
 
-    // Reset the sound to beginning if it's already playing
     sound.currentTime = 0;
 
-    // Apply volume modifier if provided
     const volumeModifier = options.volume || 1;
     const baseVolume = this.calculateSfxVolume();
     const finalVolume = baseVolume * volumeModifier;
 
-    // Ensure volume is within valid range
     sound.volume = Math.max(0, Math.min(1, finalVolume));
 
-    // Apply pitch variation if provided
     if (options.pitch) {
       sound.playbackRate = Math.max(0.25, Math.min(4, options.pitch));
     } else {
       sound.playbackRate = 1;
     }
 
-    // Play the sound
     const playPromise = sound.play();
 
     if (playPromise !== undefined) {
@@ -152,7 +136,6 @@ class AudioManager {
       return;
     }
 
-    // Stop current music if playing
     if (this.currentMusic && !this.currentMusic.paused) {
       if (fade) {
         this.fadeOutMusic(this.currentMusic, () => {
@@ -223,7 +206,7 @@ class AudioManager {
         clearInterval(fadeInterval);
         track.pause();
         track.currentTime = 0;
-        track.volume = startVolume; // Reset volume for next play
+        track.volume = startVolume;
 
         if (callback) {
           callback();
@@ -232,7 +215,6 @@ class AudioManager {
     }, 50);
   }
 
-  // Convenient methods for specific game events
   playPlayerShoot(options = {}) {
     this.playSfx('playerShoot', { ...options, volume: 0.7 });
   }
@@ -279,7 +261,6 @@ class AudioManager {
     this.playSfx('powerup', { ...options, volume: 0.9, pitch: 1.1 });
   }
 
-  // Music control methods
   playMenuMusic() {
     this.playMusic('menu', true);
   }
@@ -292,7 +273,6 @@ class AudioManager {
     this.playMusic('boss', true);
   }
 
-  // Utility methods
   muteAll() {
     Object.values(this.sounds).forEach((sound) => {
       sound.volume = 0;
@@ -322,5 +302,4 @@ class AudioManager {
   }
 }
 
-// Create global audio manager instance
 window.audioManager = new AudioManager();

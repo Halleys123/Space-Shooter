@@ -10,12 +10,10 @@ import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
-// Import routes
 import leaderboardRoutes from './routes/leaderboardRoutes';
 import userRoutes from './routes/userRoutes';
 import gameSessionRoutes from './routes/gameSessionRoutes';
 
-// Import middleware
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -25,7 +23,6 @@ const PORT = process.env.PORT || 3000;
 const MONGODB_URI =
   process.env.MONGODB_URI || 'mongodb://localhost:27017/space-shooter';
 
-// Security middleware
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -45,10 +42,9 @@ app.use(
   })
 );
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: {
     error: 'Too many requests from this IP, please try again later.',
   },
@@ -57,8 +53,8 @@ const limiter = rateLimit({
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 auth requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 5,
   message: {
     error: 'Too many authentication attempts, please try again later.',
   },
@@ -66,8 +62,8 @@ const authLimiter = rateLimit({
 });
 
 const gameDataLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30, // Limit each IP to 30 game data requests per minute
+  windowMs: 1 * 60 * 1000,
+  max: 30,
   message: {
     error: 'Too many game data requests, please slow down.',
   },
@@ -75,7 +71,6 @@ const gameDataLimiter = rateLimit({
 
 app.use(limiter);
 
-// CORS configuration
 const corsOptions = {
   origin:
     process.env.NODE_ENV === 'production'
@@ -93,26 +88,21 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Data sanitization
 app.use(mongoSanitize());
 app.use(hpp());
 
-// Compression
 app.use(compression());
 
-// Logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
   app.use(morgan('combined'));
 }
 
-// Health check endpoint
 app.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'success',
@@ -121,16 +111,13 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// API routes
 app.use('/api/users', authLimiter, userRoutes);
 app.use('/api/leaderboard', gameDataLimiter, leaderboardRoutes);
 app.use('/api/sessions', gameDataLimiter, gameSessionRoutes);
 
-// Error handling middleware
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-// Database connection
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
@@ -145,7 +132,6 @@ mongoose
     process.exit(1);
   });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
   mongoose.connection.close().then(() => {

@@ -9,7 +9,6 @@ export interface LeaderboardQuery {
   page?: number;
 }
 
-// Get leaderboard entries
 export const getLeaderboard = async (
   req: Request,
   res: Response,
@@ -23,13 +22,11 @@ export const getLeaderboard = async (
       page = 1,
     } = req.query as LeaderboardQuery;
 
-    // Build query
     const query: any = {
       isValid: true,
       'metadata.difficulty': difficulty,
     };
 
-    // Add time-based filtering
     if (timeFrame === 'today') {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -40,12 +37,10 @@ export const getLeaderboard = async (
       query.date = { $gte: weekAgo };
     }
 
-    // Calculate pagination
     const limitNum = Math.min(Math.max(1, Number(limit)), 100);
     const pageNum = Math.max(1, Number(page));
     const skip = (pageNum - 1) * limitNum;
 
-    // Get entries and total count
     const [entries, totalCount] = await Promise.all([
       LeaderboardEntry.find(query)
         .sort({ score: -1, date: -1 })
@@ -56,7 +51,6 @@ export const getLeaderboard = async (
       LeaderboardEntry.countDocuments(query),
     ]);
 
-    // Add rank to each entry
     const entriesWithRank = entries.map((entry: any, index: number) => ({
       ...entry,
       rank: skip + index + 1,
@@ -82,14 +76,12 @@ export const getLeaderboard = async (
   }
 };
 
-// Submit a new score
 export const submitScore = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({
@@ -114,7 +106,6 @@ export const submitScore = async (
       sessionId,
     } = req.body;
 
-    // Basic validation
     if (!username || score < 0 || playTime < 1) {
       res.status(400).json({
         status: 'error',
@@ -123,7 +114,6 @@ export const submitScore = async (
       return;
     }
 
-    // Check for duplicate session
     const existingEntry = await LeaderboardEntry.findOne({
       'metadata.sessionId': sessionId,
     });
@@ -136,11 +126,9 @@ export const submitScore = async (
       return;
     }
 
-    // Basic anti-cheat validation
     const scorePerSecond = score / playTime;
     const isValid = scorePerSecond <= 1000 && accuracy <= 100;
 
-    // Create new entry
     const newEntry = new LeaderboardEntry({
       username: username.trim(),
       score,
@@ -160,7 +148,6 @@ export const submitScore = async (
 
     await newEntry.save();
 
-    // Get rank
     const rank =
       (await LeaderboardEntry.countDocuments({
         isValid: true,
@@ -184,7 +171,6 @@ export const submitScore = async (
   }
 };
 
-// Get user's best scores
 export const getUserScores = async (
   req: Request,
   res: Response,
@@ -227,7 +213,6 @@ export const getUserScores = async (
   }
 };
 
-// Get leaderboard statistics
 export const getStats = async (
   req: Request,
   res: Response,

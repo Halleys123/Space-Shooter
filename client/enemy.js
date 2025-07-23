@@ -93,7 +93,7 @@ class Enemy {
         'enemy'
       );
 
-      // Play enemy shoot sound
+      
       if (window.audioManager) {
         window.audioManager.playEnemyShoot();
       }
@@ -106,7 +106,7 @@ class Enemy {
         damage: this.damage / 2,
       });
 
-      // Play enemy shoot sound
+      
       if (window.audioManager) {
         window.audioManager.playEnemyShoot();
       }
@@ -186,7 +186,7 @@ class Enemy {
     const wasAlive = this.healthBar.getHealth() > 0;
     this.healthBar.damage(amount);
 
-    // Play enemy hit sound
+    
     if (window.audioManager) {
       if (this.constructor.name === 'BossEnemy') {
         window.audioManager.playEnemyHit({ volume: 1.2, pitch: 0.8 });
@@ -348,9 +348,8 @@ class BossEnemy extends Enemy {
   constructor(ctx, canvas, x, y) {
     super(ctx, canvas, x, y, './assets/sprites/boss.png');
 
-    // Boss is much larger and more powerful
-    this.width = 120;
-    this.height = 120;
+    this.width = 150;
+    this.height = 150;
     this.maxHealth = 500;
     this.healthBar = new HealthBar(this.maxHealth, 150, 12);
     this.healthBar.setOffset(0, -50);
@@ -359,28 +358,28 @@ class BossEnemy extends Enemy {
     this.damage = 40;
     this.scoreValue = 2000;
 
-    // Boss can shoot multiple projectiles
+    
     this.canShoot = true;
-    this.shootInterval = 45; // Shoots more frequently
+    this.shootInterval = 45; 
     this.multiShot = true;
 
-    // Movement pattern variables
+    
     this.movementTimer = 0;
-    this.movementPhase = 'entering'; // entering, circling, charging, retreating
+    this.movementPhase = 'entering'; 
     this.phaseTimer = 0;
-    this.targetY = 100; // Stay near top of screen
+    this.targetY = 100; 
     this.originalX = x;
     this.chargeTarget = null;
 
-    // Special attack patterns
+    
     this.specialAttackTimer = 0;
-    this.specialAttackInterval = 300; // Special attack every 5 seconds
+    this.specialAttackInterval = 300; 
     this.isPerformingSpecialAttack = false;
 
-    // Track player for intelligent movement
+    
     this.lastPlayerPosition = { x: 0, y: 0 };
 
-    // Enhanced collision radius for boss
+    
     this.collisionRadius = Math.min(this.width, this.height) / 2.5;
   }
 
@@ -404,15 +403,15 @@ class BossEnemy extends Enemy {
         break;
     }
 
-    // Change movement phases based on health and time
+    
     this.updateMovementPhase();
 
-    // Keep boss within screen bounds with some leeway
+    
     this.constrainToScreen();
   }
 
   enteringMovement() {
-    // Move down to target position
+    
     if (this.position.y < this.targetY) {
       this.velocity.y = this.speed;
       this.velocity.x = 0;
@@ -423,31 +422,31 @@ class BossEnemy extends Enemy {
   }
 
   circlingMovement(playerPosition) {
-    // Horizontal movement following player roughly
+    
     const dx = playerPosition.x - this.position.x;
     const followSpeed = this.speed * 0.6;
 
     if (Math.abs(dx) > 50) {
       this.velocity.x = dx > 0 ? followSpeed : -followSpeed;
     } else {
-      this.velocity.x *= 0.9; // Slow down when close
+      this.velocity.x *= 0.9; 
     }
 
-    // Small vertical oscillation
+    
     this.velocity.y = Math.sin(this.movementTimer * 0.05) * 0.3;
 
-    // Face towards player
+    
     const dy = playerPosition.y - this.position.y;
     this.rotation = Math.atan2(dy, dx) + Math.PI / 2;
   }
 
   chargingMovement(playerPosition) {
     if (!this.chargeTarget) {
-      // Set charge target to player's current position
+      
       this.chargeTarget = { x: playerPosition.x, y: playerPosition.y };
     }
 
-    // Move towards charge target
+    
     const dx = this.chargeTarget.x - this.position.x;
     const dy = this.chargeTarget.y - this.position.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -458,7 +457,7 @@ class BossEnemy extends Enemy {
       this.velocity.y = (dy / distance) * chargeSpeed;
       this.rotation = Math.atan2(dy, dx) + Math.PI / 2;
     } else {
-      // Reached target, start retreating
+      
       this.movementPhase = 'retreating';
       this.phaseTimer = 0;
       this.chargeTarget = null;
@@ -466,9 +465,9 @@ class BossEnemy extends Enemy {
   }
 
   retreatingMovement() {
-    // Move back up and to a safe position
+    
     this.velocity.y = -this.speed * 0.8;
-    this.velocity.x *= 0.95; // Gradually stop horizontal movement
+    this.velocity.x *= 0.95; 
 
     if (this.position.y <= this.targetY) {
       this.movementPhase = 'circling';
@@ -479,7 +478,7 @@ class BossEnemy extends Enemy {
   updateMovementPhase() {
     const healthPercentage = this.healthBar.getHealth() / this.maxHealth;
 
-    // More aggressive as health decreases
+    
     if (this.movementPhase === 'circling' && this.phaseTimer > 180) {
       if (healthPercentage < 0.5 && Math.random() < 0.3) {
         this.movementPhase = 'charging';
@@ -520,10 +519,10 @@ class BossEnemy extends Enemy {
       return;
     }
 
-    // Update special attack timer
+    
     this.specialAttackTimer++;
 
-    // Perform special attack if timer reached and not already performing one
+    
     if (
       this.specialAttackTimer >= this.specialAttackInterval &&
       !this.isPerformingSpecialAttack
@@ -533,7 +532,7 @@ class BossEnemy extends Enemy {
       return;
     }
 
-    // Regular shooting pattern
+    
     const dx = playerPosition.x - this.position.x;
     const dy = playerPosition.y - this.position.y;
     const angle = Math.atan2(dy, dx);
@@ -542,7 +541,7 @@ class BossEnemy extends Enemy {
       const bulletSpawnX = this.position.x + this.width / 2;
       const bulletSpawnY = this.position.y + this.height / 2;
 
-      // Multi-shot pattern
+      
       const numBullets =
         this.healthBar.getHealth() / this.maxHealth < 0.5 ? 3 : 2;
       const spreadAngle = 0.3;
@@ -560,7 +559,7 @@ class BossEnemy extends Enemy {
         );
       }
 
-      // Play enemy shoot sound for boss
+      
       if (window.audioManager) {
         window.audioManager.playEnemyShoot({ volume: 1.2, pitch: 0.8 });
       }
@@ -576,7 +575,7 @@ class BossEnemy extends Enemy {
       const bulletSpawnX = this.position.x + this.width / 2;
       const bulletSpawnY = this.position.y + this.height / 2;
 
-      // Circular bullet pattern
+      
       const numBullets = 8;
       for (let i = 0; i < numBullets; i++) {
         const angle = (i / numBullets) * Math.PI * 2;
@@ -591,20 +590,20 @@ class BossEnemy extends Enemy {
         );
       }
 
-      // Play special attack sound
+      
       if (window.audioManager) {
         window.audioManager.playEnemyShoot({ volume: 1.5, pitch: 0.7 });
       }
     }
 
-    // Reset special attack state after a short delay
+    
     setTimeout(() => {
       this.isPerformingSpecialAttack = false;
     }, 1000);
   }
 
   checkBoundaries() {
-    // Boss has more lenient boundary checking - only remove if way off screen
+    
     if (
       this.position.x < -this.width - 200 ||
       this.position.x > this.canvas.width + 200 ||
@@ -618,10 +617,10 @@ class BossEnemy extends Enemy {
   draw() {
     if (!this.isAlive || !this.sprite.complete) return;
 
-    // Add boss-specific visual effects
+    
     this.ctx.save();
 
-    // Add a subtle glow effect for the boss
+    
     if (this.isPerformingSpecialAttack) {
       this.ctx.shadowColor = '#ff0000';
       this.ctx.shadowBlur = 20;
@@ -644,32 +643,32 @@ class BossEnemy extends Enemy {
     );
     this.ctx.restore();
 
-    // Draw enhanced health bar for boss
+    
     this.drawBossHealthBar();
 
     this.drawBullets();
   }
 
   drawBossHealthBar() {
-    // Draw boss health bar at top of screen
+    
     const barWidth = this.canvas.width * 0.6;
     const barHeight = 20;
     const barX = (this.canvas.width - barWidth) / 2;
     const barY = 20;
 
-    // Background
+    
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     this.ctx.fillRect(barX - 5, barY - 5, barWidth + 10, barHeight + 10);
 
-    // Health bar background
+    
     this.ctx.fillStyle = '#333333';
     this.ctx.fillRect(barX, barY, barWidth, barHeight);
 
-    // Health bar fill
+    
     const healthPercentage = this.healthBar.getHealth() / this.maxHealth;
     const fillWidth = barWidth * healthPercentage;
 
-    // Color changes based on health
+    
     if (healthPercentage > 0.6) {
       this.ctx.fillStyle = '#00ff00';
     } else if (healthPercentage > 0.3) {
@@ -680,18 +679,18 @@ class BossEnemy extends Enemy {
 
     this.ctx.fillRect(barX, barY, fillWidth, barHeight);
 
-    // Border
+    
     this.ctx.strokeStyle = '#ffffff';
     this.ctx.lineWidth = 2;
     this.ctx.strokeRect(barX, barY, barWidth, barHeight);
 
-    // Boss name
+    
     this.ctx.fillStyle = '#ffffff';
     this.ctx.font = 'bold 16px Arial';
     this.ctx.textAlign = 'center';
     this.ctx.fillText('BOSS', this.canvas.width / 2, barY - 10);
 
-    // Health text
+    
     this.ctx.font = '12px Arial';
     this.ctx.fillText(
       `${Math.ceil(this.healthBar.getHealth())} / ${this.maxHealth}`,
@@ -708,7 +707,7 @@ class BossEnemy extends Enemy {
       this.isAlive = false;
       this.markedForRemoval = true;
 
-      // Create special boss explosion
+      
       if (
         typeof window.blastManager !== 'undefined' &&
         window.blastManager.createEnemyExplosion
@@ -720,7 +719,7 @@ class BossEnemy extends Enemy {
         );
       }
 
-      // Play boss death explosion sound
+      
       if (window.audioManager) {
         window.audioManager.playExplosion('boss');
       }

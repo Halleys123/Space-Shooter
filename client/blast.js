@@ -78,7 +78,6 @@ class BlastParticleSystem {
   constructor() {
     this.particles = [];
 
-    // Apply performance-based particle limits
     const performanceSettings = window.performanceManager
       ? window.performanceManager.getSettings()
       : null;
@@ -86,12 +85,10 @@ class BlastParticleSystem {
       ? performanceSettings.maxParticles.blast
       : 150;
 
-    // Frame skipping for low-end devices
     this.frameSkipCounter = 0;
   }
 
   createExplosion(x, y, intensity = 1, type = 'normal') {
-    // Reduce particle count on low-end devices
     const performanceLevel = window.performanceManager
       ? window.performanceManager.performanceLevel
       : 'high';
@@ -224,7 +221,6 @@ class BlastParticleSystem {
   }
 
   update() {
-    // Frame skipping for low-end devices
     if (
       window.performanceManager &&
       window.performanceManager.shouldSkipFrame()

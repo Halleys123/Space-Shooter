@@ -9,7 +9,6 @@ import {
 
 const router = Router();
 
-// Validation middleware
 const scoreSubmissionValidation = [
   body('username')
     .trim()
@@ -79,7 +78,6 @@ const usernameParamValidation = [
     .withMessage('Invalid username format'),
 ];
 
-// Routes
 router.get('/', leaderboardQueryValidation, getLeaderboard);
 router.post('/submit', scoreSubmissionValidation, submitScore);
 router.get('/user/:username', usernameParamValidation, getUserScores);

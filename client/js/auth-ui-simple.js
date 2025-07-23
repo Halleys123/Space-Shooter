@@ -1,8 +1,3 @@
-/**
- * Simplified Authentication UI Management
- * Works with pre-existing HTML panels instead of creating them dynamically
- */
-
 class AuthUI {
   constructor(containerId, apiService) {
     this.containerId = containerId;
@@ -17,7 +12,6 @@ class AuthUI {
   }
 
   bindEvents() {
-    // Login/Register button events
     const loginBtn = document.querySelector('.login-btn');
     const registerBtn = document.querySelector('.register-btn');
 
@@ -28,19 +22,16 @@ class AuthUI {
       registerBtn.addEventListener('click', () => this.showPanel('register'));
     }
 
-    // Profile button event
     const profileBtn = document.querySelector('.profile-btn');
     if (profileBtn) {
       profileBtn.addEventListener('click', () => this.showPanel('profile'));
     }
 
-    // Logout button event
     const logoutBtn = document.querySelector('.logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => this.handleLogout());
     }
 
-    // Form submission events
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
 
@@ -51,7 +42,6 @@ class AuthUI {
       registerForm.addEventListener('submit', (e) => this.handleRegister(e));
     }
 
-    // Panel switching events
     const switchToRegister = document.querySelector('.switch-to-register');
     const switchToLogin = document.querySelector('.switch-to-login');
 
@@ -68,7 +58,6 @@ class AuthUI {
       });
     }
 
-    // Close panel buttons
     document.querySelectorAll('.close-panel').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const panelType = e.target.getAttribute('data-panel');
@@ -76,12 +65,11 @@ class AuthUI {
       });
     });
 
-    // View all scores button
     const viewAllScoresBtn = document.getElementById('view-all-scores');
     if (viewAllScoresBtn) {
       viewAllScoresBtn.addEventListener('click', () => {
         this.hidePanel('profile');
-        // Trigger leaderboard view - assuming there's a global function
+
         if (window.leaderboardManager) {
           document.querySelector('.leaderboard')?.click();
         }
@@ -115,11 +103,17 @@ class AuthUI {
         localStorage.setItem('gameToken', this.token);
 
         this.showMessage('login', 'Login successful!', 'success');
+
+        // Update UI state first, then close panel
         this.updateUIState();
 
+        // Clear the form
+        form.reset();
+
+        // Close panel immediately after successful login
         setTimeout(() => {
           this.hidePanel('login');
-        }, 1500);
+        }, 800);
       } else {
         this.showMessage('login', response.message || 'Login failed', 'error');
       }
@@ -139,7 +133,6 @@ class AuthUI {
     const password = formData.get('password');
     const confirmPassword = formData.get('confirmPassword');
 
-    // Basic validation
     if (!username || !email || !password || !confirmPassword) {
       this.showMessage('register', 'Please fill in all fields', 'error');
       return;
@@ -174,7 +167,7 @@ class AuthUI {
         setTimeout(() => {
           this.hidePanel('register');
           this.showPanel('login');
-          // Pre-fill login form
+
           document.getElementById('login-username').value = username;
         }, 2000);
       } else {
@@ -210,17 +203,14 @@ class AuthUI {
   }
 
   showPanel(panelName) {
-    // Hide all auth panels first
     document.querySelectorAll('.auth-panel').forEach((panel) => {
       panel.classList.add('hidden');
     });
 
-    // Show the requested panel
     const panel = document.querySelector(`.${panelName}-panel`);
     if (panel) {
       panel.classList.remove('hidden');
 
-      // If showing profile, load user data
       if (panelName === 'profile' && this.currentUser) {
         this.loadUserProfile();
       }
@@ -229,10 +219,8 @@ class AuthUI {
 
   async loadUserProfile() {
     try {
-      // Update basic profile info
       this.updateProfilePanel();
 
-      // Load user statistics from backend if available
       if (this.api && this.api.getUserStats) {
         const stats = await this.api.getUserStats();
         this.updateUserStats(stats);
@@ -264,7 +252,6 @@ class AuthUI {
       panel.classList.add('hidden');
     }
 
-    // Clear any messages
     this.clearMessage(panelName);
   }
 
@@ -324,20 +311,16 @@ class AuthUI {
     if (!authButtons || !userInfoBtn) return;
 
     if (isAuthenticated) {
-      // Hide login/register buttons, show user info
       authButtons.classList.add('hidden');
       userInfoBtn.classList.remove('hidden');
 
-      // Update username display
       if (currentUsernameSpan && this.currentUser) {
         currentUsernameSpan.textContent =
           this.currentUser.username.toUpperCase();
       }
 
-      // Update profile panel with user data
       this.updateProfilePanel();
     } else {
-      // Show login/register buttons, hide user info
       authButtons.classList.remove('hidden');
       userInfoBtn.classList.add('hidden');
     }
@@ -346,7 +329,6 @@ class AuthUI {
   updateProfilePanel() {
     if (!this.currentUser) return;
 
-    // Update profile information
     const profileUsername = document.getElementById('profile-username');
     const profileEmail = document.getElementById('profile-email');
     const profileJoinDate = document.getElementById('profile-join-date');
@@ -360,9 +342,6 @@ class AuthUI {
       ).toLocaleDateString();
       profileJoinDate.textContent = `Joined: ${joinDate}`;
     }
-
-    // TODO: Load and update user statistics
-    // This could fetch user stats from the backend
   }
 
   showMessage(panel, message, type = 'info') {

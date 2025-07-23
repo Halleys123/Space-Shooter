@@ -671,9 +671,9 @@ input[type='text']:focus {
 }
 
 .auth-message.success {
-  background: rgba(76, 175, 80, 0.2);
-  border: 1px solid rgba(76, 175, 80, 0.5);
-  color: #4caf50;
+  background: rgba(76, 175, 80, 0.2) !important;
+  border: 1px solid rgba(76, 175, 80, 0.5) !important;
+  color: #4caf50 !important;
 }
 
 .auth-message.error {

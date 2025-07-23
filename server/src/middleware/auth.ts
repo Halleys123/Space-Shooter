@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-jwt-secret-key';
 
-// Extend Request interface to include user data
 declare global {
   namespace Express {
     interface Request {
@@ -15,14 +14,13 @@ declare global {
   }
 }
 
-// Authentication middleware
 export const authenticateToken = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
     res.status(401).json({
@@ -68,7 +66,6 @@ export const authenticateToken = (
   }
 };
 
-// Optional authentication middleware (doesn't fail if no token)
 export const optionalAuthentication = (
   req: Request,
   _res: Response,
@@ -78,7 +75,6 @@ export const optionalAuthentication = (
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    // No token provided, continue without user data
     next();
     return;
   }
@@ -96,12 +92,10 @@ export const optionalAuthentication = (
 
     next();
   } catch (error) {
-    // Invalid token, but continue without user data
     next();
   }
 };
 
-// Authorization middleware to check if user can access their own resources
 export const authorizeUser = (
   req: Request,
   res: Response,

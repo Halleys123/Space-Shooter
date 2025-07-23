@@ -7,7 +7,7 @@ export interface IGameSession extends Document {
   difficulty: 'easy' | 'normal' | 'hard' | 'expert';
   startTime: Date;
   endTime?: Date;
-  totalPlayTime: number; // in seconds
+  totalPlayTime: number; 
   finalScore: number;
   finalStage: number;
   finalCycle: number;
@@ -131,7 +131,7 @@ const gameSessionSchema = new Schema<IGameSession>(
   }
 );
 
-// Indexes
+
 gameSessionSchema.index({ sessionId: 1 });
 gameSessionSchema.index({ userId: 1, startTime: -1 });
 gameSessionSchema.index({ username: 1, startTime: -1 });
@@ -140,7 +140,7 @@ gameSessionSchema.index({ finalScore: -1 });
 gameSessionSchema.index({ isActive: 1 });
 gameSessionSchema.index({ difficulty: 1 });
 
-// Auto-delete old sessions after 30 days
+
 gameSessionSchema.index(
   { createdAt: 1 },
   { expireAfterSeconds: 30 * 24 * 60 * 60 }
