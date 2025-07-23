@@ -16,6 +16,9 @@ const sprites = {
     player_thrust: undefined,
     player_bump_on_boundary: undefined,
   },
+  ui: {
+    health_bar_frame: undefined,
+  },
 };
 
 class Player {
@@ -33,6 +36,9 @@ class Player {
     current: 100,
     max: 100,
     isAlive: true,
+    previousHealth: 100,
+    healthChangeTimer: 0,
+    healthBarDisplayTime: 180, // frames to display health bar
   };
   score = 0;
   shooting = {
@@ -53,6 +59,10 @@ class Player {
     sprites.player.onload = () => {
       this.draw();
     };
+
+    // Load health bar frame sprite
+    sprites.ui.health_bar_frame = new Image();
+    sprites.ui.health_bar_frame.src = './assets/ui/health_bar_frame.png';
 
     // Initialize particle system
     this.thrustParticles = new ThrustParticleSystem();

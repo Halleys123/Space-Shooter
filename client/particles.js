@@ -64,7 +64,7 @@ class ThrustParticleSystem {
       const velocityY = -Math.cos(angle) * speed;
 
       const life = Math.random() * 20 + 10; // 10-30 frames
-      const colors = ['#00ffff', '#00ff88', '#ffff00', '#44ff44'];
+      const colors = ['#80ffdb', '#72efdd', '#4ea8de', '#7400b8', '#5e60ce'];
       const color = colors[Math.floor(Math.random() * colors.length)];
       const size = Math.random() * 3 + 1;
 
