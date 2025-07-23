@@ -16,9 +16,11 @@ class Player {
   };
   score = 0;
   shooting = {
-    fireRate: 2,
+    fireRate: 10, // frames between shots (6 shots per second at 60 FPS)
     cooldown: 0,
-    projectiles: [],
+    bulletSpeed: 8,
+    bulletDamage: 25,
+    bulletSprite: './assets/sprites/bullet_player.png',
   };
   visuals = {
     width: 105,
@@ -53,6 +55,9 @@ class Player {
 
     // Initialize collision component (will be set by collision manager)
     this.collisionComponent = null;
+
+    // Initialize bullet manager reference (will be set from main game)
+    this.bulletManager = null;
   }
 
   update(keys, mouse) {
@@ -169,6 +174,9 @@ class Player {
     this.control.rotation =
       Math.atan2(mouse.y - centerY, mouse.x - centerX) + Math.PI / 2;
 
+    // Handle shooting
+    this.handleShooting(keys, centerX, centerY);
+
     // Update and emit thrust particles
     this.thrustParticles.emit(
       centerX - 10,
@@ -187,6 +195,56 @@ class Player {
 
     // Update health bar
     this.healthBar.update();
+  }
+
+  // Handle shooting logic
+  handleShooting(keys, centerX, centerY) {
+    // Decrease cooldown
+    if (this.shooting.cooldown > 0) {
+      this.shooting.cooldown--;
+    }
+
+    // Check for space key press
+    if (
+      (keys[' '] || keys['Space']) &&
+      this.shooting.cooldown <= 0 &&
+      this.bulletManager
+    ) {
+      this.shoot(centerX, centerY);
+    }
+  }
+
+  // Shoot a bullet
+  shoot(centerX, centerY) {
+    if (!this.bulletManager) return;
+
+    // Calculate bullet spawn position (front of the ship)
+    const bulletSpawnDistance = this.visuals.height / 2 + 10;
+    const spawnX =
+      centerX + Math.sin(this.control.rotation) * bulletSpawnDistance;
+    const spawnY =
+      centerY - Math.cos(this.control.rotation) * bulletSpawnDistance;
+
+    // Create bullet
+    this.bulletManager.createBullet(
+      spawnX - 4, // Center the bullet
+      spawnY - 8, // Center the bullet
+      this.control.rotation,
+      this.shooting.bulletSpeed,
+      this.shooting.bulletDamage,
+      this.shooting.bulletSprite,
+      'player'
+    );
+
+    // Set cooldown
+    this.shooting.cooldown = this.shooting.fireRate;
+
+    // TODO: Add shooting sound effect here
+  }
+
+  // Set bullet manager reference
+  setBulletManager(bulletManager) {
+    this.bulletManager = bulletManager;
   }
 
   draw() {

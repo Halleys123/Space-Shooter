@@ -14,6 +14,10 @@ const player = new Player(ctx, canvas, './assets/sprites/player.png');
 const stage = new Stage(ctx, canvas);
 const blastManager = new BlastManager(ctx);
 const collisionManager = new CollisionManager(blastManager);
+const bulletManager = new BulletManager(ctx, canvas, collisionManager);
+
+// Set bullet manager reference in player
+player.setBulletManager(bulletManager);
 
 // Initialize player collision component
 const playerCollision = CollisionManager.createForGameObject(player, 'player', {
@@ -70,6 +74,16 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'x' || e.key === 'X') {
     collisionManager.setDebugMode(!collisionManager.debugMode);
   }
+
+  // Test starfield effects with 'M' key (meteor shower)
+  if (e.key === 'm' || e.key === 'M') {
+    stage.getStarField().createMeteor();
+  }
+
+  // Test warp effect with 'T' key
+  if (e.key === 't' || e.key === 'T') {
+    stage.getStarField().startWarpEffect();
+  }
 });
 
 document.addEventListener('keyup', (e) => {
@@ -94,11 +108,10 @@ function gameLoop() {
   player.update(keys, mouse);
   stage.update(playerCenter);
   blastManager.update();
+  bulletManager.update();
 
   // Update collision system
-  collisionManager.update();
-
-  // Add collision components for new enemies
+  collisionManager.update(); // Add collision components for new enemies
   stage.enemies.forEach((enemy) => {
     if (!enemy.collisionComponent) {
       const enemyCollision = CollisionManager.createForGameObject(
@@ -129,6 +142,7 @@ function gameLoop() {
   // Draw game objects
   stage.draw(); // Draw enemies and stage UI
   player.draw();
+  bulletManager.draw(); // Draw bullets
   blastManager.draw(); // Draw explosions on top
 
   // Draw collision debug if enabled
@@ -140,20 +154,30 @@ function gameLoop() {
   ctx.fillText(
     `Active Blasts: ${blastManager.getActiveBlasts()}`,
     10,
-    canvas.height - 80
+    canvas.height - 100
   );
   ctx.fillText(
     `Active Particles: ${blastManager.getActiveParticles()}`,
     10,
-    canvas.height - 60
+    canvas.height - 80
   );
   ctx.fillText(
     `Collision Components: ${collisionManager.collisionComponents.length}`,
     10,
+    canvas.height - 60
+  );
+  ctx.fillText(
+    `Active Bullets: ${bulletManager.getActiveBullets()}`,
+    10,
+    canvas.height - 60
+  );
+  ctx.fillText(
+    `Stars: ${stage.getStarField().stars.length}`,
+    10,
     canvas.height - 40
   );
   ctx.fillText(
-    `Test: B=Blast, V=Large, C=Enemy, X=Debug`,
+    `Controls: WASD=Move, Space=Shoot, M=Meteor, T=Warp`,
     10,
     canvas.height - 20
   );

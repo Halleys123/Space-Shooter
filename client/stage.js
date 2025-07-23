@@ -17,6 +17,10 @@ class Stage {
     this.enemySpawnTimer = 0;
     this.nextSpawnTime = 0;
 
+    // Initialize starfield background
+    this.starField = new StarField(canvas, 150);
+    this.starField.setStageTheme(this.currentStage, this.currentCycle);
+
     // Stage configurations (base values for cycle 1)
     this.stageConfigs = {
       1: {
@@ -155,6 +159,19 @@ class Stage {
 
     // Clear existing enemies
     this.enemies = [];
+    
+    // Update starfield theme for new stage
+    this.starField.setStageTheme(this.currentStage, this.currentCycle);
+    
+    // Add some visual effects for stage changes
+    if (this.currentStage > 1 || this.currentCycle > 1) {
+      this.starField.startWarpEffect();
+      
+      // Create meteor shower for dramatic stages
+      if (this.currentStage >= 7 || this.currentCycle > 2) {
+        this.createMeteorShower();
+      }
+    }
   }
 
   getScaledStageConfig() {
@@ -175,6 +192,14 @@ class Stage {
   }
 
   update(playerPosition) {
+    // Update starfield background
+    this.starField.update();
+    
+    // Add dynamic wind effects based on player movement and combat
+    if (playerPosition && this.enemies.length > 0) {
+      this.starField.addTurbulence(0.1);
+    }
+    
     if (this.isTransitioning) {
       this.updateTransition();
       return;
@@ -291,6 +316,9 @@ class Stage {
   }
 
   draw() {
+    // Draw starfield background first
+    this.starField.draw(this.ctx);
+    
     // Draw all enemies
     this.enemies.forEach((enemy) => {
       enemy.draw();
@@ -424,5 +452,28 @@ class Stage {
   forceNextStage() {
     this.enemies = []; // Clear all enemies
     this.completeStage();
+  }
+
+  // Create meteor shower effect for dramatic stages
+  createMeteorShower() {
+    const meteorCount = Math.random() * 3 + 2; // 2-5 meteors
+    
+    for (let i = 0; i < meteorCount; i++) {
+      setTimeout(() => {
+        this.starField.createMeteor();
+      }, i * 500 + Math.random() * 1000); // Stagger meteors
+    }
+  }
+
+  // Get starfield reference for external access
+  getStarField() {
+    return this.starField;
+  }
+
+  // Resize canvas and update starfield
+  resize(newWidth, newHeight) {
+    this.canvas.width = newWidth;
+    this.canvas.height = newHeight;
+    this.starField.resize(newWidth, newHeight);
   }
 }
