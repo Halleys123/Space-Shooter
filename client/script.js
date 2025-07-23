@@ -1001,6 +1001,8 @@ function checkCollisions() {
 }
 
 function applyPowerUp(type) {
+  playSound(ASSETS.audio.powerup, 0.4);
+  
   switch (type) {
     case 'shield':
       player.hasShield = true;
@@ -1174,6 +1176,7 @@ function startGame() {
   gameState.isGameStarted = true;
   gameMenu.classList.add('hidden');
   canvas.classList.remove('hidden-canvas');
+  playMusic(ASSETS.audio.gameMusic, 0.3);
   initializeGame();
 }
 
@@ -1188,6 +1191,7 @@ function exitGame() {
   gameMenu.classList.remove('hidden');
   canvas.classList.add('hidden-canvas');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  playMusic(ASSETS.audio.menuMusic, 0.3);
 }
 
 // Initialize everything
