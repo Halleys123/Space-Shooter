@@ -64,13 +64,80 @@ class ThrustParticleSystem {
       const velocityY = -Math.cos(angle) * speed;
 
       const life = Math.random() * 20 + 10; // 10-30 frames
-      const colors = ['#ff6b35', '#f7931e', '#ffff00', '#ff4500'];
+      const colors = ['#00ffff', '#00ff88', '#ffff00', '#44ff44'];
       const color = colors[Math.floor(Math.random() * colors.length)];
       const size = Math.random() * 3 + 1;
 
       const particle = new Particle(
         emitX,
         emitY,
+        velocityX,
+        velocityY,
+        life,
+        color,
+        size
+      );
+      this.particles.push(particle);
+    }
+
+    // Remove excess particles
+    if (this.particles.length > this.maxParticles) {
+      this.particles.splice(0, this.particles.length - this.maxParticles);
+    }
+  }
+
+  update() {
+    this.particles.forEach((particle) => particle.update());
+    this.particles = this.particles.filter((particle) => !particle.isDead());
+  }
+
+  draw(ctx) {
+    this.particles.forEach((particle) => particle.draw(ctx));
+  }
+}
+
+class CollisionParticleSystem {
+  constructor() {
+    this.particles = [];
+    this.maxParticles = 100;
+  }
+
+  emit(x, y, collisionSide) {
+    // Emit particles from collision point
+    const particleCount = Math.random() * 8 + 5; // 5-13 particles per collision
+
+    for (let i = 0; i < particleCount; i++) {
+      // Determine particle direction based on collision side
+      let angle;
+      switch (collisionSide) {
+        case 'left':
+          angle = (Math.random() - 0.5) * Math.PI; // -90° to +90° from right
+          break;
+        case 'right':
+          angle = Math.PI + (Math.random() - 0.5) * Math.PI; // -90° to +90° from left
+          break;
+        case 'top':
+          angle = Math.PI / 2 + (Math.random() - 0.5) * Math.PI; // -90° to +90° from down
+          break;
+        case 'bottom':
+          angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI; // -90° to +90° from up
+          break;
+        default:
+          angle = Math.random() * Math.PI * 2; // Random direction
+      }
+
+      const speed = Math.random() * 4 + 2;
+      const velocityX = Math.cos(angle) * speed;
+      const velocityY = Math.sin(angle) * speed;
+
+      const life = Math.random() * 30 + 15; // 15-45 frames
+      const colors = ['#ff4500', '#ff6b35', '#ff8800', '#cc3300'];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = Math.random() * 4 + 2;
+
+      const particle = new Particle(
+        x + (Math.random() - 0.5) * 20, // Add some spread around collision point
+        y + (Math.random() - 0.5) * 20,
         velocityX,
         velocityY,
         life,

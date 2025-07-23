@@ -56,6 +56,7 @@ class Player {
 
     // Initialize particle system
     this.thrustParticles = new ThrustParticleSystem();
+    this.collisionParticles = new CollisionParticleSystem();
   }
   update() {
     let isAccelerating = false;
@@ -105,6 +106,10 @@ class Player {
     this.control.velocity.x *= this.control.friction;
     this.control.velocity.y *= this.control.friction;
 
+    // Store previous position for collision detection
+    const prevX = this.control.position.x;
+    const prevY = this.control.position.y;
+
     this.control.position.x = Math.max(
       0,
       Math.min(canvas.width - this.visuals.width, this.control.position.x)
@@ -114,8 +119,35 @@ class Player {
       Math.min(canvas.height - this.visuals.height, this.control.position.y)
     );
 
+    // Check for boundary collisions and emit particles
     const centerX = this.control.position.x + this.visuals.width / 2;
     const centerY = this.control.position.y + this.visuals.height / 2;
+
+    if (prevX !== this.control.position.x) {
+      if (this.control.position.x === 0) {
+        // Hit left boundary
+        this.collisionParticles.emit(centerX, centerY, 'left');
+      } else if (
+        this.control.position.x ===
+        canvas.width - this.visuals.width
+      ) {
+        // Hit right boundary
+        this.collisionParticles.emit(centerX, centerY, 'right');
+      }
+    }
+
+    if (prevY !== this.control.position.y) {
+      if (this.control.position.y === 0) {
+        // Hit top boundary
+        this.collisionParticles.emit(centerX, centerY, 'top');
+      } else if (
+        this.control.position.y ===
+        canvas.height - this.visuals.height
+      ) {
+        // Hit bottom boundary
+        this.collisionParticles.emit(centerX, centerY, 'bottom');
+      }
+    }
     this.control.rotation =
       Math.atan2(mouse.y - centerY, mouse.x - centerX) + Math.PI / 2;
 
@@ -133,11 +165,15 @@ class Player {
       isAccelerating
     );
     this.thrustParticles.update();
+    this.collisionParticles.update();
   }
 
   draw() {
     // Draw thrust particles first (behind the ship)
     this.thrustParticles.draw(this.ctx);
+
+    // Draw collision particles
+    this.collisionParticles.draw(this.ctx);
 
     if (!sprites.player || !sprites.player.complete) return;
 
