@@ -11,7 +11,7 @@ const ctx = canvas.getContext('2d');
 const ASSETS = {
   sprites: {},
   audio: {},
-  backgrounds: {}
+  backgrounds: {},
 };
 
 // Load Images
@@ -40,57 +40,107 @@ async function loadAssets() {
   try {
     // Load sprite images
     ASSETS.sprites.player = await loadImage('./assets/sprites/player.png');
-    ASSETS.sprites.playerThrust = await loadImage('./assets/sprites/player_thrust.png');
-    ASSETS.sprites.playerShield = await loadImage('./assets/sprites/player_shield.png');
-    ASSETS.sprites.enemyBasic = await loadImage('./assets/sprites/enemy_basic.png');
-    ASSETS.sprites.enemyKamikaze = await loadImage('./assets/sprites/enemy_kamikaze.png');
-    ASSETS.sprites.enemyShooter = await loadImage('./assets/sprites/enemy_shooter.png');
-    ASSETS.sprites.enemyZigzag = await loadImage('./assets/sprites/enemy_zigzag.png');
+    ASSETS.sprites.playerThrust = await loadImage(
+      './assets/sprites/player_thrust.png'
+    );
+    ASSETS.sprites.playerShield = await loadImage(
+      './assets/sprites/player_shield.png'
+    );
+    ASSETS.sprites.enemyBasic = await loadImage(
+      './assets/sprites/enemy_basic.png'
+    );
+    ASSETS.sprites.enemyKamikaze = await loadImage(
+      './assets/sprites/enemy_kamikaze.png'
+    );
+    ASSETS.sprites.enemyShooter = await loadImage(
+      './assets/sprites/enemy_shooter.png'
+    );
+    ASSETS.sprites.enemyZigzag = await loadImage(
+      './assets/sprites/enemy_zigzag.png'
+    );
     ASSETS.sprites.boss = await loadImage('./assets/sprites/boss.png');
-    ASSETS.sprites.bulletPlayer = await loadImage('./assets/sprites/bullet_player.png');
-    ASSETS.sprites.bulletEnemy = await loadImage('./assets/sprites/bullet_enemy.png');
-    ASSETS.sprites.explosion1 = await loadImage('./assets/sprites/explosion_sprite_1.png');
-    ASSETS.sprites.explosion2 = await loadImage('./assets/sprites/explosion_sprite_2.png');
-    ASSETS.sprites.explosion3 = await loadImage('./assets/sprites/explosion_sprite_3.png');
-    ASSETS.sprites.explosion4 = await loadImage('./assets/sprites/explosion_sprite_4.png');
-    
+    ASSETS.sprites.bulletPlayer = await loadImage(
+      './assets/sprites/bullet_player.png'
+    );
+    ASSETS.sprites.bulletEnemy = await loadImage(
+      './assets/sprites/bullet_enemy.png'
+    );
+    ASSETS.sprites.explosion1 = await loadImage(
+      './assets/sprites/explosion_sprite_1.png'
+    );
+    ASSETS.sprites.explosion2 = await loadImage(
+      './assets/sprites/explosion_sprite_2.png'
+    );
+    ASSETS.sprites.explosion3 = await loadImage(
+      './assets/sprites/explosion_sprite_3.png'
+    );
+    ASSETS.sprites.explosion4 = await loadImage(
+      './assets/sprites/explosion_sprite_4.png'
+    );
+
     // Load power-up images
-    ASSETS.sprites.shieldPowerup = await loadImage('./assets/power-ups/shield_powerup.png');
-    ASSETS.sprites.fireratePowerup = await loadImage('./assets/power-ups/firerate_powerup.png');
-    ASSETS.sprites.healthPowerup = await loadImage('./assets/power-ups/health_powerup.png');
-    
+    ASSETS.sprites.shieldPowerup = await loadImage(
+      './assets/power-ups/shield_powerup.png'
+    );
+    ASSETS.sprites.fireratePowerup = await loadImage(
+      './assets/power-ups/firerate_powerup.png'
+    );
+    ASSETS.sprites.healthPowerup = await loadImage(
+      './assets/power-ups/health_powerup.png'
+    );
+
     // Load UI images
-    ASSETS.sprites.healthBarFrame = await loadImage('./assets/ui/health_bar_frame.png');
+    ASSETS.sprites.healthBarFrame = await loadImage(
+      './assets/ui/health_bar_frame.png'
+    );
     ASSETS.sprites.lifeIcon = await loadImage('./assets/ui/life_icon.png');
     ASSETS.sprites.gameLogo = await loadImage('./assets/ui/game_logo.png');
-    
+
     // Load background images
-    ASSETS.backgrounds.starfield = await loadImage('./assets/backgrounds/starfield.png');
-    ASSETS.backgrounds.nebula = await loadImage('./assets/backgrounds/nebula.png');
-    
+    ASSETS.backgrounds.starfield = await loadImage(
+      './assets/backgrounds/starfield.png'
+    );
+    ASSETS.backgrounds.nebula = await loadImage(
+      './assets/backgrounds/nebula.png'
+    );
+
     // Load audio files
-    ASSETS.audio.playerShoot = await loadAudio('./assets/audio/sfx/player_shoot.wav');
-    ASSETS.audio.enemyShoot = await loadAudio('./assets/audio/sfx/enemy_shoot.wav');
-    ASSETS.audio.explosion = await loadAudio('./assets/audio/sfx/explosion.mp3');
-    ASSETS.audio.playerHit = await loadAudio('./assets/audio/sfx/player_hit.mp3');
+    ASSETS.audio.playerShoot = await loadAudio(
+      './assets/audio/sfx/player_shoot.wav'
+    );
+    ASSETS.audio.enemyShoot = await loadAudio(
+      './assets/audio/sfx/enemy_shoot.wav'
+    );
+    ASSETS.audio.explosion = await loadAudio(
+      './assets/audio/sfx/explosion.mp3'
+    );
+    ASSETS.audio.playerHit = await loadAudio(
+      './assets/audio/sfx/player_hit.mp3'
+    );
     ASSETS.audio.enemyHit = await loadAudio('./assets/audio/sfx/enemy_hit.mp3');
     ASSETS.audio.powerup = await loadAudio('./assets/audio/sfx/powerup.ogg');
-    
+
     // Load background music
-    ASSETS.audio.menuMusic = await loadAudio('./assets/audio/music/menu_bg.mp3');
-    ASSETS.audio.gameMusic = await loadAudio('./assets/audio/music/game_bg.mp3');
-    ASSETS.audio.bossMusic = await loadAudio('./assets/audio/music/boss_bg.mp3');
-    
+    ASSETS.audio.menuMusic = await loadAudio(
+      './assets/audio/music/menu_bg.mp3'
+    );
+    ASSETS.audio.gameMusic = await loadAudio(
+      './assets/audio/music/game_bg.mp3'
+    );
+    ASSETS.audio.bossMusic = await loadAudio(
+      './assets/audio/music/boss_bg.mp3'
+    );
+
     // Configure audio settings
-    Object.values(ASSETS.audio).forEach(audio => {
+    Object.values(ASSETS.audio).forEach((audio) => {
       audio.volume = 0.5; // Set default volume
     });
-    
+
     // Configure music to loop
     ASSETS.audio.menuMusic.loop = true;
     ASSETS.audio.gameMusic.loop = true;
     ASSETS.audio.bossMusic.loop = true;
-    
+
     console.log('All assets loaded successfully!');
     return true;
   } catch (error) {
@@ -106,7 +156,7 @@ function playSound(audioAsset, volume = 0.5) {
   if (audioAsset) {
     audioAsset.volume = volume;
     audioAsset.currentTime = 0;
-    audioAsset.play().catch(e => console.warn('Audio play failed:', e));
+    audioAsset.play().catch((e) => console.warn('Audio play failed:', e));
   }
 }
 
@@ -115,11 +165,11 @@ function playMusic(musicAsset, volume = 0.3) {
     currentMusic.pause();
     currentMusic.currentTime = 0;
   }
-  
+
   if (musicAsset) {
     musicAsset.volume = volume;
     musicAsset.currentTime = 0;
-    musicAsset.play().catch(e => console.warn('Music play failed:', e));
+    musicAsset.play().catch((e) => console.warn('Music play failed:', e));
     currentMusic = musicAsset;
   }
 }
@@ -182,8 +232,8 @@ class Player {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.width = 40;
-    this.height = 40;
+    this.width = 100; // Increased from 40
+    this.height = 100; // Increased from 40
     this.speed = GAME_CONFIG.PLAYER_SPEED;
     this.health = 100;
     this.maxHealth = 100;
@@ -239,7 +289,7 @@ class Player {
     bullets.push(
       new Bullet(bulletX, bulletY, 0, -GAME_CONFIG.BULLET_SPEED, 'player')
     );
-    
+
     // Play shooting sound
     playSound(ASSETS.audio.playerShoot, 0.3);
   }
@@ -249,7 +299,7 @@ class Player {
 
     this.health -= amount;
     playSound(ASSETS.audio.playerHit, 0.5);
-    
+
     if (this.health <= 0) {
       gameState.lives--;
       this.health = this.maxHealth;
@@ -263,19 +313,30 @@ class Player {
 
   draw() {
     // Check if moving to show thrust effect
-    const isMoving = keys['ArrowLeft'] || keys['a'] || keys['A'] || 
-                    keys['ArrowRight'] || keys['d'] || keys['D'] ||
-                    keys['ArrowUp'] || keys['w'] || keys['W'] ||
-                    keys['ArrowDown'] || keys['s'] || keys['S'];
-    
+    const isMoving =
+      keys['ArrowLeft'] ||
+      keys['a'] ||
+      keys['A'] ||
+      keys['ArrowRight'] ||
+      keys['d'] ||
+      keys['D'] ||
+      keys['ArrowUp'] ||
+      keys['w'] ||
+      keys['W'] ||
+      keys['ArrowDown'] ||
+      keys['s'] ||
+      keys['S'];
+
     // Draw player sprite
     let playerSprite = ASSETS.sprites.player;
     if (this.hasShield && ASSETS.sprites.playerShield) {
       playerSprite = ASSETS.sprites.playerShield;
     } else if (isMoving && ASSETS.sprites.playerThrust) {
       playerSprite = ASSETS.sprites.playerThrust;
+      this.height = 90; // Increased height for thrust effect
+      this.width = 90; // Increased height for thrust effect
     }
-    
+
     if (playerSprite) {
       ctx.drawImage(playerSprite, this.x, this.y, this.width, this.height);
     } else {
@@ -295,14 +356,27 @@ class Player {
       const healthBarHeight = 8;
       const healthBarX = this.x - (healthBarWidth - this.width) / 2;
       const healthBarY = this.y - 15;
-      
+
       // Draw health bar frame
-      ctx.drawImage(ASSETS.sprites.healthBarFrame, healthBarX, healthBarY, healthBarWidth, healthBarHeight);
-      
+      ctx.drawImage(
+        ASSETS.sprites.healthBarFrame,
+        healthBarX,
+        healthBarY,
+        healthBarWidth,
+        healthBarHeight
+      );
+
       // Draw health fill
-      const currentHealthWidth = (this.health / this.maxHealth) * (healthBarWidth - 4);
-      ctx.fillStyle = this.health > 60 ? '#00ff00' : this.health > 30 ? '#ffff00' : '#ff0000';
-      ctx.fillRect(healthBarX + 2, healthBarY + 2, currentHealthWidth, healthBarHeight - 4);
+      const currentHealthWidth =
+        (this.health / this.maxHealth) * (healthBarWidth - 4);
+      ctx.fillStyle =
+        this.health > 60 ? '#00ff00' : this.health > 30 ? '#ffff00' : '#ff0000';
+      ctx.fillRect(
+        healthBarX + 2,
+        healthBarY + 2,
+        currentHealthWidth,
+        healthBarHeight - 4
+      );
     } else {
       // Fallback to original health bar
       const healthBarWidth = 60;
@@ -314,7 +388,8 @@ class Player {
       ctx.fillRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
 
       ctx.fillStyle = '#00ff00';
-      const currentHealthWidth = (this.health / this.maxHealth) * healthBarWidth;
+      const currentHealthWidth =
+        (this.health / this.maxHealth) * healthBarWidth;
       ctx.fillRect(healthBarX, healthBarY, currentHealthWidth, healthBarHeight);
     }
   }
@@ -327,8 +402,8 @@ class Bullet {
     this.y = y;
     this.velX = velX;
     this.velY = velY;
-    this.width = 4;
-    this.height = 8;
+    this.width = 8; // Increased from 4
+    this.height = 16; // Increased from 8
     this.owner = owner;
     this.damage = 25;
   }
@@ -339,8 +414,11 @@ class Bullet {
   }
 
   draw() {
-    const bulletSprite = this.owner === 'player' ? ASSETS.sprites.bulletPlayer : ASSETS.sprites.bulletEnemy;
-    
+    const bulletSprite =
+      this.owner === 'player'
+        ? ASSETS.sprites.bulletPlayer
+        : ASSETS.sprites.bulletEnemy;
+
     if (bulletSprite) {
       ctx.drawImage(bulletSprite, this.x, this.y, this.width, this.height);
     } else {
@@ -366,8 +444,8 @@ class Enemy {
     this.x = x;
     this.y = y;
     this.type = type;
-    this.width = 30;
-    this.height = 30;
+    this.width = 80; // Increased from 30
+    this.height = 80; // Increased from 30
     this.health = this.getHealthByType();
     this.maxHealth = this.health;
     this.speed = this.getSpeedByType();
@@ -449,7 +527,7 @@ class Enemy {
     enemyBullets.push(
       new Bullet(bulletX, bulletY, 0, GAME_CONFIG.ENEMY_BULLET_SPEED, 'enemy')
     );
-    
+
     // Play enemy shooting sound
     playSound(ASSETS.audio.enemyShoot, 0.2);
   }
@@ -523,8 +601,8 @@ class Enemy {
 class Boss extends Enemy {
   constructor(x, y) {
     super(x, y, 'boss');
-    this.width = 80;
-    this.height = 60;
+    this.width = 120; // Increased from 80
+    this.height = 90; // Increased from 60
     this.health = 200 + gameState.wave * 50;
     this.maxHealth = this.health;
     this.speed = 0.5;
@@ -589,7 +667,13 @@ class Boss extends Enemy {
 
   draw() {
     if (ASSETS.sprites.boss) {
-      ctx.drawImage(ASSETS.sprites.boss, this.x, this.y, this.width, this.height);
+      ctx.drawImage(
+        ASSETS.sprites.boss,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
     } else {
       // Fallback to original boss drawing
       ctx.fillStyle = '#ff0044';
@@ -633,11 +717,11 @@ class PowerUp {
 
   draw() {
     const bobOffset = Math.sin(this.bob) * 3;
-    
+
     // Get appropriate power-up sprite
     let powerupSprite = null;
     let color = '#ffffff';
-    
+
     switch (this.type) {
       case 'shield':
         powerupSprite = ASSETS.sprites.shieldPowerup;
@@ -654,7 +738,13 @@ class PowerUp {
     }
 
     if (powerupSprite) {
-      ctx.drawImage(powerupSprite, this.x, this.y + bobOffset, this.width, this.height);
+      ctx.drawImage(
+        powerupSprite,
+        this.x,
+        this.y + bobOffset,
+        this.width,
+        this.height
+      );
     } else {
       // Fallback to original colored rectangle
       ctx.fillStyle = color;
@@ -692,12 +782,12 @@ class Explosion {
       ASSETS.sprites.explosion1,
       ASSETS.sprites.explosion2,
       ASSETS.sprites.explosion3,
-      ASSETS.sprites.explosion4
+      ASSETS.sprites.explosion4,
     ];
-    
+
     // Play explosion sound
     playSound(ASSETS.audio.explosion, 0.4);
-    
+
     // Fallback particles if no sprites
     this.particles = [];
     for (let i = 0; i < 8; i++) {
@@ -714,10 +804,10 @@ class Explosion {
   update(deltaTime) {
     const elapsed = Date.now() - this.startTime;
     const progress = elapsed / this.duration;
-    
+
     // Update animation frame
-    this.currentFrame = Math.floor((elapsed / this.frameTime));
-    
+    this.currentFrame = Math.floor(elapsed / this.frameTime);
+
     // Update fallback particles
     this.particles.forEach((particle) => {
       particle.x += particle.velX;
@@ -728,14 +818,23 @@ class Explosion {
 
   draw() {
     // Use sprite animation if available
-    if (this.explosionSprites[0] && this.currentFrame < this.explosionSprites.length) {
+    if (
+      this.explosionSprites[0] &&
+      this.currentFrame < this.explosionSprites.length
+    ) {
       const sprite = this.explosionSprites[this.currentFrame];
       if (sprite) {
-        ctx.drawImage(sprite, this.x - this.width/2, this.y - this.height/2, this.width, this.height);
+        ctx.drawImage(
+          sprite,
+          this.x - this.width / 2,
+          this.y - this.height / 2,
+          this.width,
+          this.height
+        );
         return;
       }
     }
-    
+
     // Fallback to particle animation
     this.particles.forEach((particle) => {
       if (particle.life > 0) {
@@ -831,7 +930,7 @@ class StageManager {
   spawnBoss() {
     const x = canvas.width / 2 - 40;
     enemies.push(new Boss(x, -60));
-    
+
     // Play boss music
     playMusic(ASSETS.audio.bossMusic, 0.4);
   }
@@ -845,7 +944,7 @@ class StageManager {
       GAME_CONFIG.ENEMY_SPAWN_INTERVAL - gameState.wave * 100
     );
     this.bossSpawned = false;
-    
+
     // Return to normal game music after boss fight
     if (currentMusic === ASSETS.audio.bossMusic) {
       playMusic(ASSETS.audio.gameMusic, 0.3);
@@ -952,31 +1051,32 @@ function updateGame(deltaTime) {
 
 function checkCollisions() {
   // Player bullets vs enemies
-  bullets.forEach((bullet, bulletIndex) => {
-    enemies.forEach((enemy, enemyIndex) => {
-      if (checkCollision(bullet, enemy)) {
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    for (let j = enemies.length - 1; j >= 0; j--) {
+      if (checkCollision(bullets[i], enemies[j])) {
         explosions.push(
-          new Explosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2)
+          new Explosion(
+            enemies[j].x + enemies[j].width / 2,
+            enemies[j].y + enemies[j].height / 2
+          )
         );
-
-        if (enemy.takeDamage(bullet.damage)) {
-          enemies.splice(enemyIndex, 1);
-          gameState.score += enemy instanceof Boss ? 500 : 100;
-
+        if (enemies[j].takeDamage(bullets[i].damage)) {
+          gameState.score += enemies[j] instanceof Boss ? 500 : 100;
           // Chance to drop power-up
           if (Math.random() < 0.1) {
             const type =
               GAME_CONFIG.POWERUP_TYPES[
                 Math.floor(Math.random() * GAME_CONFIG.POWERUP_TYPES.length)
               ];
-            powerUps.push(new PowerUp(enemy.x, enemy.y, type));
+            powerUps.push(new PowerUp(enemies[j].x, enemies[j].y, type));
           }
+          enemies.splice(j, 1);
         }
-
-        bullets.splice(bulletIndex, 1);
+        bullets.splice(i, 1);
+        break; // Exit enemy loop after handling collision
       }
-    });
-  });
+    }
+  }
 
   // Enemy bullets vs player
   enemyBullets.forEach((bullet, bulletIndex) => {
@@ -987,30 +1087,31 @@ function checkCollisions() {
   });
 
   // Enemies vs player
-  enemies.forEach((enemy, enemyIndex) => {
-    if (checkCollision(enemy, player)) {
-      if (player.takeDamage(50)) {
-        // Player took fatal damage
-      }
-      enemies.splice(enemyIndex, 1);
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    if (checkCollision(enemies[i], player)) {
+      player.takeDamage(50);
       explosions.push(
-        new Explosion(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2)
+        new Explosion(
+          enemies[i].x + enemies[i].width / 2,
+          enemies[i].y + enemies[i].height / 2
+        )
       );
+      enemies.splice(i, 1);
     }
-  });
+  }
 
   // Power-ups vs player
-  powerUps.forEach((powerUp, powerUpIndex) => {
-    if (checkCollision(powerUp, player)) {
-      applyPowerUp(powerUp.type);
-      powerUps.splice(powerUpIndex, 1);
+  for (let i = powerUps.length - 1; i >= 0; i--) {
+    if (checkCollision(powerUps[i], player)) {
+      applyPowerUp(powerUps[i].type);
+      powerUps.splice(i, 1);
     }
-  });
+  }
 }
 
 function applyPowerUp(type) {
   playSound(ASSETS.audio.powerup, 0.4);
-  
+
   switch (type) {
     case 'shield':
       player.hasShield = true;
@@ -1039,7 +1140,7 @@ function drawGame() {
     ctx.fillStyle = pattern;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
-  
+
   if (ASSETS.backgrounds.nebula) {
     // Draw nebula as atmospheric background
     ctx.globalAlpha = 0.3;
@@ -1076,7 +1177,7 @@ function drawUI() {
   ctx.fillText(`Lives:`, 10, 90);
   if (ASSETS.sprites.lifeIcon) {
     for (let i = 0; i < gameState.lives; i++) {
-      ctx.drawImage(ASSETS.sprites.lifeIcon, 80 + (i * 20), 75, 16, 16);
+      ctx.drawImage(ASSETS.sprites.lifeIcon, 80 + i * 20, 75, 16, 16);
     }
   } else {
     ctx.fillText(`${gameState.lives}`, 80, 90);
@@ -1208,7 +1309,7 @@ setTimeout(async () => {
   text.classList.add('hidden-text');
   initializeCanvas();
   setupEventListeners();
-  
+
   // Load all assets
   const assetsLoaded = await loadAssets();
   if (assetsLoaded) {
@@ -1218,6 +1319,6 @@ setTimeout(async () => {
   } else {
     console.log('Game ready with fallback graphics/audio!');
   }
-  
+
   gameLoop(0);
 }, 400);
