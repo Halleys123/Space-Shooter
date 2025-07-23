@@ -108,6 +108,24 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 't' || e.key === 'T') {
     stage.getStarField().startWarpEffect();
   }
+
+  // Performance adjustment keys
+  if (e.key === 'p' || e.key === 'P') {
+    if (window.performanceManager) {
+      const currentLevel = window.performanceManager.performanceLevel;
+      const levels = ['low', 'medium', 'high'];
+      const currentIndex = levels.indexOf(currentLevel);
+      const nextIndex = (currentIndex + 1) % levels.length;
+      window.performanceManager.setPerformanceLevel(levels[nextIndex]);
+      console.log(`Performance level changed to: ${levels[nextIndex]}`);
+
+      // Update starfield with new settings
+      const settings = window.performanceManager.getSettings();
+      stage.getStarField().setStarCount(settings.starCount);
+      stage.getStarField().enableGlow = settings.enableGlow;
+      stage.getStarField().enableFilters = settings.enableFilters;
+    }
+  }
 });
 
 document.addEventListener('keyup', (e) => {
@@ -305,6 +323,24 @@ function gameLoop() {
   ctx.fillStyle = 'white';
   ctx.font = '14px Arial';
 
+  // Performance information
+  const performanceLevel = window.performanceManager
+    ? window.performanceManager.performanceLevel
+    : 'unknown';
+  const settings = window.performanceManager
+    ? window.performanceManager.getSettings()
+    : {};
+
+  ctx.fillText(
+    `Performance Level: ${performanceLevel.toUpperCase()}`,
+    10,
+    canvas.height - 140
+  );
+  ctx.fillText(
+    `Star Count: ${settings.starCount || 'N/A'}`,
+    10,
+    canvas.height - 120
+  );
   ctx.fillText(
     `Active Blasts: ${blastManager.getActiveBlasts()}`,
     10,

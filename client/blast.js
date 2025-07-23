@@ -1,4 +1,3 @@
-
 class BlastParticle {
   constructor(x, y, velocityX, velocityY, life, color, size, type = 'spark') {
     this.position = { x, y };
@@ -8,11 +7,10 @@ class BlastParticle {
     this.color = color;
     this.size = size;
     this.alpha = 1;
-    this.type = type; 
+    this.type = type;
     this.rotation = Math.random() * Math.PI * 2;
     this.rotationSpeed = (Math.random() - 0.5) * 0.2;
 
-    
     if (type === 'debris') {
       this.gravity = 0.1;
       this.friction = 0.99;
@@ -31,7 +29,6 @@ class BlastParticle {
     this.alpha = this.life / this.maxLife;
     this.rotation += this.rotationSpeed;
 
-    
     if (this.type === 'debris') {
       this.velocity.y += this.gravity;
       this.velocity.x *= this.friction;
@@ -55,17 +52,14 @@ class BlastParticle {
     ctx.rotate(this.rotation);
 
     if (this.type === 'debris') {
-      
       ctx.fillStyle = this.color;
       ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size / 2);
     } else if (this.type === 'smoke') {
-      
       ctx.fillStyle = this.color;
       ctx.beginPath();
       ctx.arc(0, 0, this.size, 0, Math.PI * 2);
       ctx.fill();
     } else {
-      
       ctx.fillStyle = this.color;
       ctx.beginPath();
       ctx.arc(0, 0, this.size, 0, Math.PI * 2);
@@ -80,33 +74,50 @@ class BlastParticle {
   }
 }
 
-
 class BlastParticleSystem {
   constructor() {
     this.particles = [];
-    this.maxParticles = 500;
+
+    // Apply performance-based particle limits
+    const performanceSettings = window.performanceManager
+      ? window.performanceManager.getSettings()
+      : null;
+    this.maxParticles = performanceSettings
+      ? performanceSettings.maxParticles.blast
+      : 150;
+
+    // Frame skipping for low-end devices
+    this.frameSkipCounter = 0;
   }
 
-  
   createExplosion(x, y, intensity = 1, type = 'normal') {
-    const particleCount = Math.floor(20 + intensity * 30);
+    // Reduce particle count on low-end devices
+    const performanceLevel = window.performanceManager
+      ? window.performanceManager.performanceLevel
+      : 'high';
+    let particleMultiplier = 1;
+
+    if (performanceLevel === 'low') {
+      particleMultiplier = 0.3;
+    } else if (performanceLevel === 'medium') {
+      particleMultiplier = 0.6;
+    }
+
+    const particleCount = Math.floor(
+      (20 + intensity * 30) * particleMultiplier
+    );
 
     for (let i = 0; i < particleCount; i++) {
-      
       if (i < particleCount * 0.6) {
-        
         this.createSpark(x, y, intensity);
       } else if (i < particleCount * 0.8) {
-        
         this.createDebris(x, y, intensity);
       } else {
-        
         this.createSmoke(x, y, intensity);
       }
     }
 
-    
-    this.createShockwave(x, y, intensity);
+    this.createShockwave(x, y, intensity * particleMultiplier);
   }
 
   createSpark(x, y, intensity) {
@@ -213,10 +224,18 @@ class BlastParticleSystem {
   }
 
   update() {
+    // Frame skipping for low-end devices
+    if (
+      window.performanceManager &&
+      window.performanceManager.shouldSkipFrame()
+    ) {
+      this.frameSkipCounter++;
+      if (this.frameSkipCounter % 2 !== 0) return;
+    }
+
     this.particles.forEach((particle) => particle.update());
     this.particles = this.particles.filter((particle) => !particle.isDead());
 
-    
     if (this.particles.length > this.maxParticles) {
       this.particles.splice(0, this.particles.length - this.maxParticles);
     }
@@ -231,7 +250,6 @@ class BlastParticleSystem {
   }
 }
 
-
 class Blast {
   constructor(ctx, x, y, size = 1, type = 'normal') {
     this.ctx = ctx;
@@ -241,18 +259,15 @@ class Blast {
     this.isActive = true;
     this.currentFrame = 0;
     this.frameTimer = 0;
-    this.frameDelay = 4; 
+    this.frameDelay = 4;
     this.rotation = Math.random() * Math.PI * 2;
 
-    
     this.sprites = [];
     this.loadSprites();
 
-    
     this.width = 64 * size;
     this.height = 64 * size;
 
-    
     if (type === 'large') {
       this.frameDelay = 6;
       this.width = 96 * size;
@@ -309,12 +324,10 @@ class Blast {
     return !this.isActive;
   }
 
-  
   static createExplosion(ctx, x, y, type = 'normal', size = 1) {
     return new Blast(ctx, x, y, size, type);
   }
 }
-
 
 class BlastManager {
   constructor(ctx) {
@@ -323,13 +336,10 @@ class BlastManager {
     this.particleSystem = new BlastParticleSystem();
   }
 
-  
   createExplosion(x, y, type = 'normal', size = 1) {
-    
     const blast = Blast.createExplosion(this.ctx, x, y, type, size);
     this.blasts.push(blast);
 
-    
     let intensity = size;
     if (type === 'large') intensity *= 1.5;
     if (type === 'small') intensity *= 0.7;
@@ -337,7 +347,6 @@ class BlastManager {
     this.particleSystem.createExplosion(x, y, intensity, type);
   }
 
-  
   createEnemyExplosion(x, y, enemyType = 'basic') {
     let size = 1;
     let type = 'normal';
@@ -369,23 +378,18 @@ class BlastManager {
   }
 
   update() {
-    
     this.blasts.forEach((blast) => blast.update());
     this.blasts = this.blasts.filter((blast) => !blast.isFinished());
 
-    
     this.particleSystem.update();
   }
 
   draw() {
-    
     this.particleSystem.draw(this.ctx);
 
-    
     this.blasts.forEach((blast) => blast.draw());
   }
 
-  
   getActiveBlasts() {
     return this.blasts.length;
   }
@@ -394,7 +398,6 @@ class BlastManager {
     return this.particleSystem.getParticleCount();
   }
 
-  
   clear() {
     this.blasts = [];
     this.particleSystem.particles = [];

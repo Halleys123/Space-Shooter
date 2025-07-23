@@ -67,7 +67,7 @@ class Star {
     }
   }
 
-  draw(ctx) {
+  draw(ctx, enableGlow = true) {
     ctx.save();
     ctx.globalAlpha = this.alpha;
     ctx.fillStyle = this.color;
@@ -76,7 +76,8 @@ class Star {
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
 
-    if (this.size > 2 && this.brightness > 0.7) {
+    // Only draw glow effect if enabled and star is bright enough
+    if (enableGlow && this.size > 2 && this.brightness > 0.7) {
       ctx.globalAlpha = this.alpha * 0.3;
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
@@ -97,7 +98,14 @@ class StarField {
   constructor(canvas, starCount = 200) {
     this.canvas = canvas;
     this.stars = [];
-    this.starCount = starCount;
+
+    // Apply performance-based star count
+    const performanceSettings = window.performanceManager
+      ? window.performanceManager.getSettings()
+      : null;
+    this.starCount = performanceSettings
+      ? performanceSettings.starCount
+      : Math.min(starCount, 50);
 
     this.globalSpeedMultiplier = 1;
     this.windX = 0;
@@ -110,6 +118,17 @@ class StarField {
     this.warpIntensity = 0;
     this.warpDirection = 0;
 
+    // Performance optimization flags
+    this.enableGlow = performanceSettings
+      ? performanceSettings.enableGlow
+      : true;
+    this.enableFilters = performanceSettings
+      ? performanceSettings.enableFilters
+      : true;
+
+    // Frame skipping for low-end devices
+    this.frameSkipCounter = 0;
+
     this.generateStars();
   }
 
@@ -121,6 +140,15 @@ class StarField {
   }
 
   update() {
+    // Frame skipping for low-end devices
+    if (
+      window.performanceManager &&
+      window.performanceManager.shouldSkipFrame()
+    ) {
+      this.frameSkipCounter++;
+      if (this.frameSkipCounter % 2 !== 0) return;
+    }
+
     this.stars.forEach((star) => {
       star.update(this.globalSpeedMultiplier, this.windX, this.windY);
     });
@@ -131,24 +159,23 @@ class StarField {
   }
 
   draw(ctx) {
-    if (
-      this.colorFilter.r !== 1 ||
-      this.colorFilter.g !== 1 ||
-      this.colorFilter.b !== 1
-    ) {
+    // Skip filters on low-end devices
+    const shouldUseFilters =
+      this.enableFilters &&
+      (this.colorFilter.r !== 1 ||
+        this.colorFilter.g !== 1 ||
+        this.colorFilter.b !== 1);
+
+    if (shouldUseFilters) {
       ctx.save();
       ctx.filter = `sepia(100%) hue-rotate(${this.getHueRotation()}deg) saturate(200%)`;
     }
 
     this.stars.forEach((star) => {
-      star.draw(ctx);
+      star.draw(ctx, this.enableGlow);
     });
 
-    if (
-      this.colorFilter.r !== 1 ||
-      this.colorFilter.g !== 1 ||
-      this.colorFilter.b !== 1
-    ) {
+    if (shouldUseFilters) {
       ctx.restore();
     }
 

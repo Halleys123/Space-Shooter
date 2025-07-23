@@ -39,13 +39,37 @@ class Particle {
 class ThrustParticleSystem {
   constructor() {
     this.particles = [];
-    this.maxParticles = 200;
+
+    // Apply performance-based particle limits
+    const performanceSettings = window.performanceManager
+      ? window.performanceManager.getSettings()
+      : null;
+    this.maxParticles = performanceSettings
+      ? performanceSettings.maxParticles.thrust
+      : 50;
+
+    // Frame skipping for low-end devices
+    this.frameSkipCounter = 0;
   }
 
   emit(x, y, rotation, isAccelerating) {
     if (!isAccelerating) return;
 
-    const particleCount = Math.random() * 3 + 2;
+    // Reduce particle emission on low-end devices
+    const performanceLevel = window.performanceManager
+      ? window.performanceManager.performanceLevel
+      : 'high';
+    let particleMultiplier = 1;
+
+    if (performanceLevel === 'low') {
+      particleMultiplier = 0.3;
+    } else if (performanceLevel === 'medium') {
+      particleMultiplier = 0.6;
+    }
+
+    const particleCount = Math.floor(
+      (Math.random() * 3 + 2) * particleMultiplier
+    );
 
     for (let i = 0; i < particleCount; i++) {
       const emitDistance = 60;
@@ -82,6 +106,15 @@ class ThrustParticleSystem {
   }
 
   update() {
+    // Frame skipping for low-end devices
+    if (
+      window.performanceManager &&
+      window.performanceManager.shouldSkipFrame()
+    ) {
+      this.frameSkipCounter++;
+      if (this.frameSkipCounter % 2 !== 0) return;
+    }
+
     this.particles.forEach((particle) => particle.update());
     this.particles = this.particles.filter((particle) => !particle.isDead());
   }
@@ -94,11 +127,35 @@ class ThrustParticleSystem {
 class CollisionParticleSystem {
   constructor() {
     this.particles = [];
-    this.maxParticles = 100;
+
+    // Apply performance-based particle limits
+    const performanceSettings = window.performanceManager
+      ? window.performanceManager.getSettings()
+      : null;
+    this.maxParticles = performanceSettings
+      ? performanceSettings.maxParticles.collision
+      : 30;
+
+    // Frame skipping for low-end devices
+    this.frameSkipCounter = 0;
   }
 
   emit(x, y, collisionSide) {
-    const particleCount = Math.random() * 8 + 5;
+    // Reduce particle emission on low-end devices
+    const performanceLevel = window.performanceManager
+      ? window.performanceManager.performanceLevel
+      : 'high';
+    let particleMultiplier = 1;
+
+    if (performanceLevel === 'low') {
+      particleMultiplier = 0.4;
+    } else if (performanceLevel === 'medium') {
+      particleMultiplier = 0.7;
+    }
+
+    const particleCount = Math.floor(
+      (Math.random() * 8 + 5) * particleMultiplier
+    );
 
     for (let i = 0; i < particleCount; i++) {
       let angle;
@@ -146,6 +203,15 @@ class CollisionParticleSystem {
   }
 
   update() {
+    // Frame skipping for low-end devices
+    if (
+      window.performanceManager &&
+      window.performanceManager.shouldSkipFrame()
+    ) {
+      this.frameSkipCounter++;
+      if (this.frameSkipCounter % 2 !== 0) return;
+    }
+
     this.particles.forEach((particle) => particle.update());
     this.particles = this.particles.filter((particle) => !particle.isDead());
   }
