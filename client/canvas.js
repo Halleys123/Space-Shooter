@@ -11,6 +11,7 @@ const keys = {};
 const mouse = { x: 0, y: 0 };
 
 let gameState = {
+  isGameStarted: false,
   isPaused: false,
   isGameOver: false,
   currentScore: 0,
@@ -18,7 +19,6 @@ let gameState = {
 
 window.gameState = gameState;
 
-// FPS tracking variables
 let fps = 0;
 let lastFrameTime = performance.now();
 let frameCount = 0;
@@ -75,22 +75,17 @@ document.addEventListener('keydown', (e) => {
     }
   }
 
-  // Help panel toggle (H key)
   if (e.key === 'h' || e.key === 'H') {
-    // Check if we're in debug mode by seeing if other debug keys work
     if (e.shiftKey) {
-      // Shift+H for damage (debug function)
       player.damage(10);
     } else {
-      // Regular H for help
       toggleHelpPanel();
     }
   }
 
-  // Settings panel (F1 key)
   if (e.key === 'F1') {
-    e.preventDefault(); // Prevent browser help
-    // Use script.js function to show settings
+    e.preventDefault();
+
     if (typeof showPanel === 'function') {
       showPanel('settings');
     }
@@ -132,7 +127,6 @@ document.addEventListener('keydown', (e) => {
     stage.getStarField().startWarpEffect();
   }
 
-  // Performance adjustment keys
   if (e.key === 'p' || e.key === 'P') {
     if (window.performanceManager) {
       const currentLevel = window.performanceManager.performanceLevel;
@@ -142,7 +136,6 @@ document.addEventListener('keydown', (e) => {
       window.performanceManager.setPerformanceLevel(levels[nextIndex]);
       console.log(`Performance level changed to: ${levels[nextIndex]}`);
 
-      // Update starfield with new settings
       const settings = window.performanceManager.getSettings();
       stage.getStarField().setStarCount(settings.starCount);
       stage.getStarField().enableGlow = settings.enableGlow;
@@ -161,39 +154,80 @@ canvas.addEventListener('mousemove', (e) => {
   mouse.y = e.clientY - rect.top;
 });
 
-// Apply graphics settings function for canvas.js
+function initializeGame() {
+  gameState.isGameStarted = true;
+  gameState.isPaused = false;
+  gameState.isGameOver = false;
+  gameState.currentScore = 0;
+
+  // Reset player state
+  player.healthBar.reset(); // Reset health using the HealthBar's reset method
+  player.score = 0;
+
+  // Reset collision damage timer
+  player.health.collisionDamageTimer = 0;
+
+  // Reset player position
+  player.control.position.x = canvas.width / 2 - player.visuals.width / 2;
+  player.control.position.y = canvas.height - player.visuals.height - 50;
+
+  console.log('Game started!');
+}
+
+// Make initializeGame available globally so script.js can call it
+window.initializeGame = initializeGame;
+function drawPauseScreen() {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#00ffff';
+  ctx.font = 'bold 48px Orbitron';
+  ctx.textAlign = 'center';
+  ctx.fillText('GAME PAUSED', canvas.width / 2, canvas.height / 2 - 30);
+
+  ctx.font = '24px Orbitron';
+  ctx.fillText('Press ESC to resume', canvas.width / 2, canvas.height / 2 + 30);
+  ctx.restore();
+}
+
 function applyGraphicsSettings() {
   if (!window.performanceManager) return;
-  
-  // Get gameSettings from global scope
+
   if (typeof window.gameSettings === 'undefined') return;
-  
+
   const quality = window.gameSettings.graphics.quality;
-  
-  // Apply graphics quality
+
   window.performanceManager.setPerformanceLevel(quality);
-  
-  // Update starfield and particles based on settings
+
   const settings = window.performanceManager.getSettings();
   if (stage && stage.getStarField) {
     stage.getStarField().setStarCount(settings.starCount);
-    stage.getStarField().enableGlow = settings.enableGlow && window.gameSettings.graphics.particleEffects;
+    stage.getStarField().enableGlow =
+      settings.enableGlow && window.gameSettings.graphics.particleEffects;
     stage.getStarField().enableFilters = settings.enableFilters;
   }
-  
-  // Apply particle effects setting
+
   if (blastManager && !window.gameSettings.graphics.particleEffects) {
-    // Reduce particle effects if disabled
     const currentSettings = window.performanceManager.getSettings();
-    currentSettings.maxParticles.thrust = Math.floor(currentSettings.maxParticles.thrust * 0.2);
-    currentSettings.maxParticles.collision = Math.floor(currentSettings.maxParticles.collision * 0.2);
-    currentSettings.maxParticles.blast = Math.floor(currentSettings.maxParticles.blast * 0.2);
+    currentSettings.maxParticles.thrust = Math.floor(
+      currentSettings.maxParticles.thrust * 0.2
+    );
+    currentSettings.maxParticles.collision = Math.floor(
+      currentSettings.maxParticles.collision * 0.2
+    );
+    currentSettings.maxParticles.blast = Math.floor(
+      currentSettings.maxParticles.blast * 0.2
+    );
   } else if (blastManager && window.gameSettings.graphics.particleEffects) {
-    // Restore full particle effects if enabled
-    window.performanceManager.setPerformanceLevel(quality); // Reset to full settings
+    window.performanceManager.setPerformanceLevel(quality);
   }
-  
-  console.log(`Graphics settings applied - Quality: ${quality}, Particles: ${window.gameSettings.graphics.particleEffects ? 'On' : 'Off'}`);
+
+  console.log(
+    `Graphics settings applied - Quality: ${quality}, Particles: ${
+      window.gameSettings.graphics.particleEffects ? 'On' : 'Off'
+    }`
+  );
 }
 
 function handleGameOver() {
@@ -309,13 +343,11 @@ function toggleHelpPanel() {
   const helpHint = document.querySelector('.help-hint');
 
   if (helpPanel.classList.contains('hidden')) {
-    // Show help panel
     helpPanel.classList.remove('hidden');
     canvas.classList.add('hidden-canvas');
     helpHint.style.display = 'none';
     gameState.isPaused = true;
   } else {
-    // Hide help panel
     helpPanel.classList.add('hidden');
     canvas.classList.remove('hidden-canvas');
     helpHint.style.display = 'block';
@@ -323,20 +355,16 @@ function toggleHelpPanel() {
   }
 }
 
-// Panel event listeners
 document.addEventListener('DOMContentLoaded', function () {
-  // Close panel buttons (only handle help panel here, settings handled by script.js)
   document.querySelectorAll('.close-panel').forEach((button) => {
     button.addEventListener('click', function () {
       const panel = this.getAttribute('data-panel');
       if (panel === 'help') {
         toggleHelpPanel();
       }
-      // Settings panel is handled by script.js
     });
   });
 
-  // Back to game buttons
   document.querySelectorAll('.back-to-game').forEach((button) => {
     button.addEventListener('click', function () {
       const panel = this.getAttribute('data-panel');
@@ -348,7 +376,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function gameLoop() {
-  // FPS calculation
   const currentTime = performance.now();
   const deltaTime = currentTime - lastFrameTime;
   lastFrameTime = currentTime;
@@ -357,18 +384,28 @@ function gameLoop() {
   fpsUpdateTime += deltaTime;
 
   if (fpsUpdateTime >= 1000) {
-    // Update FPS every second
     fps = Math.round((frameCount * 1000) / fpsUpdateTime);
     frameCount = 0;
     fpsUpdateTime = 0;
   }
 
-  if (gameState.isPaused || gameState.isGameOver) {
+  // Clear canvas regardless of game state
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // If game hasn't started yet, just continue the loop without rendering game elements
+  if (!gameState.isGameStarted) {
     requestAnimationFrame(gameLoop);
     return;
   }
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // If game is paused or game over, show pause/game over screen
+  if (gameState.isPaused || gameState.isGameOver) {
+    if (gameState.isPaused && !gameState.isGameOver) {
+      drawPauseScreen();
+    }
+    requestAnimationFrame(gameLoop);
+    return;
+  }
 
   const playerCenter = {
     x: player.control.position.x + player.visuals.width / 2,
@@ -377,7 +414,7 @@ function gameLoop() {
 
   player.update(keys, mouse);
 
-  if (!player.isAlive && !gameState.isGameOver) {
+  if (!player.isAlive() && !gameState.isGameOver) {
     handleGameOver();
     return;
   }
@@ -440,21 +477,21 @@ function gameLoop() {
   ctx.fillStyle = 'white';
   ctx.font = '14px Arial';
 
-  // FPS display (if enabled in settings)
-  if (typeof window.gameSettings !== 'undefined' && window.gameSettings.graphics.showFps) {
+  if (
+    typeof window.gameSettings !== 'undefined' &&
+    window.gameSettings.graphics.showFps
+  ) {
     ctx.fillStyle = '#00ffff';
     ctx.font = 'bold 16px Arial';
     ctx.fillText(`FPS: ${fps}`, canvas.width - 100, 30);
 
-    // FPS color coding
-    if (fps >= 50) ctx.fillStyle = '#00ff00'; // Green for good FPS
-    else if (fps >= 30) ctx.fillStyle = '#ffff00'; // Yellow for medium FPS
-    else ctx.fillStyle = '#ff0000'; // Red for low FPS
+    if (fps >= 50) ctx.fillStyle = '#00ff00';
+    else if (fps >= 30) ctx.fillStyle = '#ffff00';
+    else ctx.fillStyle = '#ff0000';
 
     ctx.fillText(`FPS: ${fps}`, canvas.width - 100, 30);
   }
 
-  // Performance information (debug display)
   ctx.fillStyle = 'white';
   ctx.font = '14px Arial';
 
@@ -500,33 +537,15 @@ function gameLoop() {
     10,
     canvas.height - 20
   );
-  
-  // Show particle effects status if gameSettings is available
-  if (typeof gameSettings !== 'undefined') {
+
+  if (typeof window.gameSettings !== 'undefined') {
     ctx.fillText(
-      `Particles: ${gameSettings.graphics.particleEffects ? 'ON' : 'OFF'}`,
+      `Particles: ${
+        window.gameSettings.graphics.particleEffects ? 'ON' : 'OFF'
+      }`,
       10,
       canvas.height - 160
     );
-  }
-
-  if (gameState.isPaused) {
-    ctx.save();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = '#00ffff';
-    ctx.font = 'bold 48px Orbitron';
-    ctx.textAlign = 'center';
-    ctx.fillText('GAME PAUSED', canvas.width / 2, canvas.height / 2 - 30);
-
-    ctx.font = '24px Orbitron';
-    ctx.fillText(
-      'Press ESC to resume',
-      canvas.width / 2,
-      canvas.height / 2 + 30
-    );
-    ctx.restore();
   }
 
   requestAnimationFrame(gameLoop);

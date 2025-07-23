@@ -22,7 +22,6 @@ const particleEffectsCheckbox = document.getElementById('particle-effects');
 const tabButtons = document.querySelectorAll('.tab-button');
 const leaderboardEntries = document.getElementById('leaderboard-entries');
 
-// Make gameSettings global so canvas.js can access it
 window.gameSettings = {
   audio: {
     masterVolume: 50,
@@ -43,7 +42,6 @@ window.gameSettings = {
   },
 };
 
-// Also create a local reference for this script
 const gameSettings = window.gameSettings;
 
 const leaderboardData = {
@@ -153,8 +151,7 @@ function initializeSettings() {
   particleEffectsCheckbox.checked = gameSettings.graphics.particleEffects;
 
   updateVolumeDisplay();
-  
-  // Apply graphics settings after a delay to ensure canvas.js is loaded
+
   setTimeout(() => {
     if (typeof applyGraphicsSettings === 'function') {
       applyGraphicsSettings();
@@ -187,7 +184,6 @@ function saveSettings() {
 
   localStorage.setItem('spaceShooterSettings', JSON.stringify(gameSettings));
 
-  // Apply settings if canvas functions are available
   if (typeof applyGraphicsSettings === 'function') {
     applyGraphicsSettings();
   }
@@ -228,6 +224,11 @@ function startGame() {
   text.classList.add('hidden');
   document.getElementById('gameCanvas').classList.remove('hidden-canvas');
 
+  // Call the game's initializeGame function to actually start the game logic
+  if (typeof window.initializeGame === 'function') {
+    window.initializeGame();
+  }
+
   if (window.gameState) {
     window.gameState.isPaused = false;
     window.gameState.isGameOver = false;
@@ -252,6 +253,7 @@ function restartGame() {
   }
 
   if (window.gameState) {
+    window.gameState.isGameStarted = false;
     window.gameState.isPaused = false;
     window.gameState.isGameOver = false;
     window.gameState.currentScore = 0;
