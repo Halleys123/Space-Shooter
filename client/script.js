@@ -22,6 +22,10 @@ const particleEffectsCheckbox = document.getElementById('particle-effects');
 const tabButtons = document.querySelectorAll('.tab-button');
 const leaderboardEntries = document.getElementById('leaderboard-entries');
 
+let apiService = null;
+let authUI = null;
+let leaderboardManager = null;
+
 window.gameSettings = {
   audio: {
     masterVolume: 50,
@@ -52,14 +56,44 @@ const leaderboardData = {
 
 document.addEventListener('DOMContentLoaded', function () {
   initializeSettings();
+  initializeComponents();
   setupEventListeners();
 });
 
+async function initializeComponents() {
+  try {
+    apiService = new GameAPI();
+
+    authUI = new AuthUI('auth-section', apiService);
+    await authUI.initialize();
+
+    leaderboardManager = new LeaderboardManager(
+      '.leaderboard-panel',
+      apiService,
+      authUI
+    );
+    await leaderboardManager.initialize();
+
+    window.apiService = apiService;
+    window.authUI = authUI;
+    window.leaderboardManager = leaderboardManager;
+
+    console.log('All components initialized successfully');
+  } catch (error) {
+    console.error('Error initializing components:', error);
+    showNotification('Failed to initialize game components', 'error');
+  }
+}
+
 function setupEventListeners() {
   settingsButton.addEventListener('click', () => showPanel('settings'));
-  leaderboardButton.addEventListener('click', () => {
+  leaderboardButton.addEventListener('click', async () => {
     showPanel('leaderboard');
-    updateLeaderboardDisplay();
+    if (leaderboardManager) {
+      await leaderboardManager.refresh();
+    } else {
+      updateLeaderboardDisplay();
+    }
   });
 
   closePanelButtons.forEach((button) => {
@@ -84,7 +118,6 @@ function setupEventListeners() {
   musicVolumeSlider.addEventListener('input', updateVolumeDisplay);
   sfxVolumeSlider.addEventListener('input', updateVolumeDisplay);
 
-  // Add real-time volume adjustment
   masterVolumeSlider.addEventListener('input', () => {
     if (window.audioManager) {
       gameSettings.audio.masterVolume = parseInt(masterVolumeSlider.value);
@@ -103,7 +136,7 @@ function setupEventListeners() {
     if (window.audioManager) {
       gameSettings.audio.sfxVolume = parseInt(sfxVolumeSlider.value);
       window.audioManager.updateSettings();
-      // Play a test sound to preview the volume
+
       window.audioManager.playPlayerShoot({ volume: 0.5 });
     }
   });
@@ -181,10 +214,9 @@ function initializeSettings() {
       applyGraphicsSettings();
     }
 
-    // Initialize audio manager with settings
     if (window.audioManager) {
       window.audioManager.initialize();
-      // Start menu music
+
       window.audioManager.playMenuMusic();
     }
   }, 500);
@@ -219,7 +251,6 @@ function saveSettings() {
     applyGraphicsSettings();
   }
 
-  // Update audio manager settings
   if (window.audioManager) {
     window.audioManager.updateSettings();
   }
@@ -260,7 +291,6 @@ function startGame() {
   text.classList.add('hidden');
   document.getElementById('gameCanvas').classList.remove('hidden-canvas');
 
-  // Call the game's initializeGame function to actually start the game logic
   if (typeof window.initializeGame === 'function') {
     window.initializeGame();
   }
@@ -271,7 +301,6 @@ function startGame() {
     window.gameState.currentScore = 0;
   }
 
-  // Switch to game music
   if (window.audioManager) {
     window.audioManager.playGameMusic();
   }
@@ -300,7 +329,6 @@ function restartGame() {
     window.gameState.currentScore = 0;
   }
 
-  // Switch back to menu music
   if (window.audioManager) {
     window.audioManager.playMenuMusic();
   }
@@ -360,3 +388,29 @@ function updateLeaderboardDisplay() {
     entriesContainer.appendChild(entryElement);
   });
 }
+
+function showNotification(message, type = 'info', duration = 4000) {
+  const existingNotification = document.querySelector('.notification');
+  if (existingNotification) {
+    existingNotification.remove();
+  }
+
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  notification.textContent = message;
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.classList.add('show');
+  }, 100);
+
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => {
+      notification.remove();
+    }, 300);
+  }, duration);
+}
+
+window.showNotification = showNotification;

@@ -7,7 +7,7 @@ import {
   updateUserSettings,
   updateUserStats,
   deleteUser,
-} from '../controllers/userController.js';
+} from '../controllers/userController';
 
 const router = Router();
 

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from '../models/User.js';
+import { validationResult } from 'express-validator';
+import { User } from '../models/User';
 import bcrypt from 'bcryptjs';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-jwt-secret-key';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
@@ -61,11 +62,7 @@ export const registerUser = async (
         username: newUser.username,
       },
       JWT_SECRET,
-      {
-        expiresIn: JWT_EXPIRES_IN,
-        issuer: 'space-shooter-game',
-        audience: 'space-shooter-users',
-      }
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.status(201).json({
@@ -149,11 +146,7 @@ export const loginUser = async (
         username: user.username,
       },
       JWT_SECRET,
-      {
-        expiresIn: JWT_EXPIRES_IN,
-        issuer: 'space-shooter-game',
-        audience: 'space-shooter-users',
-      }
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.status(200).json({

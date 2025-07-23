@@ -5,7 +5,7 @@ import {
   submitScore,
   getUserScores,
   getStats,
-} from '../controllers/leaderboardController.js';
+} from '../controllers/leaderboardController';
 
 const router = Router();
 

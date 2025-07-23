@@ -15,6 +15,11 @@ let gameState = {
   isPaused: false,
   isGameOver: false,
   currentScore: 0,
+  currentStage: 1,
+  difficulty: 'medium',
+  gameStartTime: null,
+  enemiesKilled: 0,
+  powerUpsCollected: 0,
 };
 
 window.gameState = gameState;
@@ -167,6 +172,11 @@ function initializeGame() {
   gameState.isPaused = false;
   gameState.isGameOver = false;
   gameState.currentScore = 0;
+  gameState.currentStage = 1;
+  gameState.difficulty = 'medium';
+  gameState.gameStartTime = Date.now();
+  gameState.enemiesKilled = 0;
+  gameState.powerUpsCollected = 0;
 
   // Reset player state
   player.healthBar.reset(); // Reset health using the HealthBar's reset method
@@ -251,9 +261,25 @@ function handleGameOver() {
   showGameOverLeaderboard();
 }
 
-function addScoreToLeaderboard(score) {
-  const playerName =
-    prompt('Game Over! Enter your name for the leaderboard:') || 'Anonymous';
+async function addScoreToLeaderboard(score) {
+  let playerName = 'Anonymous';
+  let shouldSubmitToBackend = false;
+
+  // Check if user is authenticated
+  if (window.authUI && window.authUI.isAuthenticated()) {
+    const currentUser = window.authUI.getCurrentUser();
+    playerName = currentUser.username;
+    shouldSubmitToBackend = true;
+  } else {
+    // Prompt for name for anonymous players
+    const enteredName = prompt(
+      'Game Over! Enter your name for the leaderboard:'
+    );
+    if (enteredName) {
+      playerName = enteredName.trim();
+    }
+  }
+
   const currentDate = new Date().toISOString().split('T')[0];
 
   const newEntry = {
@@ -262,6 +288,35 @@ function addScoreToLeaderboard(score) {
     date: currentDate,
   };
 
+  // Submit to backend if user is authenticated
+  if (shouldSubmitToBackend && window.apiService) {
+    try {
+      const gameData = {
+        score: score,
+        level: gameState.currentStage || 1,
+        difficulty: gameState.difficulty || 'medium',
+        duration:
+          Math.floor((Date.now() - gameState.gameStartTime) / 1000) || 0,
+        enemiesKilled: gameState.enemiesKilled || 0,
+        powerUpsCollected: gameState.powerUpsCollected || 0,
+      };
+
+      await window.apiService.submitScore(gameData);
+      console.log('Score submitted to backend successfully');
+
+      // Show success notification
+      if (window.showNotification) {
+        window.showNotification('Score saved to your profile!', 'success');
+      }
+    } catch (error) {
+      console.error('Failed to submit score to backend:', error);
+      if (window.showNotification) {
+        window.showNotification('Failed to save score online', 'error');
+      }
+    }
+  }
+
+  // Still save to local storage for offline functionality
   let leaderboardData = JSON.parse(
     localStorage.getItem('spaceShooterLeaderboard')
   ) || {
@@ -293,13 +348,21 @@ function addScoreToLeaderboard(score) {
   );
 }
 
-function showGameOverLeaderboard() {
+async function showGameOverLeaderboard() {
   document.getElementById('gameCanvas').classList.add('hidden-canvas');
 
   const leaderboardPanel = document.querySelector('.leaderboard-panel');
   leaderboardPanel.classList.remove('hidden');
 
-  updateLeaderboardDisplay();
+  // Refresh leaderboard with new data
+  if (window.leaderboardManager) {
+    await window.leaderboardManager.refresh();
+  } else {
+    // Fallback to local leaderboard display
+    if (window.updateLeaderboardDisplay) {
+      window.updateLeaderboardDisplay();
+    }
+  }
 
   const panelTitle = leaderboardPanel.querySelector('.panel-title');
   panelTitle.textContent = `GAME OVER - FINAL SCORE: ${gameState.currentScore}`;
@@ -309,6 +372,7 @@ function showGameOverLeaderboard() {
     backToMenuButton.textContent = 'Play Again';
   }
 }
+
 function updateLeaderboardDisplay() {
   const leaderboardData = JSON.parse(
     localStorage.getItem('spaceShooterLeaderboard')

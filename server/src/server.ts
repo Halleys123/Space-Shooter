@@ -11,12 +11,12 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
 // Import routes
-import leaderboardRoutes from './routes/leaderboardRoutes.js';
-import userRoutes from './routes/userRoutes.js';
-import gameSessionRoutes from './routes/gameSessionRoutes.js';
+import leaderboardRoutes from './routes/leaderboardRoutes';
+import userRoutes from './routes/userRoutes';
+import gameSessionRoutes from './routes/gameSessionRoutes';
 
 // Import middleware
-import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 dotenv.config();
 

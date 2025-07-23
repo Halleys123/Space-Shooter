@@ -7,7 +7,7 @@ import {
   getSessionById,
   getUserSessions,
   getSessionStats,
-} from '../controllers/gameSessionController.js';
+} from '../controllers/gameSessionController';
 
 const router = Router();
 

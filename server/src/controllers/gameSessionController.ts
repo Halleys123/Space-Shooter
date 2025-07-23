@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { GameSession } from '../models/GameSession.js';
+import { GameSession } from '../models/GameSession';
 import { validationResult } from 'express-validator';
 
 // Create a new game session

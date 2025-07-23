@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { LeaderboardEntry } from '../models/LeaderboardEntry.js';
+import { LeaderboardEntry } from '../models/LeaderboardEntry';
 
 export interface LeaderboardQuery {
   timeFrame?: 'today' | 'this-week' | 'all-time';
