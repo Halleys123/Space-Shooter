@@ -47,7 +47,6 @@ const leaderboardData = {
 document.addEventListener('DOMContentLoaded', function () {
   initializeSettings();
   setupEventListeners();
-  //   loadLeaderboard('all-time');
 });
 
 function setupEventListeners() {
@@ -69,7 +68,6 @@ function setupEventListeners() {
       const panelType = e.target.getAttribute('data-panel');
       hidePanel(panelType);
 
-      // If coming from game over screen, restart the game
       if (window.gameState && window.gameState.isGameOver) {
         restartGame();
       }
@@ -98,7 +96,6 @@ function setupEventListeners() {
     startGame();
   });
 
-  // Add clear scores functionality
   const clearScoresButton = document.querySelector('.clear-scores');
   if (clearScoresButton) {
     clearScoresButton.addEventListener('click', clearAllScores);
@@ -112,7 +109,6 @@ function showPanel(panelType) {
   } else if (panelType === 'leaderboard') {
     leaderboardPanel.classList.remove('hidden');
 
-    // Reset button text when accessing leaderboard normally (not from game over)
     if (!window.gameState || !window.gameState.isGameOver) {
       const backToMenuButton = leaderboardPanel.querySelector('.back-to-menu');
       if (backToMenuButton) {
@@ -202,19 +198,16 @@ function switchLeaderboardTab(tabType) {
     }
   });
 
-  // Update leaderboard display when tab changes
   if (typeof updateLeaderboardDisplay === 'function') {
     updateLeaderboardDisplay();
   }
 }
 
-// Function to start the game
 function startGame() {
   gameMenu.classList.add('hidden');
   text.classList.add('hidden');
   document.getElementById('gameCanvas').classList.remove('hidden-canvas');
 
-  // Reset game state if it exists
   if (window.gameState) {
     window.gameState.isPaused = false;
     window.gameState.isGameOver = false;
@@ -222,17 +215,13 @@ function startGame() {
   }
 }
 
-// Function to restart the game
 function restartGame() {
-  // Hide all panels
   hideAllPanels();
 
-  // Show game menu
   gameMenu.classList.remove('hidden');
   text.classList.remove('hidden');
   document.getElementById('gameCanvas').classList.add('hidden-canvas');
 
-  // Reset leaderboard panel title and button text
   const leaderboardPanel = document.querySelector('.leaderboard-panel');
   const panelTitle = leaderboardPanel.querySelector('.panel-title');
   panelTitle.textContent = 'LEADERBOARD';
@@ -242,18 +231,15 @@ function restartGame() {
     backToMenuButton.textContent = 'Back to Menu';
   }
 
-  // Reset game state
   if (window.gameState) {
     window.gameState.isPaused = false;
     window.gameState.isGameOver = false;
     window.gameState.currentScore = 0;
   }
 
-  // Reload the page to fully reset the game
   window.location.reload();
 }
 
-// Function to clear all scores
 function clearAllScores() {
   if (
     confirm(
@@ -262,7 +248,6 @@ function clearAllScores() {
   ) {
     localStorage.removeItem('spaceShooterLeaderboard');
 
-    // Update display
     if (typeof updateLeaderboardDisplay === 'function') {
       updateLeaderboardDisplay();
     }
@@ -271,7 +256,6 @@ function clearAllScores() {
   }
 }
 
-// Function to update leaderboard display (duplicate from canvas.js for access from script.js)
 function updateLeaderboardDisplay() {
   const leaderboardData = JSON.parse(
     localStorage.getItem('spaceShooterLeaderboard')

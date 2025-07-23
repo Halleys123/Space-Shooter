@@ -3,33 +3,29 @@ class Stage {
     this.ctx = ctx;
     this.canvas = canvas;
 
-    // Stage management
     this.currentStage = 1;
     this.currentCycle = 1;
     this.totalStages = 10;
     this.isStageComplete = false;
     this.isTransitioning = false;
     this.transitionTimer = 0;
-    this.transitionDuration = 180; // 3 seconds at 60 FPS
+    this.transitionDuration = 180;
 
-    // Enemy management
     this.enemies = [];
     this.enemySpawnTimer = 0;
     this.nextSpawnTime = 0;
 
-    // Initialize starfield background
     this.starField = new StarField(canvas, 150);
     this.starField.setStageTheme(this.currentStage, this.currentCycle);
 
-    // Stage configurations (base values for cycle 1)
     this.stageConfigs = {
       1: {
         name: 'Basic Assault',
         description: 'Simple enemies moving down',
         enemyTypes: [{ type: BasicEnemy, weight: 100 }],
-        spawnRate: 90, // frames between spawns
+        spawnRate: 90,
         maxEnemies: 3,
-        duration: 600, // 10 seconds
+        duration: 600,
       },
       2: {
         name: 'Mixed Formation',
@@ -137,13 +133,11 @@ class Stage {
       },
     };
 
-    // Current stage stats
     this.stageTimer = 0;
     this.stageDuration = 0;
     this.enemiesSpawned = 0;
     this.enemiesKilled = 0;
 
-    // Initialize first stage
     this.initializeStage();
   }
 
@@ -157,17 +151,13 @@ class Stage {
     this.isTransitioning = false;
     this.nextSpawnTime = config.spawnRate;
 
-    // Clear existing enemies
     this.enemies = [];
-    
-    // Update starfield theme for new stage
+
     this.starField.setStageTheme(this.currentStage, this.currentCycle);
-    
-    // Add some visual effects for stage changes
+
     if (this.currentStage > 1 || this.currentCycle > 1) {
       this.starField.startWarpEffect();
-      
-      // Create meteor shower for dramatic stages
+
       if (this.currentStage >= 7 || this.currentCycle > 2) {
         this.createMeteorShower();
       }
@@ -176,7 +166,7 @@ class Stage {
 
   getScaledStageConfig() {
     const baseConfig = this.stageConfigs[this.currentStage];
-    const difficultyMultiplier = 1 + (this.currentCycle - 1) * 0.3; // 30% increase per cycle
+    const difficultyMultiplier = 1 + (this.currentCycle - 1) * 0.3;
 
     return {
       ...baseConfig,
@@ -192,14 +182,12 @@ class Stage {
   }
 
   update(playerPosition) {
-    // Update starfield background
     this.starField.update();
-    
-    // Add dynamic wind effects based on player movement and combat
+
     if (playerPosition && this.enemies.length > 0) {
       this.starField.addTurbulence(0.1);
     }
-    
+
     if (this.isTransitioning) {
       this.updateTransition();
       return;
@@ -208,13 +196,10 @@ class Stage {
     this.stageTimer++;
     this.enemySpawnTimer++;
 
-    // Spawn enemies
     this.updateEnemySpawning(playerPosition);
 
-    // Update existing enemies
     this.updateEnemies(playerPosition);
 
-    // Check stage completion
     this.checkStageCompletion();
   }
 
@@ -238,7 +223,6 @@ class Stage {
       this.spawnEnemy();
       this.enemySpawnTimer = 0;
 
-      // Add some randomness to spawn timing
       const variation = config.spawnRate * 0.3;
       this.nextSpawnTime = config.spawnRate + (Math.random() - 0.5) * variation;
     }
@@ -248,9 +232,8 @@ class Stage {
     const config = this.getScaledStageConfig();
     const enemyType = this.selectRandomEnemyType(config.enemyTypes);
 
-    // Random spawn position at the top of the screen
     const spawnX = Math.random() * (this.canvas.width - 100) + 50;
-    const spawnY = -60; // Above screen
+    const spawnY = -60;
 
     const enemy = new enemyType(this.ctx, this.canvas, spawnX, spawnY);
     this.enemies.push(enemy);
@@ -271,16 +254,14 @@ class Stage {
       }
     }
 
-    return enemyTypes[0].type; // Fallback
+    return enemyTypes[0].type;
   }
 
   updateEnemies(playerPosition) {
-    // Update all enemies
     this.enemies.forEach((enemy) => {
       enemy.update(playerPosition);
     });
 
-    // Remove dead or off-screen enemies
     const initialCount = this.enemies.length;
     this.enemies = this.enemies.filter((enemy) => {
       if (enemy.shouldBeRemoved()) {
@@ -296,7 +277,6 @@ class Stage {
   checkStageCompletion() {
     const config = this.getScaledStageConfig();
 
-    // Stage is complete if time is up and all enemies are cleared
     if (this.stageTimer >= config.duration && this.enemies.length === 0) {
       this.completeStage();
     }
@@ -307,7 +287,6 @@ class Stage {
     this.isTransitioning = true;
     this.transitionTimer = 0;
 
-    // Advance to next stage
     this.currentStage++;
     if (this.currentStage > this.totalStages) {
       this.currentStage = 1;
@@ -316,18 +295,14 @@ class Stage {
   }
 
   draw() {
-    // Draw starfield background first
     this.starField.draw(this.ctx);
-    
-    // Draw all enemies
+
     this.enemies.forEach((enemy) => {
       enemy.draw();
     });
 
-    // Draw stage UI
     this.drawStageUI();
 
-    // Draw transition screen
     if (this.isTransitioning) {
       this.drawTransition();
     }
@@ -336,7 +311,6 @@ class Stage {
   drawStageUI() {
     const config = this.stageConfigs[this.currentStage];
 
-    // Stage info
     this.ctx.fillStyle = '#ffffff';
     this.ctx.font = '20px Arial';
     this.ctx.textAlign = 'left';
@@ -346,7 +320,6 @@ class Stage {
       30
     );
 
-    // Progress bar
     const progressWidth = 200;
     const progressHeight = 10;
     const progressX = 20;
@@ -355,11 +328,9 @@ class Stage {
     const scaledConfig = this.getScaledStageConfig();
     const progress = Math.min(1, this.stageTimer / scaledConfig.duration);
 
-    // Progress bar background
     this.ctx.fillStyle = '#333333';
     this.ctx.fillRect(progressX, progressY, progressWidth, progressHeight);
 
-    // Progress bar fill
     this.ctx.fillStyle = '#00ff00';
     this.ctx.fillRect(
       progressX,
@@ -368,12 +339,10 @@ class Stage {
       progressHeight
     );
 
-    // Progress bar border
     this.ctx.strokeStyle = '#ffffff';
     this.ctx.lineWidth = 1;
     this.ctx.strokeRect(progressX, progressY, progressWidth, progressHeight);
 
-    // Enemy count
     this.ctx.fillStyle = '#ffffff';
     this.ctx.font = '16px Arial';
     this.ctx.fillText(`Enemies: ${this.enemies.length}`, 20, 80);
@@ -381,11 +350,9 @@ class Stage {
   }
 
   drawTransition() {
-    // Semi-transparent overlay
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Stage complete text
     this.ctx.fillStyle = '#ffffff';
     this.ctx.font = 'bold 48px Arial';
     this.ctx.textAlign = 'center';
@@ -408,7 +375,6 @@ class Stage {
       this.ctx.fillText(`Next: ${config.name}`, centerX, centerY + 20);
     }
 
-    // Progress indicator
     const transitionProgress = this.transitionTimer / this.transitionDuration;
     const barWidth = 300;
     const barHeight = 8;
@@ -422,7 +388,6 @@ class Stage {
     this.ctx.fillRect(barX, barY, barWidth * transitionProgress, barHeight);
   }
 
-  // Helper methods for external access
   getCurrentStage() {
     return this.currentStage;
   }
@@ -448,29 +413,25 @@ class Stage {
     };
   }
 
-  // Force advance to next stage (for testing)
   forceNextStage() {
-    this.enemies = []; // Clear all enemies
+    this.enemies = [];
     this.completeStage();
   }
 
-  // Create meteor shower effect for dramatic stages
   createMeteorShower() {
-    const meteorCount = Math.random() * 3 + 2; // 2-5 meteors
-    
+    const meteorCount = Math.random() * 3 + 2;
+
     for (let i = 0; i < meteorCount; i++) {
       setTimeout(() => {
         this.starField.createMeteor();
-      }, i * 500 + Math.random() * 1000); // Stagger meteors
+      }, i * 500 + Math.random() * 1000);
     }
   }
 
-  // Get starfield reference for external access
   getStarField() {
     return this.starField;
   }
 
-  // Resize canvas and update starfield
   resize(newWidth, newHeight) {
     this.canvas.width = newWidth;
     this.canvas.height = newHeight;
