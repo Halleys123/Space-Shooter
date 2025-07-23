@@ -31,7 +31,7 @@ class Player {
   constructor(ctx, canvas, src) {
     this.ctx = ctx;
     this.canvas = canvas;
-    
+
     // Set initial position
     this.control.position.x = canvas.width / 2;
     this.control.position.y = canvas.height - 150;
@@ -110,7 +110,10 @@ class Player {
     );
     this.control.position.y = Math.max(
       0,
-      Math.min(this.canvas.height - this.visuals.height, this.control.position.y)
+      Math.min(
+        this.canvas.height - this.visuals.height,
+        this.control.position.y
+      )
     );
 
     // Check for boundary collisions and emit particles
@@ -159,7 +162,7 @@ class Player {
     } else {
       this.health.collisionDamageTimer = 0;
     }
-    
+
     this.control.rotation =
       Math.atan2(mouse.y - centerY, mouse.x - centerX) + Math.PI / 2;
 
