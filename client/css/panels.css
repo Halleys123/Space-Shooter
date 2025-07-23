@@ -497,12 +497,15 @@ input[type='text']:focus {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: linear-gradient(135deg, rgba(10, 10, 30, 0.95), rgba(20, 20, 50, 0.95));
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 30, 0.95),
+    rgba(20, 20, 50, 0.95)
+  );
   border: 2px solid rgba(0, 188, 212, 0.4);
   border-radius: 16px;
   padding: 0;
-  box-shadow: 
-    0 0 40px rgba(0, 188, 212, 0.3),
+  box-shadow: 0 0 40px rgba(0, 188, 212, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   width: 90%;
@@ -525,7 +528,11 @@ input[type='text']:focus {
 }
 
 .auth-panel .panel-header {
-  background: linear-gradient(135deg, rgba(0, 188, 212, 0.2), rgba(33, 150, 243, 0.2));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 188, 212, 0.2),
+    rgba(33, 150, 243, 0.2)
+  );
   border-bottom: 1px solid rgba(0, 188, 212, 0.3);
   padding: 1.5rem 2rem;
   display: flex;
@@ -795,7 +802,11 @@ input[type='text']:focus {
 }
 
 .profile-actions .btn-danger {
-  background: linear-gradient(135deg, rgba(244, 67, 54, 0.8), rgba(233, 30, 99, 0.8));
+  background: linear-gradient(
+    135deg,
+    rgba(244, 67, 54, 0.8),
+    rgba(233, 30, 99, 0.8)
+  );
   border: none;
   border-radius: 8px;
   padding: 1rem 2rem;
