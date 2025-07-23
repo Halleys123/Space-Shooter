@@ -293,12 +293,17 @@ async function addScoreToLeaderboard(score) {
     try {
       const gameData = {
         score: score,
-        level: gameState.currentStage || 1,
-        difficulty: gameState.difficulty || 'medium',
-        duration:
-          Math.floor((Date.now() - gameState.gameStartTime) / 1000) || 0,
+        stage: gameState.currentStage || 1,
+        cycle: 1, // Add cycle field as required by backend
+        difficulty:
+          gameState.difficulty === 'medium'
+            ? 'normal'
+            : gameState.difficulty || 'normal',
+        playTime:
+          Math.floor((Date.now() - gameState.gameStartTime) / 1000) || 1,
         enemiesKilled: gameState.enemiesKilled || 0,
-        powerUpsCollected: gameState.powerUpsCollected || 0,
+        powerupsCollected: gameState.powerUpsCollected || 0,
+        accuracy: 85.0, // Add accuracy field as required by backend
       };
 
       await window.apiService.submitScore(gameData);

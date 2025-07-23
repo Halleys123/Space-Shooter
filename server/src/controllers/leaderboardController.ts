@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
 import { LeaderboardEntry } from '../models/LeaderboardEntry';
 
 export interface LeaderboardQuery {
@@ -88,6 +89,17 @@ export const submitScore = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        status: 'error',
+        message: 'Validation Error',
+        errors: errors.array(),
+      });
+      return;
+    }
+
     const {
       username,
       score,

@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/critical.css">
     <link rel="stylesheet" href="./css/responsive.css">
-    <link rel="stylesheet" href="./css/auth-leaderboard.css">
+    <link rel="stylesheet" href="./css/leaderboard-simple.css">
 
     <link rel="icon" href="./assets/space-invaders 64.png" type="image/x-icon">
     <script src="./js/api-service.js" defer></script>
@@ -310,52 +310,56 @@
                 <button class="tab-button" data-tab="this-week">This Week</button>
             </div>
 
-            <div class="leaderboard-list">
-                <div class="leaderboard-header">
-                    <span class="rank-header">Rank</span>
-                    <span class="name-header">Player</span>
-                    <span class="score-header">Score</span>
-                    <span class="date-header">Date</span>
-                </div>
+            <div class="difficulty-selector">
+                <label for="difficulty-filter">Difficulty:</label>
+                <select id="difficulty-filter">
+                    <option value="Normal">Normal</option>
+                    <option value="Hard">Hard</option>
+                    <option value="Expert">Expert</option>
+                </select>
+            </div>
 
+            <div class="refresh-leaderboard">
+                🔄 Refresh Leaderboard
+            </div>
+
+            <div class="leaderboard-list">
                 <div class="leaderboard-entries" id="leaderboard-entries">
-                    <!-- Sample entries - will be populated by JavaScript -->
-                    <div class="leaderboard-entry">
-                        <span class="rank">1</span>
-                        <span class="player-name">ACE_PILOT</span>
-                        <span class="score">125,430</span>
-                        <span class="date">2025-07-23</span>
+                    <!-- Loading state -->
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading leaderboard...</p>
                     </div>
-                    <div class="leaderboard-entry">
-                        <span class="rank">2</span>
-                        <span class="player-name">STAR_DESTROYER</span>
-                        <span class="score">98,760</span>
-                        <span class="date">2025-07-22</span>
+                </div>
+                <div class="pagination-controls" id="pagination-controls">
+                    <!-- Pagination buttons will be added here by JavaScript -->
+                </div>
+            </div>
+
+            <div class="leaderboard-stats">
+                <h3>Leaderboard Statistics</h3>
+                <div class="stats-grid" id="leaderboard-stats-content">
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-players">-</span>
+                        <span class="stat-label">Total Players</span>
                     </div>
-                    <div class="leaderboard-entry">
-                        <span class="rank">3</span>
-                        <span class="player-name">COSMIC_HERO</span>
-                        <span class="score">87,520</span>
-                        <span class="date">2025-07-21</span>
+                    <div class="stat-item">
+                        <span class="stat-value" id="highest-score">-</span>
+                        <span class="stat-label">Highest Score</span>
                     </div>
-                    <div class="leaderboard-entry">
-                        <span class="rank">4</span>
-                        <span class="player-name">NEBULA_KNIGHT</span>
-                        <span class="score">76,340</span>
-                        <span class="date">2025-07-20</span>
+                    <div class="stat-item">
+                        <span class="stat-value" id="average-score">-</span>
+                        <span class="stat-label">Average Score</span>
                     </div>
-                    <div class="leaderboard-entry">
-                        <span class="rank">5</span>
-                        <span class="player-name">VOID_WARRIOR</span>
-                        <span class="score">65,890</span>
-                        <span class="date">2025-07-19</span>
+                    <div class="stat-item">
+                        <span class="stat-value" id="average-accuracy">-%</span>
+                        <span class="stat-label">Avg. Accuracy</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="panel-footer">
-            <button class="btn-secondary clear-scores">Clear All Scores</button>
             <button class="btn-primary back-to-menu" data-panel="leaderboard">Back to Menu</button>
         </div>
     </div>

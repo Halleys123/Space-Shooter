@@ -19,6 +19,10 @@ class LeaderboardManager {
     this.init();
   }
 
+  async refresh() {
+    await this.loadLeaderboard();
+  }
+
   init() {
     this.bindEvents();
     this.loadLeaderboard();
@@ -33,82 +37,21 @@ class LeaderboardManager {
       });
     });
 
-    // Add difficulty selector if not exists
-    this.createDifficultySelector();
-
-    // Add refresh button
-    this.createRefreshButton();
-
-    // Add pagination controls
-    this.createPaginationControls();
-
-    // Add stats display
-    this.createStatsDisplay();
-  }
-
-  createDifficultySelector() {
-    const leaderboardContent = document.querySelector('.leaderboard-content');
-
-    let difficultySelector = document.querySelector('.difficulty-selector');
-    if (!difficultySelector) {
-      difficultySelector = document.createElement('div');
-      difficultySelector.className = 'difficulty-selector';
-      difficultySelector.innerHTML = `
-        <label for="difficulty-select">Difficulty:</label>
-        <select id="difficulty-select">
-          <option value="easy">Easy</option>
-          <option value="normal" selected>Normal</option>
-          <option value="hard">Hard</option>
-          <option value="expert">Expert</option>
-        </select>
-      `;
-
-      const tabs = document.querySelector('.leaderboard-tabs');
-      leaderboardContent.insertBefore(difficultySelector, tabs.nextSibling);
-    }
-
-    document
-      .getElementById('difficulty-select')
-      .addEventListener('change', (e) => {
-        this.currentDifficulty = e.target.value;
-        this.currentPage = 1;
+    // Difficulty filter
+    const difficultyFilter = document.getElementById('difficulty-filter');
+    if (difficultyFilter) {
+      difficultyFilter.addEventListener('change', (e) => {
+        this.currentDifficulty = e.target.value.toLowerCase();
         this.loadLeaderboard();
       });
-  }
-
-  createRefreshButton() {
-    const header = document.querySelector('.leaderboard-header');
-
-    let refreshButton = document.querySelector('.refresh-leaderboard');
-    if (!refreshButton) {
-      refreshButton = document.createElement('button');
-      refreshButton.className = 'refresh-leaderboard btn-small';
-      refreshButton.innerHTML = '🔄 Refresh';
-      refreshButton.onclick = () => this.refreshLeaderboard();
-
-      header.appendChild(refreshButton);
     }
-  }
 
-  createPaginationControls() {
-    let paginationContainer = document.querySelector('.pagination-controls');
-    if (!paginationContainer) {
-      paginationContainer = document.createElement('div');
-      paginationContainer.className = 'pagination-controls';
-
-      const leaderboardList = document.querySelector('.leaderboard-list');
-      leaderboardList.appendChild(paginationContainer);
-    }
-  }
-
-  createStatsDisplay() {
-    let statsContainer = document.querySelector('.leaderboard-stats');
-    if (!statsContainer) {
-      statsContainer = document.createElement('div');
-      statsContainer.className = 'leaderboard-stats';
-
-      const leaderboardContent = document.querySelector('.leaderboard-content');
-      leaderboardContent.appendChild(statsContainer);
+    // Refresh button
+    const refreshButton = document.querySelector('.refresh-leaderboard');
+    if (refreshButton) {
+      refreshButton.addEventListener('click', () => {
+        this.refresh();
+      });
     }
   }
 
@@ -213,49 +156,36 @@ class LeaderboardManager {
   }
 
   displayStats(statsData) {
-    const statsContainer = document.querySelector('.leaderboard-stats');
-
     if (!statsData.stats) return;
 
     const stats = statsData.stats;
 
-    statsContainer.innerHTML = `
-      <h4>Leaderboard Statistics (${this.currentDifficulty})</h4>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value">${stats.totalEntries || 0}</div>
-          <div class="stat-label">Total Players</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${(
-            stats.highestScore || 0
-          ).toLocaleString()}</div>
-          <div class="stat-label">Highest Score</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${Math.round(
-            stats.averageScore || 0
-          ).toLocaleString()}</div>
-          <div class="stat-label">Average Score</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${Math.round(
-            stats.averageAccuracy || 0
-          )}%</div>
-          <div class="stat-label">Average Accuracy</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${(
-            stats.totalEnemiesKilled || 0
-          ).toLocaleString()}</div>
-          <div class="stat-label">Total Enemies Defeated</div>
-        </div>
-      </div>
-    `;
+    // Update individual stat elements
+    const totalPlayersEl = document.getElementById('total-players');
+    const highestScoreEl = document.getElementById('highest-score');
+    const averageScoreEl = document.getElementById('average-score');
+    const averageAccuracyEl = document.getElementById('average-accuracy');
+
+    if (totalPlayersEl) totalPlayersEl.textContent = stats.totalEntries || '0';
+    if (highestScoreEl)
+      highestScoreEl.textContent = (stats.highestScore || 0).toLocaleString();
+    if (averageScoreEl)
+      averageScoreEl.textContent = Math.round(
+        stats.averageScore || 0
+      ).toLocaleString();
+    if (averageAccuracyEl)
+      averageAccuracyEl.textContent = `${Math.round(
+        stats.averageAccuracy || 0
+      )}%`;
   }
 
   updatePagination(pagination) {
     const paginationContainer = document.querySelector('.pagination-controls');
+    
+    if (!paginationContainer) {
+      console.warn('Pagination container not found');
+      return;
+    }
 
     if (!pagination || pagination.totalPages <= 1) {
       paginationContainer.innerHTML = '';
@@ -264,14 +194,14 @@ class LeaderboardManager {
 
     paginationContainer.innerHTML = `
       <button class="btn-small" ${!pagination.hasPrevPage ? 'disabled' : ''} 
-              onclick="leaderboardManager.previousPage()">
+              onclick="window.leaderboardManager.previousPage()">
         ← Previous
       </button>
       <span class="page-info">
         Page ${pagination.currentPage} of ${pagination.totalPages}
       </span>
       <button class="btn-small" ${!pagination.hasNextPage ? 'disabled' : ''} 
-              onclick="leaderboardManager.nextPage()">
+              onclick="window.leaderboardManager.nextPage()">
         Next →
       </button>
     `;
@@ -321,7 +251,7 @@ class LeaderboardManager {
     entriesContainer.innerHTML = `
       <div class="error-state">
         <p>Failed to load leaderboard: ${message}</p>
-        <button class="btn-primary" onclick="leaderboardManager.refreshLeaderboard()">
+        <button class="btn-primary" onclick="window.leaderboardManager.refreshLeaderboard()">
           Try Again
         </button>
       </div>
@@ -364,5 +294,27 @@ class LeaderboardManager {
 
 // Initialize leaderboard manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-  window.leaderboardManager = new LeaderboardManager();
+  // Wait for other managers to be initialized
+  if (window.apiService && window.authUI) {
+    window.leaderboardManager = new LeaderboardManager(
+      '.leaderboard-panel',
+      window.apiService,
+      window.authUI
+    );
+    window.leaderboardManager.initialize();
+  } else {
+    // Retry initialization after a short delay
+    setTimeout(() => {
+      if (window.apiService && window.authUI) {
+        window.leaderboardManager = new LeaderboardManager(
+          '.leaderboard-panel',
+          window.apiService,
+          window.authUI
+        );
+        window.leaderboardManager.initialize();
+      } else {
+        console.warn('LeaderboardManager: Required dependencies (apiService, authUI) not found');
+      }
+    }, 100);
+  }
 });
