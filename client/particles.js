@@ -15,7 +15,6 @@ class Particle {
     this.life--;
     this.alpha = this.life / this.maxLife;
 
-    // Add some friction to particles
     this.velocity.x *= 0.98;
     this.velocity.y *= 0.98;
   }
@@ -46,16 +45,13 @@ class ThrustParticleSystem {
   emit(x, y, rotation, isAccelerating) {
     if (!isAccelerating) return;
 
-    // Emit particles from the back of the ship
-    const particleCount = Math.random() * 3 + 2; // 2-5 particles per frame
+    const particleCount = Math.random() * 3 + 2;
 
     for (let i = 0; i < particleCount; i++) {
-      // Calculate emission point at the back of the ship
-      const emitDistance = 60; // Distance behind the ship center
+      const emitDistance = 60;
       const emitX = x - Math.sin(rotation) * emitDistance;
       const emitY = y + Math.cos(rotation) * emitDistance;
 
-      // Add some spread to the emission
       const spread = 0.5;
       const angle = rotation + Math.PI + (Math.random() - 0.5) * spread;
 
@@ -63,7 +59,7 @@ class ThrustParticleSystem {
       const velocityX = Math.sin(angle) * speed;
       const velocityY = -Math.cos(angle) * speed;
 
-      const life = Math.random() * 20 + 10; // 10-30 frames
+      const life = Math.random() * 20 + 10;
       const colors = ['#80ffdb', '#72efdd', '#4ea8de', '#7400b8', '#5e60ce'];
       const color = colors[Math.floor(Math.random() * colors.length)];
       const size = Math.random() * 3 + 1;
@@ -80,7 +76,6 @@ class ThrustParticleSystem {
       this.particles.push(particle);
     }
 
-    // Remove excess particles
     if (this.particles.length > this.maxParticles) {
       this.particles.splice(0, this.particles.length - this.maxParticles);
     }
@@ -103,40 +98,38 @@ class CollisionParticleSystem {
   }
 
   emit(x, y, collisionSide) {
-    // Emit particles from collision point
-    const particleCount = Math.random() * 8 + 5; // 5-13 particles per collision
+    const particleCount = Math.random() * 8 + 5;
 
     for (let i = 0; i < particleCount; i++) {
-      // Determine particle direction based on collision side
       let angle;
       switch (collisionSide) {
         case 'left':
-          angle = (Math.random() - 0.5) * Math.PI; // -90° to +90° from right
+          angle = (Math.random() - 0.5) * Math.PI;
           break;
         case 'right':
-          angle = Math.PI + (Math.random() - 0.5) * Math.PI; // -90° to +90° from left
+          angle = Math.PI + (Math.random() - 0.5) * Math.PI;
           break;
         case 'top':
-          angle = Math.PI / 2 + (Math.random() - 0.5) * Math.PI; // -90° to +90° from down
+          angle = Math.PI / 2 + (Math.random() - 0.5) * Math.PI;
           break;
         case 'bottom':
-          angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI; // -90° to +90° from up
+          angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI;
           break;
         default:
-          angle = Math.random() * Math.PI * 2; // Random direction
+          angle = Math.random() * Math.PI * 2;
       }
 
       const speed = Math.random() * 4 + 2;
       const velocityX = Math.cos(angle) * speed;
       const velocityY = Math.sin(angle) * speed;
 
-      const life = Math.random() * 30 + 15; // 15-45 frames
+      const life = Math.random() * 30 + 15;
       const colors = ['#ff4500', '#ff6b35', '#ff8800', '#cc3300'];
       const color = colors[Math.floor(Math.random() * colors.length)];
       const size = Math.random() * 4 + 2;
 
       const particle = new Particle(
-        x + (Math.random() - 0.5) * 20, // Add some spread around collision point
+        x + (Math.random() - 0.5) * 20,
         y + (Math.random() - 0.5) * 20,
         velocityX,
         velocityY,
@@ -147,7 +140,6 @@ class CollisionParticleSystem {
       this.particles.push(particle);
     }
 
-    // Remove excess particles
     if (this.particles.length > this.maxParticles) {
       this.particles.splice(0, this.particles.length - this.maxParticles);
     }

@@ -1,7 +1,6 @@
-// Collision shapes for different collision detection methods
 class CollisionShape {
   constructor(type, x, y, width, height, radius = null) {
-    this.type = type; // 'rectangle', 'circle'
+    this.type = type;
     this.x = x;
     this.y = y;
     this.width = width;
@@ -9,13 +8,11 @@ class CollisionShape {
     this.radius = radius;
   }
 
-  // Update position (called when object moves)
   updatePosition(x, y) {
     this.x = x;
     this.y = y;
   }
 
-  // Get center point
   getCenter() {
     if (this.type === 'circle') {
       return { x: this.x, y: this.y };
@@ -26,7 +23,6 @@ class CollisionShape {
     };
   }
 
-  // Draw collision bounds for debugging
   drawDebug(ctx, color = 'red') {
     ctx.save();
     ctx.strokeStyle = color;
@@ -45,7 +41,6 @@ class CollisionShape {
   }
 }
 
-// Individual collision component for game objects
 class CollisionComponent {
   constructor(
     gameObject,
@@ -56,15 +51,14 @@ class CollisionComponent {
   ) {
     this.gameObject = gameObject;
     this.shape = shape;
-    this.layer = layer; // 'player', 'enemy', 'playerBullet', 'enemyBullet', 'powerup', etc.
+    this.layer = layer;
     this.canDamage = canDamage;
     this.canReceiveDamage = canReceiveDamage;
     this.isActive = true;
     this.damageAmount = 0;
     this.lastCollisionTime = 0;
-    this.collisionCooldown = 30; // frames
+    this.collisionCooldown = 30;
 
-    // Collision callbacks
     this.onCollisionEnter = null;
     this.onCollisionStay = null;
     this.onCollisionExit = null;
@@ -72,13 +66,11 @@ class CollisionComponent {
     this.onDamageReceived = null;
   }
 
-  // Set damage amount this object deals on collision
   setDamage(amount) {
     this.damageAmount = amount;
     return this;
   }
 
-  // Set collision callbacks
   setCallbacks(callbacks) {
     if (callbacks.onCollisionEnter)
       this.onCollisionEnter = callbacks.onCollisionEnter;
@@ -92,7 +84,6 @@ class CollisionComponent {
     return this;
   }
 
-  // Update collision shape position based on game object
   updatePosition() {
     if (this.gameObject.position) {
       this.shape.updatePosition(
@@ -107,7 +98,6 @@ class CollisionComponent {
     }
   }
 
-  // Check if collision cooldown has passed
   canCollide() {
     return (
       this.isActive &&
@@ -115,7 +105,6 @@ class CollisionComponent {
     );
   }
 
-  // Trigger collision event
   triggerCollision(other, collisionData) {
     this.lastCollisionTime = Date.now();
 
@@ -124,7 +113,6 @@ class CollisionComponent {
     }
   }
 
-  // Deal damage to another collision component
   dealDamage(other) {
     if (!this.canDamage || this.damageAmount <= 0) return false;
 
@@ -146,15 +134,13 @@ class CollisionComponent {
   }
 }
 
-// Main collision manager
 class CollisionManager {
   constructor(blastManager = null) {
     this.collisionComponents = [];
-    this.collisionPairs = new Map(); // Track active collisions
+    this.collisionPairs = new Map();
     this.debugMode = false;
     this.blastManager = blastManager;
 
-    // Define which layers can collide with each other
     this.collisionMatrix = {
       player: ['enemy', 'enemyBullet', 'powerup', 'obstacle'],
       enemy: ['player', 'playerBullet', 'obstacle'],
@@ -165,13 +151,11 @@ class CollisionManager {
     };
   }
 
-  // Add collision component to manager
   addComponent(component) {
     this.collisionComponents.push(component);
     return component;
   }
 
-  // Remove collision component
   removeComponent(component) {
     const index = this.collisionComponents.indexOf(component);
     if (index > -1) {
@@ -179,10 +163,8 @@ class CollisionManager {
     }
   }
 
-  // Clean up inactive components
   cleanup() {
     this.collisionComponents = this.collisionComponents.filter((component) => {
-      // Remove if game object is marked for removal or dead
       if (
         component.gameObject.markedForRemoval ||
         (component.gameObject.isAlive !== undefined &&
@@ -196,7 +178,6 @@ class CollisionManager {
     });
   }
 
-  // Check if two layers can collide
   canLayersCollide(layer1, layer2) {
     return (
       this.collisionMatrix[layer1] &&
@@ -204,7 +185,6 @@ class CollisionManager {
     );
   }
 
-  // Circle to circle collision detection
   checkCircleCircle(shape1, shape2) {
     const dx = shape1.x - shape2.x;
     const dy = shape1.y - shape2.y;
@@ -226,7 +206,6 @@ class CollisionManager {
     return { collision: false };
   }
 
-  // Rectangle to rectangle collision detection
   checkRectRect(shape1, shape2) {
     const overlap = !(
       shape1.x > shape2.x + shape2.width ||
@@ -266,7 +245,6 @@ class CollisionManager {
     return { collision: false };
   }
 
-  // Circle to rectangle collision detection
   checkCircleRect(circle, rect) {
     const closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.width));
     const closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.height));
@@ -277,7 +255,7 @@ class CollisionManager {
 
     if (distance < circle.radius) {
       const normal =
-        distance > 0 ? { x: dx / distance, y: dy / distance } : { x: 1, y: 0 }; // Default normal if circle center is inside rect
+        distance > 0 ? { x: dx / distance, y: dy / distance } : { x: 1, y: 0 };
 
       return {
         collision: true,
@@ -290,7 +268,6 @@ class CollisionManager {
     return { collision: false };
   }
 
-  // Main collision detection between two shapes
   checkCollision(comp1, comp2) {
     const shape1 = comp1.shape;
     const shape2 = comp2.shape;
@@ -304,7 +281,6 @@ class CollisionManager {
     } else if (shape1.type === 'rectangle' && shape2.type === 'circle') {
       const result = this.checkCircleRect(shape2, shape1);
       if (result.collision) {
-        // Flip the normal for the reverse check
         result.normal.x *= -1;
         result.normal.y *= -1;
       }
@@ -314,12 +290,9 @@ class CollisionManager {
     return { collision: false };
   }
 
-  // Update all collision components and check for collisions
   update() {
-    // Update all component positions
     this.collisionComponents.forEach((comp) => comp.updatePosition());
 
-    // Check collisions between all valid pairs
     for (let i = 0; i < this.collisionComponents.length; i++) {
       const comp1 = this.collisionComponents[i];
       if (!comp1.isActive || !comp1.canCollide()) continue;
@@ -328,7 +301,6 @@ class CollisionManager {
         const comp2 = this.collisionComponents[j];
         if (!comp2.isActive || !comp2.canCollide()) continue;
 
-        // Check if these layers can collide
         if (
           !this.canLayersCollide(comp1.layer, comp2.layer) &&
           !this.canLayersCollide(comp2.layer, comp1.layer)
@@ -336,7 +308,6 @@ class CollisionManager {
           continue;
         }
 
-        // Perform collision detection
         const collisionResult = this.checkCollision(comp1, comp2);
 
         if (collisionResult.collision) {
@@ -345,26 +316,20 @@ class CollisionManager {
       }
     }
 
-    // Cleanup inactive components
     this.cleanup();
   }
 
-  // Handle collision between two components
   handleCollision(comp1, comp2, collisionData) {
-    // Trigger collision events
     comp1.triggerCollision(comp2, collisionData);
     comp2.triggerCollision(comp1, collisionData);
 
-    // Handle damage
     const damage1Dealt = comp1.dealDamage(comp2);
     const damage2Dealt = comp2.dealDamage(comp1);
 
-    // Create explosion effects if damage was dealt and we have a blast manager
     if (this.blastManager && (damage1Dealt || damage2Dealt)) {
       let explosionType = 'normal';
       let explosionSize = 0.8;
 
-      // Determine explosion type based on objects involved
       if (comp1.layer === 'enemy' || comp2.layer === 'enemy') {
         const enemy =
           comp1.layer === 'enemy' ? comp1.gameObject : comp2.gameObject;
@@ -394,7 +359,6 @@ class CollisionManager {
       );
     }
 
-    // Handle object destruction
     if (comp1.gameObject.getHealth && comp1.gameObject.getHealth() <= 0) {
       this.handleObjectDestruction(comp1);
     }
@@ -404,13 +368,11 @@ class CollisionManager {
     }
   }
 
-  // Handle object destruction
   handleObjectDestruction(component) {
     if (component.layer === 'enemy' && this.blastManager) {
       const enemy = component.gameObject;
       const center = component.shape.getCenter();
 
-      // Create destruction explosion
       this.blastManager.createEnemyExplosion(
         center.x,
         center.y,
@@ -418,7 +380,6 @@ class CollisionManager {
       );
     }
 
-    // Mark for removal
     if (component.gameObject.markedForRemoval !== undefined) {
       component.gameObject.markedForRemoval = true;
     }
@@ -427,12 +388,10 @@ class CollisionManager {
     }
   }
 
-  // Toggle debug mode
   setDebugMode(enabled) {
     this.debugMode = enabled;
   }
 
-  // Draw debug collision bounds
   drawDebug(ctx) {
     if (!this.debugMode) return;
 
@@ -463,7 +422,6 @@ class CollisionManager {
       }
     });
 
-    // Draw collision info
     ctx.fillStyle = 'white';
     ctx.font = '14px Arial';
     ctx.fillText(
@@ -474,11 +432,9 @@ class CollisionManager {
     ctx.fillText(`Debug Mode: ON (Press X to toggle)`, 10, 50);
   }
 
-  // Helper method to create collision component for common game objects
   static createForGameObject(gameObject, layer, options = {}) {
     let shape;
 
-    // Determine shape based on object properties
     if (options.radius) {
       const center = gameObject.position ||
         gameObject.control?.position || { x: 0, y: 0 };

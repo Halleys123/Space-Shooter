@@ -1,4 +1,4 @@
-// Individual blast particle for particle system
+
 class BlastParticle {
   constructor(x, y, velocityX, velocityY, life, color, size, type = 'spark') {
     this.position = { x, y };
@@ -8,11 +8,11 @@ class BlastParticle {
     this.color = color;
     this.size = size;
     this.alpha = 1;
-    this.type = type; // 'spark', 'debris', 'smoke'
+    this.type = type; 
     this.rotation = Math.random() * Math.PI * 2;
     this.rotationSpeed = (Math.random() - 0.5) * 0.2;
 
-    // Type-specific properties
+    
     if (type === 'debris') {
       this.gravity = 0.1;
       this.friction = 0.99;
@@ -31,7 +31,7 @@ class BlastParticle {
     this.alpha = this.life / this.maxLife;
     this.rotation += this.rotationSpeed;
 
-    // Apply type-specific physics
+    
     if (this.type === 'debris') {
       this.velocity.y += this.gravity;
       this.velocity.x *= this.friction;
@@ -55,17 +55,17 @@ class BlastParticle {
     ctx.rotate(this.rotation);
 
     if (this.type === 'debris') {
-      // Draw rectangular debris
+      
       ctx.fillStyle = this.color;
       ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size / 2);
     } else if (this.type === 'smoke') {
-      // Draw circular smoke
+      
       ctx.fillStyle = this.color;
       ctx.beginPath();
       ctx.arc(0, 0, this.size, 0, Math.PI * 2);
       ctx.fill();
     } else {
-      // Draw spark
+      
       ctx.fillStyle = this.color;
       ctx.beginPath();
       ctx.arc(0, 0, this.size, 0, Math.PI * 2);
@@ -80,32 +80,32 @@ class BlastParticle {
   }
 }
 
-// Blast particle system for explosion effects
+
 class BlastParticleSystem {
   constructor() {
     this.particles = [];
     this.maxParticles = 500;
   }
 
-  // Create explosion at specified location
+  
   createExplosion(x, y, intensity = 1, type = 'normal') {
     const particleCount = Math.floor(20 + intensity * 30);
 
     for (let i = 0; i < particleCount; i++) {
-      // Create different types of particles
+      
       if (i < particleCount * 0.6) {
-        // Sparks
+        
         this.createSpark(x, y, intensity);
       } else if (i < particleCount * 0.8) {
-        // Debris
+        
         this.createDebris(x, y, intensity);
       } else {
-        // Smoke
+        
         this.createSmoke(x, y, intensity);
       }
     }
 
-    // Create shockwave effect
+    
     this.createShockwave(x, y, intensity);
   }
 
@@ -216,7 +216,7 @@ class BlastParticleSystem {
     this.particles.forEach((particle) => particle.update());
     this.particles = this.particles.filter((particle) => !particle.isDead());
 
-    // Remove excess particles for performance
+    
     if (this.particles.length > this.maxParticles) {
       this.particles.splice(0, this.particles.length - this.maxParticles);
     }
@@ -231,7 +231,7 @@ class BlastParticleSystem {
   }
 }
 
-// Main Blast class for sprite-based explosions
+
 class Blast {
   constructor(ctx, x, y, size = 1, type = 'normal') {
     this.ctx = ctx;
@@ -241,18 +241,18 @@ class Blast {
     this.isActive = true;
     this.currentFrame = 0;
     this.frameTimer = 0;
-    this.frameDelay = 4; // frames per sprite
+    this.frameDelay = 4; 
     this.rotation = Math.random() * Math.PI * 2;
 
-    // Load explosion sprites
+    
     this.sprites = [];
     this.loadSprites();
 
-    // Scale based on size
+    
     this.width = 64 * size;
     this.height = 64 * size;
 
-    // Adjust frame delay based on type
+    
     if (type === 'large') {
       this.frameDelay = 6;
       this.width = 96 * size;
@@ -309,13 +309,13 @@ class Blast {
     return !this.isActive;
   }
 
-  // Static method to create different types of explosions
+  
   static createExplosion(ctx, x, y, type = 'normal', size = 1) {
     return new Blast(ctx, x, y, size, type);
   }
 }
 
-// Blast Manager to handle multiple explosions
+
 class BlastManager {
   constructor(ctx) {
     this.ctx = ctx;
@@ -323,13 +323,13 @@ class BlastManager {
     this.particleSystem = new BlastParticleSystem();
   }
 
-  // Create a complete explosion with both sprites and particles
+  
   createExplosion(x, y, type = 'normal', size = 1) {
-    // Create sprite-based blast
+    
     const blast = Blast.createExplosion(this.ctx, x, y, type, size);
     this.blasts.push(blast);
 
-    // Create particle explosion
+    
     let intensity = size;
     if (type === 'large') intensity *= 1.5;
     if (type === 'small') intensity *= 0.7;
@@ -337,7 +337,7 @@ class BlastManager {
     this.particleSystem.createExplosion(x, y, intensity, type);
   }
 
-  // Create explosion when enemy dies
+  
   createEnemyExplosion(x, y, enemyType = 'basic') {
     let size = 1;
     let type = 'normal';
@@ -369,23 +369,23 @@ class BlastManager {
   }
 
   update() {
-    // Update sprite-based blasts
+    
     this.blasts.forEach((blast) => blast.update());
     this.blasts = this.blasts.filter((blast) => !blast.isFinished());
 
-    // Update particle system
+    
     this.particleSystem.update();
   }
 
   draw() {
-    // Draw particle effects first (behind sprites)
+    
     this.particleSystem.draw(this.ctx);
 
-    // Draw sprite-based blasts
+    
     this.blasts.forEach((blast) => blast.draw());
   }
 
-  // Get statistics
+  
   getActiveBlasts() {
     return this.blasts.length;
   }
@@ -394,7 +394,7 @@ class BlastManager {
     return this.particleSystem.getParticleCount();
   }
 
-  // Clear all explosions (useful for stage transitions)
+  
   clear() {
     this.blasts = [];
     this.particleSystem.particles = [];
