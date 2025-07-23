@@ -244,3 +244,60 @@ button:hover {
   font-weight: 300;
   letter-spacing: 0.1rem;
 }
+
+/* User Authentication Buttons */
+.auth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.user-info-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-btn {
+  background: linear-gradient(
+    145deg,
+    rgba(0, 188, 212, 0.8),
+    rgba(33, 150, 243, 0.8)
+  );
+}
+
+.profile-btn:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(33, 150, 243, 0.8),
+    rgba(0, 188, 212, 0.8)
+  );
+}
+
+.logout-btn {
+  background: linear-gradient(
+    145deg,
+    rgba(120, 120, 120, 0.8),
+    rgba(160, 160, 160, 0.8)
+  );
+  font-size: 1.3rem;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(160, 160, 160, 0.8),
+    rgba(120, 120, 120, 0.8)
+  );
+}
+
+.hidden {
+  display: none !important;
+}

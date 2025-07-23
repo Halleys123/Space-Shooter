@@ -88,13 +88,13 @@ document.addEventListener('keydown', (e) => {
     }
   }
 
-  // if (e.key === 'h' || e.key === 'H') {
-  //   if (e.shiftKey) {
-  //     player.damage(10);
-  //   } else {
-  //     toggleHelpPanel();
-  //   }
-  // }
+  if (e.key === 'h' || e.key === 'H') {
+    if (e.shiftKey) {
+      player.damage(10);
+    } else {
+      toggleHelpPanel();
+    }
+  }
 
   if (e.key === 'F1') {
     e.preventDefault();
@@ -112,9 +112,9 @@ document.addEventListener('keydown', (e) => {
   //   player.score += 1000;
   // }
 
-  if (e.key === 'n' || e.key === 'N') {
-    stage.forceNextStage();
-  }
+  // if (e.key === 'n' || e.key === 'N') {
+  //   stage.forceNextStage();
+  // }
 
   // if (e.key === 'b' || e.key === 'B') {
   //   blastManager.createExplosion(mouse.x, mouse.y, 'normal', 1);

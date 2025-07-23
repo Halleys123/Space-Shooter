@@ -181,7 +181,7 @@ class LeaderboardManager {
 
   updatePagination(pagination) {
     const paginationContainer = document.querySelector('.pagination-controls');
-    
+
     if (!paginationContainer) {
       console.warn('Pagination container not found');
       return;
@@ -313,7 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         window.leaderboardManager.initialize();
       } else {
-        console.warn('LeaderboardManager: Required dependencies (apiService, authUI) not found');
+        console.warn(
+          'LeaderboardManager: Required dependencies (apiService, authUI) not found'
+        );
       }
     }, 100);
   }

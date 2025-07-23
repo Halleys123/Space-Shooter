@@ -43,14 +43,29 @@
 
         <div class="menu-buttons">
             <div class="auth-section" id="auth-section">
-                <button class='login-btn' data-action="login">
-                    <span class="button-icon">🔐</span>
-                    <span class="button-text">LOGIN</span>
-                </button>
-                <button class='register-btn' data-action="register">
-                    <span class="button-icon">📝</span>
-                    <span class="button-text">REGISTER</span>
-                </button>
+                <!-- Show when not logged in -->
+                <div class="auth-buttons" id="auth-buttons">
+                    <button class='login-btn' data-action="login">
+                        <span class="button-icon">🔐</span>
+                        <span class="button-text">LOGIN</span>
+                    </button>
+                    <button class='register-btn' data-action="register">
+                        <span class="button-icon">📝</span>
+                        <span class="button-text">REGISTER</span>
+                    </button>
+                </div>
+
+                <!-- Show when logged in -->
+                <div class="user-info-btn hidden" id="user-info-btn">
+                    <button class='profile-btn' data-action="profile">
+                        <span class="button-icon">👤</span>
+                        <span class="button-text" id="current-username">HALLEYS</span>
+                    </button>
+                    <button class='logout-btn' data-action="logout">
+                        <span class="button-icon">🚪</span>
+                        <span class="button-text">LOGOUT</span>
+                    </button>
+                </div>
             </div>
 
             <button class='start-game' data-action="start">

@@ -28,6 +28,18 @@ class AuthUI {
       registerBtn.addEventListener('click', () => this.showPanel('register'));
     }
 
+    // Profile button event
+    const profileBtn = document.querySelector('.profile-btn');
+    if (profileBtn) {
+      profileBtn.addEventListener('click', () => this.showPanel('profile'));
+    }
+
+    // Logout button event
+    const logoutBtn = document.querySelector('.logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => this.handleLogout());
+    }
+
     // Form submission events
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
@@ -54,12 +66,6 @@ class AuthUI {
         this.hidePanel('register');
         this.showPanel('login');
       });
-    }
-
-    // Logout button
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => this.handleLogout());
     }
 
     // Close panel buttons
@@ -221,6 +227,37 @@ class AuthUI {
     }
   }
 
+  async loadUserProfile() {
+    try {
+      // Update basic profile info
+      this.updateProfilePanel();
+
+      // Load user statistics from backend if available
+      if (this.api && this.api.getUserStats) {
+        const stats = await this.api.getUserStats();
+        this.updateUserStats(stats);
+      }
+    } catch (error) {
+      console.error('Failed to load user profile:', error);
+    }
+  }
+
+  updateUserStats(stats) {
+    if (!stats) return;
+
+    const totalGamesEl = document.getElementById('total-games');
+    const bestScoreEl = document.getElementById('best-score');
+    const totalTimeEl = document.getElementById('total-time');
+
+    if (totalGamesEl) totalGamesEl.textContent = stats.totalGames || '0';
+    if (bestScoreEl)
+      bestScoreEl.textContent = (stats.bestScore || 0).toLocaleString();
+    if (totalTimeEl) {
+      const hours = Math.floor((stats.totalPlayTime || 0) / 3600);
+      totalTimeEl.textContent = `${hours}h`;
+    }
+  }
+
   hidePanel(panelName) {
     const panel = document.querySelector(`.${panelName}-panel`);
     if (panel) {
@@ -229,40 +266,6 @@ class AuthUI {
 
     // Clear any messages
     this.clearMessage(panelName);
-  }
-
-  async loadUserProfile() {
-    if (!this.currentUser) return;
-
-    // Update basic user info
-    const usernameEl = document.getElementById('profile-username');
-    const emailEl = document.getElementById('profile-email');
-    const joinDateEl = document.getElementById('profile-join-date');
-
-    if (usernameEl) usernameEl.textContent = this.currentUser.username;
-    if (emailEl) emailEl.textContent = this.currentUser.email;
-    if (joinDateEl) {
-      const joinDate = new Date(
-        this.currentUser.createdAt
-      ).toLocaleDateString();
-      joinDateEl.textContent = `Joined: ${joinDate}`;
-    }
-
-    try {
-      // Load user statistics
-      const stats = await this.api.getUserStats(this.currentUser.id);
-      if (stats.success) {
-        this.updateUserStats(stats.data);
-      }
-
-      // Load recent scores
-      const scores = await this.api.getUserScores(this.currentUser.id, 1, 5);
-      if (scores.success) {
-        this.updateUserScores(scores.data);
-      }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
-    }
   }
 
   updateUserStats(stats) {
@@ -313,49 +316,53 @@ class AuthUI {
   }
 
   updateUIState() {
-    const authSection = document.getElementById('auth-section');
+    const authButtons = document.getElementById('auth-buttons');
+    const userInfoBtn = document.getElementById('user-info-btn');
+    const currentUsernameSpan = document.getElementById('current-username');
     const isAuthenticated = this.isAuthenticated();
 
-    if (!authSection) return;
+    if (!authButtons || !userInfoBtn) return;
 
     if (isAuthenticated) {
-      // Show user button
-      authSection.innerHTML = `
-        <button class='user-profile-btn auth-menu-button' data-action="profile">
-          <span class="button-icon">👤</span>
-          <span class="button-text">${this.currentUser.username.toUpperCase()}</span>
-        </button>
-      `;
+      // Hide login/register buttons, show user info
+      authButtons.classList.add('hidden');
+      userInfoBtn.classList.remove('hidden');
 
-      // Bind profile button event
-      const profileBtn = authSection.querySelector('.user-profile-btn');
-      if (profileBtn) {
-        profileBtn.addEventListener('click', () => this.showPanel('profile'));
+      // Update username display
+      if (currentUsernameSpan && this.currentUser) {
+        currentUsernameSpan.textContent =
+          this.currentUser.username.toUpperCase();
       }
+
+      // Update profile panel with user data
+      this.updateProfilePanel();
     } else {
-      // Show login/register buttons
-      authSection.innerHTML = `
-        <button class='login-btn' data-action="login">
-          <span class="button-icon">🔐</span>
-          <span class="button-text">LOGIN</span>
-        </button>
-        <button class='register-btn' data-action="register">
-          <span class="button-icon">📝</span>
-          <span class="button-text">REGISTER</span>
-        </button>
-      `;
-
-      // Re-bind events for new buttons
-      const loginBtn = authSection.querySelector('.login-btn');
-      const registerBtn = authSection.querySelector('.register-btn');
-
-      if (loginBtn) {
-        loginBtn.addEventListener('click', () => this.showPanel('login'));
-      }
-      if (registerBtn) {
-        registerBtn.addEventListener('click', () => this.showPanel('register'));
-      }
+      // Show login/register buttons, hide user info
+      authButtons.classList.remove('hidden');
+      userInfoBtn.classList.add('hidden');
     }
+  }
+
+  updateProfilePanel() {
+    if (!this.currentUser) return;
+
+    // Update profile information
+    const profileUsername = document.getElementById('profile-username');
+    const profileEmail = document.getElementById('profile-email');
+    const profileJoinDate = document.getElementById('profile-join-date');
+
+    if (profileUsername)
+      profileUsername.textContent = this.currentUser.username;
+    if (profileEmail) profileEmail.textContent = this.currentUser.email;
+    if (profileJoinDate) {
+      const joinDate = new Date(
+        this.currentUser.createdAt
+      ).toLocaleDateString();
+      profileJoinDate.textContent = `Joined: ${joinDate}`;
+    }
+
+    // TODO: Load and update user statistics
+    // This could fetch user stats from the backend
   }
 
   showMessage(panel, message, type = 'info') {
