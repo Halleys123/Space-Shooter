@@ -10,13 +10,11 @@ ctx.imageSmoothingEnabled = false;
 const keys = {};
 const mouse = { x: 0, y: 0 };
 
-
 let gameState = {
   isPaused: false,
   isGameOver: false,
   currentScore: 0,
 };
-
 
 window.gameState = gameState;
 
@@ -26,12 +24,9 @@ const blastManager = new BlastManager(ctx);
 const collisionManager = new CollisionManager(blastManager);
 const bulletManager = new BulletManager(ctx, canvas, collisionManager);
 
-
 window.player = player;
 
-
 player.setBulletManager(bulletManager);
-
 
 const playerCollision = CollisionManager.createForGameObject(player, 'player', {
   width: player.visuals.width * 0.6,
@@ -41,9 +36,7 @@ const playerCollision = CollisionManager.createForGameObject(player, 'player', {
     onCollisionEnter: (other, collisionData) => {
       console.log('Player collided with:', other.layer);
 
-      
       if (other.layer === 'enemyBullet') {
-        
         blastManager.createExplosion(
           collisionData.point.x,
           collisionData.point.y,
@@ -64,13 +57,11 @@ player.setCollisionComponent(playerCollision);
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
 
-  
   if (e.key === 'Escape') {
     if (!gameState.isGameOver) {
       gameState.isPaused = !gameState.isPaused;
 
       if (gameState.isPaused) {
-        
         console.log('Game Paused - Press ESC to resume');
       } else {
         console.log('Game Resumed');
@@ -78,47 +69,38 @@ document.addEventListener('keydown', (e) => {
     }
   }
 
-  
   if (e.key === 'h' || e.key === 'H') {
     player.damage(10);
   }
 
-  
   if (e.key === 'g' || e.key === 'G') {
     player.heal(10);
   }
 
-  
   if (e.key === 'n' || e.key === 'N') {
     stage.forceNextStage();
   }
 
-  
   if (e.key === 'b' || e.key === 'B') {
     blastManager.createExplosion(mouse.x, mouse.y, 'normal', 1);
   }
 
-  
   if (e.key === 'v' || e.key === 'V') {
     blastManager.createExplosion(mouse.x, mouse.y, 'large', 1.5);
   }
 
-  
   if (e.key === 'c' || e.key === 'C') {
     blastManager.createEnemyExplosion(mouse.x, mouse.y, 'kamikaze');
   }
 
-  
   if (e.key === 'x' || e.key === 'X') {
     collisionManager.setDebugMode(!collisionManager.debugMode);
   }
 
-  
   if (e.key === 'm' || e.key === 'M') {
     stage.getStarField().createMeteor();
   }
 
-  
   if (e.key === 't' || e.key === 'T') {
     stage.getStarField().startWarpEffect();
   }
@@ -134,23 +116,18 @@ canvas.addEventListener('mousemove', (e) => {
   mouse.y = e.clientY - rect.top;
 });
 
-
 function handleGameOver() {
   if (gameState.isGameOver) return;
 
   gameState.isGameOver = true;
   gameState.isPaused = true;
 
-  
   gameState.currentScore = player.score;
 
-  
   addScoreToLeaderboard(gameState.currentScore);
 
-  
   showGameOverLeaderboard();
 }
-
 
 function addScoreToLeaderboard(score) {
   const playerName =
@@ -163,7 +140,6 @@ function addScoreToLeaderboard(score) {
     date: currentDate,
   };
 
-  
   let leaderboardData = JSON.parse(
     localStorage.getItem('spaceShooterLeaderboard')
   ) || {
@@ -172,19 +148,16 @@ function addScoreToLeaderboard(score) {
     'this-week': [],
   };
 
-  
   leaderboardData['all-time'].push(newEntry);
   leaderboardData['all-time'].sort((a, b) => b.score - a.score);
-  leaderboardData['all-time'] = leaderboardData['all-time'].slice(0, 10); 
+  leaderboardData['all-time'] = leaderboardData['all-time'].slice(0, 10);
 
-  
   const today = new Date().toISOString().split('T')[0];
   const todayEntries = leaderboardData['all-time'].filter(
     (entry) => entry.date === today
   );
   leaderboardData.today = todayEntries.slice(0, 10);
 
-  
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
   const weekEntries = leaderboardData['all-time'].filter(
@@ -192,35 +165,28 @@ function addScoreToLeaderboard(score) {
   );
   leaderboardData['this-week'] = weekEntries.slice(0, 10);
 
-  
   localStorage.setItem(
     'spaceShooterLeaderboard',
     JSON.stringify(leaderboardData)
   );
 }
 
-
 function showGameOverLeaderboard() {
-  
   document.getElementById('gameCanvas').classList.add('hidden-canvas');
 
-  
   const leaderboardPanel = document.querySelector('.leaderboard-panel');
   leaderboardPanel.classList.remove('hidden');
 
-  
   updateLeaderboardDisplay();
 
-  
   const panelTitle = leaderboardPanel.querySelector('.panel-title');
   panelTitle.textContent = `GAME OVER - FINAL SCORE: ${gameState.currentScore}`;
 
-  
   const backToMenuButton = leaderboardPanel.querySelector('.back-to-menu');
   if (backToMenuButton) {
     backToMenuButton.textContent = 'Play Again';
   }
-} 
+}
 function updateLeaderboardDisplay() {
   const leaderboardData = JSON.parse(
     localStorage.getItem('spaceShooterLeaderboard')
@@ -258,7 +224,6 @@ function updateLeaderboardDisplay() {
 }
 
 function gameLoop() {
-  
   if (gameState.isPaused || gameState.isGameOver) {
     requestAnimationFrame(gameLoop);
     return;
@@ -266,7 +231,6 @@ function gameLoop() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  
   const playerCenter = {
     x: player.control.position.x + player.visuals.width / 2,
     y: player.control.position.y + player.visuals.height / 2,
@@ -274,8 +238,7 @@ function gameLoop() {
 
   player.update(keys, mouse);
 
-  
-  if (!player.isAlive() && !gameState.isGameOver) {
+  if (!player.isAlive && !gameState.isGameOver) {
     handleGameOver();
     return;
   }
@@ -284,11 +247,9 @@ function gameLoop() {
   blastManager.update();
   bulletManager.update();
 
-  
-  collisionManager.update(); 
+  collisionManager.update();
   stage.enemies.forEach((enemy) => {
     if (!enemy.collisionComponent) {
-      
       enemy.setBulletManager(bulletManager);
 
       const enemyCollision = CollisionManager.createForGameObject(
@@ -303,9 +264,7 @@ function gameLoop() {
               if (other.layer === 'player') {
                 console.log(`${enemy.constructor.name} collided with player`);
 
-                
                 if (enemy.constructor.name === 'KamikazeEnemy') {
-                  
                   blastManager.createExplosion(
                     collisionData.point.x,
                     collisionData.point.y,
@@ -313,10 +272,8 @@ function gameLoop() {
                     1.5
                   );
 
-                  
-                  player.takeDamage(enemy.damage * 0.5); 
+                  player.takeDamage(enemy.damage * 0.5);
 
-                  
                   enemy.markedForRemoval = true;
                   enemy.isAlive = false;
                 }
@@ -334,20 +291,16 @@ function gameLoop() {
     }
   });
 
-  
-  stage.draw(); 
+  stage.draw();
   player.draw();
-  bulletManager.draw(); 
-  blastManager.draw(); 
+  bulletManager.draw();
+  blastManager.draw();
 
-  
   collisionManager.drawDebug(ctx);
 
-  
   ctx.fillStyle = 'white';
   ctx.font = '14px Arial';
-  
-  
+
   ctx.fillText(
     `Active Blasts: ${blastManager.getActiveBlasts()}`,
     10,
@@ -374,7 +327,6 @@ function gameLoop() {
     canvas.height - 20
   );
 
-  
   if (gameState.isPaused) {
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
