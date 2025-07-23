@@ -1,0 +1,357 @@
+/* Settings and Leaderboard Panels CSS */
+
+/* Settings and Leaderboard Panels */
+.settings-panel,
+.leaderboard-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(10, 10, 30, 0.95);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  border-radius: 15px;
+  padding: 0;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+/* Panel Header */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 3rem;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.panel-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #00ffff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+}
+
+.close-panel {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 2rem;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  min-width: auto;
+}
+
+.close-panel:hover {
+  background-color: rgba(255, 107, 107, 0.2);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Panel Content */
+.settings-content,
+.leaderboard-content {
+  padding: 2rem 3rem;
+}
+
+/* Settings Styles */
+.setting-group {
+  margin-bottom: 3rem;
+}
+
+.setting-group h3 {
+  font-size: 1.8rem;
+  color: #00ffff;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+}
+
+.setting-item label {
+  font-size: 1.4rem;
+  color: #ffffff;
+  flex: 1;
+  margin-right: 2rem;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  max-width: 200px;
+}
+
+.volume-control input[type='range'] {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.volume-control input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #00ffff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.volume-control input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #00ffff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.volume-value {
+  font-size: 1.2rem;
+  color: #00ffff;
+  min-width: 40px;
+  text-align: right;
+}
+
+select {
+  background: rgba(20, 20, 60, 0.8);
+  color: white;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 5px;
+  padding: 0.8rem 1rem;
+  font-size: 1.4rem;
+  font-family: 'Orbitron', monospace;
+  cursor: pointer;
+  outline: none;
+  min-width: 120px;
+}
+
+select:focus {
+  border-color: #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: #00ffff;
+  cursor: pointer;
+}
+
+input[type='text'] {
+  background: rgba(20, 20, 60, 0.8);
+  color: white;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 5px;
+  padding: 0.8rem 1rem;
+  font-size: 1.4rem;
+  font-family: 'Orbitron', monospace;
+  text-align: center;
+  min-width: 80px;
+  outline: none;
+}
+
+input[type='text']:focus {
+  border-color: #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+/* Leaderboard Styles */
+.leaderboard-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab-button {
+  background: rgba(20, 20, 60, 0.6);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 1rem 2rem;
+  font-size: 1.3rem;
+  font-family: 'Orbitron', monospace;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  min-width: auto;
+  gap: 0;
+}
+
+.tab-button.active {
+  background: rgba(0, 255, 255, 0.2);
+  color: #00ffff;
+  border-color: #00ffff;
+}
+
+.tab-button:hover {
+  background: rgba(0, 255, 255, 0.1);
+  color: #00ffff;
+  transform: none;
+  box-shadow: none;
+}
+
+.leaderboard-list {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.leaderboard-header {
+  display: grid;
+  grid-template-columns: 60px 1fr 120px 100px;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  background: rgba(0, 255, 255, 0.1);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  font-size: 1.2rem;
+  color: #00ffff;
+}
+
+.leaderboard-entries {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.leaderboard-entry {
+  display: grid;
+  grid-template-columns: 60px 1fr 120px 100px;
+  gap: 1rem;
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+.leaderboard-entry:hover {
+  background: rgba(0, 255, 255, 0.05);
+}
+
+.leaderboard-entry:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  font-weight: 700;
+  color: #00ffff;
+  text-align: center;
+}
+
+.player-name {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.score {
+  font-weight: 700;
+  color: #ffff00;
+  text-align: right;
+}
+
+.date {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+/* Panel Footer */
+.panel-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem 3rem;
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
+  background: rgba(0, 255, 255, 0.05);
+  gap: 1rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 1.2rem 2.4rem;
+  font-size: 1.4rem;
+  font-family: 'Orbitron', monospace;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  border: 2px solid transparent;
+  min-width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.btn-primary {
+  background: linear-gradient(
+    145deg,
+    rgba(0, 120, 0, 0.8),
+    rgba(0, 160, 40, 0.8)
+  );
+  color: white;
+  border-color: rgba(0, 255, 100, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(0, 160, 40, 0.8),
+    rgba(0, 120, 0, 0.8)
+  );
+  border-color: rgba(0, 255, 100, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 150, 0, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(
+    145deg,
+    rgba(100, 100, 100, 0.6),
+    rgba(120, 120, 120, 0.6)
+  );
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(120, 120, 120, 0.6),
+    rgba(100, 100, 100, 0.6)
+  );
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(100, 100, 100, 0.3);
+}

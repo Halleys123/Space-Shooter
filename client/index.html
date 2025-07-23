@@ -5,27 +5,221 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Space Shooter</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/critical.css">
+    <link rel="stylesheet" href="./css/responsive.css">
+
     <link rel="icon" href="./assets/space-invaders 64.png" type="image/x-icon">
+    <script src="./script.js" defer></script>
+
 </head>
 
 <body>
-    <span class='game-text'>
-        Game will be initalized here
-    </span>
-    <div class='game-menu'>
-        <h1 class='game-title'>Space Shooter</h1>
-        <button class='start-game'>Start Game</button>
-        <button class='settings'>Settings</button>
-        <button class='exit-game'>Exit Game</button>
+    <!-- Simple starfield background -->
+    <div class="stars-background">
+        <div class="stars"></div>
     </div>
+
+    <!-- Simple nebula background overlay -->
+    <div class="nebula-background"></div>
+
+    <span class='game-text'>
+        Game will be initialized here
+    </span>
+
+    <div class='game-menu'>
+        <div class="logo-container">
+            <img src="./assets/ui/game_logo.png" alt="Space Shooter" class="game-logo"
+                onerror="this.style.display='none'">
+            <h1 class='game-title'>SPACE SHOOTER</h1>
+        </div>
+
+        <div class="menu-buttons">
+            <button class='start-game' data-action="start">
+                <span class="button-icon">▶</span>
+                <span class="button-text">START GAME</span>
+            </button>
+            <button class='settings' data-action="settings">
+                <span class="button-icon">⚙</span>
+                <span class="button-text">SETTINGS</span>
+            </button>
+            <button class='leaderboard' data-action="leaderboard">
+                <span class="button-icon">🏆</span>
+                <span class="button-text">LEADERBOARD</span>
+            </button>
+            <button class='exit-game' data-action="exit">
+                <span class="button-icon">✕</span>
+                <span class="button-text">EXIT GAME</span>
+            </button>
+        </div>
+
+        <div class="game-info">
+            <p class="version">v1.0.0</p>
+        </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel hidden">
+        <div class="panel-header">
+            <h2 class="panel-title">SETTINGS</h2>
+            <button class="close-panel" data-panel="settings">✕</button>
+        </div>
+
+        <div class="settings-content">
+            <div class="setting-group">
+                <h3>Audio Settings</h3>
+                <div class="setting-item">
+                    <label for="master-volume">Master Volume</label>
+                    <div class="volume-control">
+                        <input type="range" id="master-volume" min="0" max="100" value="50">
+                        <span class="volume-value">50%</span>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <label for="music-volume">Music Volume</label>
+                    <div class="volume-control">
+                        <input type="range" id="music-volume" min="0" max="100" value="30">
+                        <span class="volume-value">30%</span>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <label for="sfx-volume">Sound Effects</label>
+                    <div class="volume-control">
+                        <input type="range" id="sfx-volume" min="0" max="100" value="70">
+                        <span class="volume-value">70%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>Graphics Settings</h3>
+                <div class="setting-item">
+                    <label for="graphics-quality">Graphics Quality</label>
+                    <select id="graphics-quality">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label for="show-fps">Show FPS</label>
+                    <input type="checkbox" id="show-fps">
+                </div>
+
+                <div class="setting-item">
+                    <label for="particle-effects">Particle Effects</label>
+                    <input type="checkbox" id="particle-effects" checked>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>Controls</h3>
+                <div class="setting-item">
+                    <label for="move-up">Move Up</label>
+                    <input type="text" id="move-up" value="W" readonly>
+                </div>
+
+                <div class="setting-item">
+                    <label for="move-down">Move Down</label>
+                    <input type="text" id="move-down" value="S" readonly>
+                </div>
+
+                <div class="setting-item">
+                    <label for="move-left">Move Left</label>
+                    <input type="text" id="move-left" value="A" readonly>
+                </div>
+
+                <div class="setting-item">
+                    <label for="move-right">Move Right</label>
+                    <input type="text" id="move-right" value="D" readonly>
+                </div>
+
+                <div class="setting-item">
+                    <label for="shoot">Shoot</label>
+                    <input type="text" id="shoot" value="SPACE" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-footer">
+            <button class="btn-secondary reset-settings">Reset to Default</button>
+            <button class="btn-primary save-settings">Save Settings</button>
+        </div>
+    </div>
+
+    <!-- Leaderboard Panel -->
+    <div class="leaderboard-panel hidden">
+        <div class="panel-header">
+            <h2 class="panel-title">LEADERBOARD</h2>
+            <button class="close-panel" data-panel="leaderboard">✕</button>
+        </div>
+
+        <div class="leaderboard-content">
+            <div class="leaderboard-tabs">
+                <button class="tab-button active" data-tab="all-time">All Time</button>
+                <button class="tab-button" data-tab="today">Today</button>
+                <button class="tab-button" data-tab="this-week">This Week</button>
+            </div>
+
+            <div class="leaderboard-list">
+                <div class="leaderboard-header">
+                    <span class="rank-header">Rank</span>
+                    <span class="name-header">Player</span>
+                    <span class="score-header">Score</span>
+                    <span class="date-header">Date</span>
+                </div>
+
+                <div class="leaderboard-entries" id="leaderboard-entries">
+                    <!-- Sample entries - will be populated by JavaScript -->
+                    <div class="leaderboard-entry">
+                        <span class="rank">1</span>
+                        <span class="player-name">ACE_PILOT</span>
+                        <span class="score">125,430</span>
+                        <span class="date">2025-07-23</span>
+                    </div>
+                    <div class="leaderboard-entry">
+                        <span class="rank">2</span>
+                        <span class="player-name">STAR_DESTROYER</span>
+                        <span class="score">98,760</span>
+                        <span class="date">2025-07-22</span>
+                    </div>
+                    <div class="leaderboard-entry">
+                        <span class="rank">3</span>
+                        <span class="player-name">COSMIC_HERO</span>
+                        <span class="score">87,520</span>
+                        <span class="date">2025-07-21</span>
+                    </div>
+                    <div class="leaderboard-entry">
+                        <span class="rank">4</span>
+                        <span class="player-name">NEBULA_KNIGHT</span>
+                        <span class="score">76,340</span>
+                        <span class="date">2025-07-20</span>
+                    </div>
+                    <div class="leaderboard-entry">
+                        <span class="rank">5</span>
+                        <span class="player-name">VOID_WARRIOR</span>
+                        <span class="score">65,890</span>
+                        <span class="date">2025-07-19</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-footer">
+            <button class="btn-secondary clear-scores">Clear All Scores</button>
+            <button class="btn-primary back-to-menu" data-panel="leaderboard">Back to Menu</button>
+        </div>
+    </div>
+
     <canvas class='game-canvas hidden-canvas' id='gameCanvas'></canvas>
+
 </body>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
-
-<script src="./script.js" defer></script>
+<link rel="stylesheet" href="./css/backgrounds.css">
+<link rel="stylesheet" href="./css/panels.css">
 
 </html>

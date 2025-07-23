@@ -1,0 +1,47 @@
+/* Background and Visual Effects CSS */
+
+/* Simple starfield background */
+.stars-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -3;
+}
+
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 40px 70px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+    radial-gradient(1px 1px at 130px 80px, #fff, transparent),
+    radial-gradient(1px 1px at 160px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 200px 60px, #fff, transparent);
+  background-size: 250px 150px;
+  background-repeat: repeat;
+}
+
+.stars2,
+.stars3 {
+  display: none; /* Remove extra star layers for performance */
+}
+
+/* Simple nebula background */
+.nebula-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(100, 50, 200, 0.1) 0%,
+    transparent 70%
+  );
+  z-index: -2;
+}

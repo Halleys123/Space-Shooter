@@ -1,0 +1,133 @@
+/* Responsive Design and Media Queries */
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .game-menu {
+    min-width: 90vw;
+    padding: 3rem 2rem;
+    gap: 2.5rem;
+  }
+
+  .game-title {
+    font-size: 3rem;
+  }
+
+  button {
+    padding: 1.2rem 2rem;
+    font-size: 1.4rem;
+    min-width: 220px;
+  }
+
+  .button-icon {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-menu {
+    min-width: 95vw;
+    padding: 2rem 1.5rem;
+    gap: 2rem;
+  }
+
+  .game-title {
+    font-size: 2.5rem;
+  }
+
+  button {
+    padding: 1rem 1.5rem;
+    font-size: 1.3rem;
+    min-width: 180px;
+  }
+}
+
+/* Performance optimizations for low-end devices */
+@media (max-resolution: 150dpi), (max-width: 600px) {
+  .stars-background {
+    display: none; /* Remove starfield on very low-end devices */
+  }
+
+  .nebula-background {
+    background: rgba(
+      50,
+      25,
+      100,
+      0.1
+    ); /* Simple solid background instead of gradient */
+  }
+
+  .game-menu {
+    backdrop-filter: none; /* Remove blur effect */
+    background: rgba(10, 10, 30, 0.95); /* More opaque background */
+  }
+
+  button {
+    transition: none; /* Remove transitions for better performance */
+  }
+
+  button:hover {
+    transform: none; /* Remove transform effects */
+  }
+}
+
+/* Responsive panel design */
+@media (max-width: 768px) {
+  .settings-panel,
+  .leaderboard-panel {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .panel-header,
+  .settings-content,
+  .leaderboard-content,
+  .panel-footer {
+    padding: 1.5rem 2rem;
+  }
+
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .setting-item label {
+    margin-right: 0;
+  }
+
+  .volume-control {
+    width: 100%;
+    max-width: none;
+  }
+
+  .leaderboard-header,
+  .leaderboard-entry {
+    grid-template-columns: 50px 1fr 80px 80px;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+  }
+
+  .panel-footer {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .leaderboard-tabs {
+    flex-direction: column;
+  }
+
+  .tab-button {
+    padding: 0.8rem 1.5rem;
+  }
+
+  .leaderboard-header,
+  .leaderboard-entry {
+    grid-template-columns: 40px 1fr 70px;
+    gap: 0.5rem;
+  }
+
+  .date {
+    display: none;
+  }
+}

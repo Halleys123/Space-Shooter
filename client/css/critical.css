@@ -1,0 +1,245 @@
+/* Critical CSS - Essential styles for first paint */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  min-height: 100vh;
+  overflow: hidden;
+  font-family: 'Orbitron', 'Exo 2', 'Rajdhani', monospace;
+  font-size: 1.6rem;
+  background: #000015;
+  color: #ffffff;
+  position: relative;
+  /* Optimize rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+/* Hidden class for panels */
+.hidden {
+  display: none !important;
+}
+
+/* Game text - simplified */
+.game-text.hidden-text {
+  display: none;
+}
+
+.game-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.4rem;
+  color: #00ffff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+/* Game canvas */
+.game-canvas.hidden-canvas {
+  width: 0%;
+  height: 0%;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.game-canvas {
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  background: #000;
+  opacity: 1;
+  visibility: visible;
+  transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease,
+    visibility 0.3s ease;
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+/* Game menu - simplified */
+.game-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  background: rgba(10, 10, 30, 0.9);
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  border-radius: 15px;
+  padding: 4rem 3rem;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  min-width: 350px;
+}
+
+.game-menu.hidden {
+  display: none;
+}
+
+/* Logo and title */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.game-logo {
+  max-width: 60px;
+  height: auto;
+  filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.3));
+}
+
+.game-title {
+  font-size: 4rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  color: #00ffff;
+  text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
+}
+
+/* Menu buttons - simplified */
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+button {
+  background: linear-gradient(
+    145deg,
+    rgba(20, 20, 60, 0.8),
+    rgba(40, 40, 80, 0.8)
+  );
+  color: white;
+  border: 2px solid rgba(0, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem 2.5rem;
+  font-size: 1.6rem;
+  font-family: 'Orbitron', monospace;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  /* Performance optimizations */
+  will-change: transform;
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(0, 255, 255, 0.4);
+}
+
+.button-icon {
+  font-size: 1.6rem;
+}
+
+.button-text {
+  font-weight: 600;
+}
+
+.start-game {
+  background: linear-gradient(
+    145deg,
+    rgba(0, 120, 0, 0.8),
+    rgba(0, 160, 40, 0.8)
+  );
+}
+
+.start-game:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(0, 160, 40, 0.8),
+    rgba(0, 120, 0, 0.8)
+  );
+}
+
+.settings {
+  background: linear-gradient(
+    145deg,
+    rgba(160, 120, 0, 0.8),
+    rgba(200, 160, 0, 0.8)
+  );
+}
+
+.settings:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(200, 160, 0, 0.8),
+    rgba(160, 120, 0, 0.8)
+  );
+}
+
+.leaderboard {
+  background: linear-gradient(
+    145deg,
+    rgba(120, 0, 160, 0.8),
+    rgba(160, 0, 200, 0.8)
+  );
+}
+
+.leaderboard:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(160, 0, 200, 0.8),
+    rgba(120, 0, 160, 0.8)
+  );
+}
+
+.exit-game {
+  background: linear-gradient(
+    145deg,
+    rgba(160, 0, 0, 0.8),
+    rgba(200, 40, 40, 0.8)
+  );
+}
+
+.exit-game:hover {
+  background: linear-gradient(
+    145deg,
+    rgba(200, 40, 40, 0.8),
+    rgba(160, 0, 0, 0.8)
+  );
+}
+
+/* Game info */
+.game-info {
+  margin-top: 1rem;
+}
+
+.version {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+  letter-spacing: 0.1rem;
+}
