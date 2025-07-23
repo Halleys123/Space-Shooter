@@ -77,6 +77,10 @@ document.addEventListener('keydown', (e) => {
     player.heal(10);
   }
 
+  if (e.key === 'z') {
+    player.score += 1000;
+  }
+
   if (e.key === 'n' || e.key === 'N') {
     stage.forceNextStage();
   }
