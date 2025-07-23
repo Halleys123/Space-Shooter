@@ -845,6 +845,11 @@ class StageManager {
       GAME_CONFIG.ENEMY_SPAWN_INTERVAL - gameState.wave * 100
     );
     this.bossSpawned = false;
+    
+    // Return to normal game music after boss fight
+    if (currentMusic === ASSETS.audio.bossMusic) {
+      playMusic(ASSETS.audio.gameMusic, 0.3);
+    }
 
     // Spawn power-up occasionally
     if (Math.random() < 0.3) {
@@ -1198,10 +1203,21 @@ function exitGame() {
 }
 
 // Initialize everything
-setTimeout(() => {
+setTimeout(async () => {
   canvas.classList.remove('hidden-canvas');
   text.classList.add('hidden-text');
   initializeCanvas();
   setupEventListeners();
+  
+  // Load all assets
+  const assetsLoaded = await loadAssets();
+  if (assetsLoaded) {
+    console.log('Game ready with all assets!');
+    // Start menu music
+    playMusic(ASSETS.audio.menuMusic, 0.3);
+  } else {
+    console.log('Game ready with fallback graphics/audio!');
+  }
+  
   gameLoop(0);
 }, 400);
