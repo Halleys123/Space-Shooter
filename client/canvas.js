@@ -1,33 +1,33 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// DUMMY ELEMENTS FOR PLAYER
-class Bullet {
-  constructor(x, y, speed) {
-    this.x = x;
-    this.y = y;
-    this.speed = speed;
-    this.width = 5;
-    this.height = 10;
-  }
+ctx.canvas.width = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
 
-  update() {
-    this.y -= this.speed;
-  }
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+ctx.imageSmoothingEnabled = false;
 
-  draw() {
-    ctx.fillStyle = 'yellow';
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-  }
-}
+const keys = {};
+const mouse = { x: 0, y: 0 };
+
+const sprites = {
+  vfx: {
+    player: undefined,
+    player_thrust: undefined,
+    player_bump_on_boundary: undefined,
+  },
+};
 
 class Player {
   control = {
-    position: { x: 0, y: 0 },
+    position: { x: ctx.canvas.width / 2, y: ctx.canvas.height - 150 },
     velocity: { x: 0, y: 0 },
-    rotation: 0, // radians
-    speed: 5,
-    rotationSpeed: 0.1, // radians / frame
+    rotation: 0,
+    rotationSpeed: 0,
+    maxRotationSpeed: 0.05,
+    speed: 0.2,
+    friction: 0.98,
+    maxSpeed: 5,
   };
   health = {
     current: 100,
@@ -36,19 +36,149 @@ class Player {
   };
   score = 0;
   shooting = {
-    fireRate: 2, // 2 bullets / second
+    fireRate: 2,
     cooldown: 0,
     projectiles: [],
   };
   visuals = {
-    sprite: new Image(400, 280),
-    width: 50,
-    height: 50,
+    width: 105,
+    height: 150,
   };
-  constructor() {
-    this.visuals.sprite.src = './assets/sprites/player.png';
-    this.visuals.sprite.onload = () => {
-      console.log('Player sprite loaded');
+  ctx = undefined;
+
+  constructor(ctx, src) {
+    this.ctx = ctx;
+    sprites.player = new Image(this.visuals.width, this.visuals.height);
+    sprites.player.src = src;
+    sprites.player.onload = () => {
+      this.draw();
     };
+
+    // Initialize particle system
+    this.thrustParticles = new ThrustParticleSystem();
+  }
+  update() {
+    let isAccelerating = false;
+
+    if (keys['w'] || keys['W']) {
+      this.control.velocity.x +=
+        Math.sin(this.control.rotation) * this.control.speed;
+      this.control.velocity.y -=
+        Math.cos(this.control.rotation) * this.control.speed;
+      isAccelerating = true;
+    }
+    if (keys['s'] || keys['S']) {
+      this.control.velocity.x -=
+        Math.sin(this.control.rotation) * this.control.speed;
+      this.control.velocity.y +=
+        Math.cos(this.control.rotation) * this.control.speed;
+      isAccelerating = true;
+    }
+    if (keys['a'] || keys['A']) {
+      this.control.velocity.x -=
+        Math.cos(this.control.rotation) * this.control.speed;
+      this.control.velocity.y -=
+        Math.sin(this.control.rotation) * this.control.speed;
+      isAccelerating = true;
+    }
+    if (keys['d'] || keys['D']) {
+      this.control.velocity.x +=
+        Math.cos(this.control.rotation) * this.control.speed;
+      this.control.velocity.y +=
+        Math.sin(this.control.rotation) * this.control.speed;
+      isAccelerating = true;
+    }
+
+    const speed = Math.sqrt(
+      this.control.velocity.x ** 2 + this.control.velocity.y ** 2
+    );
+    if (speed > this.control.maxSpeed) {
+      this.control.velocity.x =
+        (this.control.velocity.x / speed) * this.control.maxSpeed;
+      this.control.velocity.y =
+        (this.control.velocity.y / speed) * this.control.maxSpeed;
+    }
+
+    this.control.position.x += this.control.velocity.x;
+    this.control.position.y += this.control.velocity.y;
+
+    this.control.velocity.x *= this.control.friction;
+    this.control.velocity.y *= this.control.friction;
+
+    this.control.position.x = Math.max(
+      0,
+      Math.min(canvas.width - this.visuals.width, this.control.position.x)
+    );
+    this.control.position.y = Math.max(
+      0,
+      Math.min(canvas.height - this.visuals.height, this.control.position.y)
+    );
+
+    const centerX = this.control.position.x + this.visuals.width / 2;
+    const centerY = this.control.position.y + this.visuals.height / 2;
+    this.control.rotation =
+      Math.atan2(mouse.y - centerY, mouse.x - centerX) + Math.PI / 2;
+
+    // Update and emit thrust particles
+    this.thrustParticles.emit(
+      centerX - 10,
+      centerY,
+      this.control.rotation,
+      isAccelerating
+    );
+    this.thrustParticles.emit(
+      centerX + 10,
+      centerY,
+      this.control.rotation,
+      isAccelerating
+    );
+    this.thrustParticles.update();
+  }
+
+  draw() {
+    // Draw thrust particles first (behind the ship)
+    this.thrustParticles.draw(this.ctx);
+
+    if (!sprites.player || !sprites.player.complete) return;
+
+    this.ctx.save();
+    this.ctx.translate(
+      this.control.position.x + this.visuals.width / 2,
+      this.control.position.y + this.visuals.height / 2
+    );
+    this.ctx.rotate(this.control.rotation);
+    this.ctx.drawImage(
+      sprites.player,
+      -this.visuals.width / 2,
+      -this.visuals.height / 2,
+      this.visuals.width,
+      this.visuals.height
+    );
+    this.ctx.restore();
   }
 }
+
+const player = new Player(ctx, './assets/sprites/player.png');
+
+document.addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+});
+
+document.addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+});
+
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  player.update();
+  player.draw();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
