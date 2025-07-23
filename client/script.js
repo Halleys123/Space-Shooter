@@ -52,7 +52,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function setupEventListeners() {
   settingsButton.addEventListener('click', () => showPanel('settings'));
-  leaderboardButton.addEventListener('click', () => showPanel('leaderboard'));
+  leaderboardButton.addEventListener('click', () => {
+    showPanel('leaderboard');
+    updateLeaderboardDisplay();
+  });
 
   closePanelButtons.forEach((button) => {
     button.addEventListener('click', (e) => {
@@ -65,6 +68,11 @@ function setupEventListeners() {
     button.addEventListener('click', (e) => {
       const panelType = e.target.getAttribute('data-panel');
       hidePanel(panelType);
+
+      // If coming from game over screen, restart the game
+      if (window.gameState && window.gameState.isGameOver) {
+        restartGame();
+      }
     });
   });
 
@@ -85,11 +93,16 @@ function setupEventListeners() {
       switchLeaderboardTab(tabType);
     });
   });
+
   startButton.addEventListener('click', () => {
-    gameMenu.classList.add('hidden');
-    text.classList.add('hidden');
-    document.getElementById('gameCanvas').classList.remove('hidden-canvas');
+    startGame();
   });
+
+  // Add clear scores functionality
+  const clearScoresButton = document.querySelector('.clear-scores');
+  if (clearScoresButton) {
+    clearScoresButton.addEventListener('click', clearAllScores);
+  }
 }
 
 function showPanel(panelType) {
@@ -98,6 +111,14 @@ function showPanel(panelType) {
     settingsPanel.classList.remove('hidden');
   } else if (panelType === 'leaderboard') {
     leaderboardPanel.classList.remove('hidden');
+
+    // Reset button text when accessing leaderboard normally (not from game over)
+    if (!window.gameState || !window.gameState.isGameOver) {
+      const backToMenuButton = leaderboardPanel.querySelector('.back-to-menu');
+      if (backToMenuButton) {
+        backToMenuButton.textContent = 'Back to Menu';
+      }
+    }
   }
 }
 
@@ -179,5 +200,111 @@ function switchLeaderboardTab(tabType) {
     if (tab.getAttribute('data-tab') === tabType) {
       tab.classList.add('active');
     }
+  });
+
+  // Update leaderboard display when tab changes
+  if (typeof updateLeaderboardDisplay === 'function') {
+    updateLeaderboardDisplay();
+  }
+}
+
+// Function to start the game
+function startGame() {
+  gameMenu.classList.add('hidden');
+  text.classList.add('hidden');
+  document.getElementById('gameCanvas').classList.remove('hidden-canvas');
+
+  // Reset game state if it exists
+  if (window.gameState) {
+    window.gameState.isPaused = false;
+    window.gameState.isGameOver = false;
+    window.gameState.currentScore = 0;
+  }
+}
+
+// Function to restart the game
+function restartGame() {
+  // Hide all panels
+  hideAllPanels();
+
+  // Show game menu
+  gameMenu.classList.remove('hidden');
+  text.classList.remove('hidden');
+  document.getElementById('gameCanvas').classList.add('hidden-canvas');
+
+  // Reset leaderboard panel title and button text
+  const leaderboardPanel = document.querySelector('.leaderboard-panel');
+  const panelTitle = leaderboardPanel.querySelector('.panel-title');
+  panelTitle.textContent = 'LEADERBOARD';
+
+  const backToMenuButton = leaderboardPanel.querySelector('.back-to-menu');
+  if (backToMenuButton) {
+    backToMenuButton.textContent = 'Back to Menu';
+  }
+
+  // Reset game state
+  if (window.gameState) {
+    window.gameState.isPaused = false;
+    window.gameState.isGameOver = false;
+    window.gameState.currentScore = 0;
+  }
+
+  // Reload the page to fully reset the game
+  window.location.reload();
+}
+
+// Function to clear all scores
+function clearAllScores() {
+  if (
+    confirm(
+      'Are you sure you want to clear all leaderboard scores? This action cannot be undone.'
+    )
+  ) {
+    localStorage.removeItem('spaceShooterLeaderboard');
+
+    // Update display
+    if (typeof updateLeaderboardDisplay === 'function') {
+      updateLeaderboardDisplay();
+    }
+
+    alert('All scores have been cleared.');
+  }
+}
+
+// Function to update leaderboard display (duplicate from canvas.js for access from script.js)
+function updateLeaderboardDisplay() {
+  const leaderboardData = JSON.parse(
+    localStorage.getItem('spaceShooterLeaderboard')
+  ) || {
+    'all-time': [],
+    today: [],
+    'this-week': [],
+  };
+
+  const entriesContainer = document.getElementById('leaderboard-entries');
+  const activeTabElement = document.querySelector('.tab-button.active');
+  const activeTab = activeTabElement
+    ? activeTabElement.getAttribute('data-tab')
+    : 'all-time';
+  const entries = leaderboardData[activeTab] || [];
+
+  entriesContainer.innerHTML = '';
+
+  if (entries.length === 0) {
+    entriesContainer.innerHTML =
+      '<div class="leaderboard-entry"><span style="grid-column: 1 / -1; text-align: center; color: #888;">No scores yet!</span></div>';
+    return;
+  }
+
+  entries.forEach((entry, index) => {
+    const entryElement = document.createElement('div');
+    entryElement.className = 'leaderboard-entry';
+    entryElement.innerHTML = `
+      <span class="rank">${index + 1}</span>
+      <span class="player-name">${entry.name}</span>
+      <span class="score">${entry.score.toLocaleString()}</span>
+      <span class="date">${entry.date}</span>
+    `;
+    entriesContainer.appendChild(entryElement);
   });
 }

@@ -10,11 +10,24 @@ ctx.imageSmoothingEnabled = false;
 const keys = {};
 const mouse = { x: 0, y: 0 };
 
+// Game state management
+let gameState = {
+  isPaused: false,
+  isGameOver: false,
+  currentScore: 0,
+};
+
+// Make gameState globally accessible
+window.gameState = gameState;
+
 const player = new Player(ctx, canvas, './assets/sprites/player.png');
 const stage = new Stage(ctx, canvas);
 const blastManager = new BlastManager(ctx);
 const collisionManager = new CollisionManager(blastManager);
 const bulletManager = new BulletManager(ctx, canvas, collisionManager);
+
+// Make player globally accessible
+window.player = player;
 
 // Set bullet manager reference in player
 player.setBulletManager(bulletManager);
@@ -27,6 +40,17 @@ const playerCollision = CollisionManager.createForGameObject(player, 'player', {
   callbacks: {
     onCollisionEnter: (other, collisionData) => {
       console.log('Player collided with:', other.layer);
+
+      // Handle enemy bullet impacts
+      if (other.layer === 'enemyBullet') {
+        // Create small explosion at impact point
+        blastManager.createExplosion(
+          collisionData.point.x,
+          collisionData.point.y,
+          'small',
+          0.6
+        );
+      }
     },
     onDamageReceived: (other, damage) => {
       console.log(`Player took ${damage} damage from ${other.layer}`);
@@ -39,6 +63,20 @@ player.setCollisionComponent(playerCollision);
 
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
+
+  // Pause/unpause game with ESC key
+  if (e.key === 'Escape') {
+    if (!gameState.isGameOver) {
+      gameState.isPaused = !gameState.isPaused;
+
+      if (gameState.isPaused) {
+        // Show pause message
+        console.log('Game Paused - Press ESC to resume');
+      } else {
+        console.log('Game Resumed');
+      }
+    }
+  }
 
   // Test health bar with 'H' key to damage player
   if (e.key === 'h' || e.key === 'H') {
@@ -96,7 +134,136 @@ canvas.addEventListener('mousemove', (e) => {
   mouse.y = e.clientY - rect.top;
 });
 
+// Function to handle game over
+function handleGameOver() {
+  if (gameState.isGameOver) return;
+
+  gameState.isGameOver = true;
+  gameState.isPaused = true;
+
+  // Get current score from player
+  gameState.currentScore = player.score;
+
+  // Add score to leaderboard
+  addScoreToLeaderboard(gameState.currentScore);
+
+  // Show leaderboard panel
+  showGameOverLeaderboard();
+}
+
+// Function to add score to leaderboard
+function addScoreToLeaderboard(score) {
+  const playerName =
+    prompt('Game Over! Enter your name for the leaderboard:') || 'Anonymous';
+  const currentDate = new Date().toISOString().split('T')[0];
+
+  const newEntry = {
+    name: playerName,
+    score: score,
+    date: currentDate,
+  };
+
+  // Get existing leaderboard data from localStorage
+  let leaderboardData = JSON.parse(
+    localStorage.getItem('spaceShooterLeaderboard')
+  ) || {
+    'all-time': [],
+    today: [],
+    'this-week': [],
+  };
+
+  // Add to all-time leaderboard
+  leaderboardData['all-time'].push(newEntry);
+  leaderboardData['all-time'].sort((a, b) => b.score - a.score);
+  leaderboardData['all-time'] = leaderboardData['all-time'].slice(0, 10); // Keep top 10
+
+  // Add to today's leaderboard
+  const today = new Date().toISOString().split('T')[0];
+  const todayEntries = leaderboardData['all-time'].filter(
+    (entry) => entry.date === today
+  );
+  leaderboardData.today = todayEntries.slice(0, 10);
+
+  // Add to this week's leaderboard
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const weekEntries = leaderboardData['all-time'].filter(
+    (entry) => new Date(entry.date) >= oneWeekAgo
+  );
+  leaderboardData['this-week'] = weekEntries.slice(0, 10);
+
+  // Save to localStorage
+  localStorage.setItem(
+    'spaceShooterLeaderboard',
+    JSON.stringify(leaderboardData)
+  );
+}
+
+// Function to show game over leaderboard
+function showGameOverLeaderboard() {
+  // Hide game canvas
+  document.getElementById('gameCanvas').classList.add('hidden-canvas');
+
+  // Show leaderboard panel
+  const leaderboardPanel = document.querySelector('.leaderboard-panel');
+  leaderboardPanel.classList.remove('hidden');
+
+  // Update leaderboard entries from localStorage
+  updateLeaderboardDisplay();
+
+  // Add game over message to leaderboard
+  const panelTitle = leaderboardPanel.querySelector('.panel-title');
+  panelTitle.textContent = `GAME OVER - FINAL SCORE: ${gameState.currentScore}`;
+
+  // Change "Back to Menu" button to "Play Again"
+  const backToMenuButton = leaderboardPanel.querySelector('.back-to-menu');
+  if (backToMenuButton) {
+    backToMenuButton.textContent = 'Play Again';
+  }
+} // Function to update leaderboard display
+function updateLeaderboardDisplay() {
+  const leaderboardData = JSON.parse(
+    localStorage.getItem('spaceShooterLeaderboard')
+  ) || {
+    'all-time': [],
+    today: [],
+    'this-week': [],
+  };
+
+  const entriesContainer = document.getElementById('leaderboard-entries');
+  const activeTab = document
+    .querySelector('.tab-button.active')
+    .getAttribute('data-tab');
+  const entries = leaderboardData[activeTab] || [];
+
+  entriesContainer.innerHTML = '';
+
+  if (entries.length === 0) {
+    entriesContainer.innerHTML =
+      '<div class="leaderboard-entry"><span class="no-scores">No scores yet!</span></div>';
+    return;
+  }
+
+  entries.forEach((entry, index) => {
+    const entryElement = document.createElement('div');
+    entryElement.className = 'leaderboard-entry';
+    entryElement.innerHTML = `
+      <span class="rank">${index + 1}</span>
+      <span class="player-name">${entry.name}</span>
+      <span class="score">${entry.score.toLocaleString()}</span>
+      <span class="date">${entry.date}</span>
+    `;
+    entriesContainer.appendChild(entryElement);
+  });
+}
+
 function gameLoop() {
+  // Don't update game if paused or game over
+  if (gameState.isPaused || gameState.isGameOver) {
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Update game objects
@@ -106,6 +273,13 @@ function gameLoop() {
   };
 
   player.update(keys, mouse);
+
+  // Check if player is dead
+  if (!player.isAlive() && !gameState.isGameOver) {
+    handleGameOver();
+    return;
+  }
+
   stage.update(playerCenter);
   blastManager.update();
   bulletManager.update();
@@ -114,6 +288,9 @@ function gameLoop() {
   collisionManager.update(); // Add collision components for new enemies
   stage.enemies.forEach((enemy) => {
     if (!enemy.collisionComponent) {
+      // Set bullet manager for enemy
+      enemy.setBulletManager(bulletManager);
+
       const enemyCollision = CollisionManager.createForGameObject(
         enemy,
         'enemy',
@@ -125,6 +302,24 @@ function gameLoop() {
             onCollisionEnter: (other, collisionData) => {
               if (other.layer === 'player') {
                 console.log(`${enemy.constructor.name} collided with player`);
+
+                // Handle kamikaze explosion
+                if (enemy.constructor.name === 'KamikazeEnemy') {
+                  // Create large explosion at collision point
+                  blastManager.createExplosion(
+                    collisionData.point.x,
+                    collisionData.point.y,
+                    'large',
+                    1.5
+                  );
+
+                  // Deal additional explosion damage to player
+                  player.takeDamage(enemy.damage * 0.5); // 50% additional explosion damage
+
+                  // Mark kamikaze for removal (they explode on impact)
+                  enemy.markedForRemoval = true;
+                  enemy.isAlive = false;
+                }
               }
             },
             onDamageReceived: (other, damage) => {
@@ -151,6 +346,8 @@ function gameLoop() {
   // Debug information
   ctx.fillStyle = 'white';
   ctx.font = '14px Arial';
+  // ctx.fillText(`Score: ${player.score}`, 10, 30);
+  // ctx.fillText(`Health: ${player.getHealth()}`, 10, 50);
   ctx.fillText(
     `Active Blasts: ${blastManager.getActiveBlasts()}`,
     10,
@@ -169,18 +366,33 @@ function gameLoop() {
   ctx.fillText(
     `Active Bullets: ${bulletManager.getActiveBullets()}`,
     10,
-    canvas.height - 60
+    canvas.height - 40
   );
   ctx.fillText(
     `Stars: ${stage.getStarField().stars.length}`,
     10,
-    canvas.height - 40
-  );
-  ctx.fillText(
-    `Controls: WASD=Move, Space=Shoot, M=Meteor, T=Warp`,
-    10,
     canvas.height - 20
   );
+
+  // Show pause message
+  if (gameState.isPaused) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#00ffff';
+    ctx.font = 'bold 48px Orbitron';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME PAUSED', canvas.width / 2, canvas.height / 2 - 30);
+
+    ctx.font = '24px Orbitron';
+    ctx.fillText(
+      'Press ESC to resume',
+      canvas.width / 2,
+      canvas.height / 2 + 30
+    );
+    ctx.restore();
+  }
 
   requestAnimationFrame(gameLoop);
 }

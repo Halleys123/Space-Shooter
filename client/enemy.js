@@ -36,10 +36,13 @@ class Enemy {
     this.canShoot = false;
     this.shootCooldown = 0;
     this.shootInterval = 60; // frames between shots
-    this.bullets = [];
+    this.bullets = []; // Keep for backward compatibility, but will use bulletManager when available
 
     // Collision component (will be set by collision manager)
     this.collisionComponent = null;
+
+    // Bullet manager reference (will be set from main game)
+    this.bulletManager = null;
   }
 
   // Abstract methods that must be implemented by child classes
@@ -94,14 +97,30 @@ class Enemy {
     const dy = playerPosition.y - this.position.y;
     const angle = Math.atan2(dy, dx);
 
-    // Create bullet
-    this.bullets.push({
-      x: this.position.x + this.width / 2,
-      y: this.position.y + this.height / 2,
-      velocityX: Math.cos(angle) * 3,
-      velocityY: Math.sin(angle) * 3,
-      damage: this.damage / 2,
-    });
+    // Use bullet manager if available, otherwise fall back to old system
+    if (this.bulletManager) {
+      const bulletSpawnX = this.position.x + this.width / 2;
+      const bulletSpawnY = this.position.y + this.height / 2;
+
+      this.bulletManager.createBullet(
+        bulletSpawnX - 4, // Center the bullet
+        bulletSpawnY - 8, // Center the bullet
+        angle + Math.PI / 2, // Adjust rotation for bullet sprite
+        3, // speed
+        this.damage / 2, // damage
+        './assets/sprites/bullet_enemy.png',
+        'enemy'
+      );
+    } else {
+      // Fallback to old bullet system
+      this.bullets.push({
+        x: this.position.x + this.width / 2,
+        y: this.position.y + this.height / 2,
+        velocityX: Math.cos(angle) * 3,
+        velocityY: Math.sin(angle) * 3,
+        damage: this.damage / 2,
+      });
+    }
 
     this.shootCooldown = this.shootInterval;
   }
@@ -182,7 +201,19 @@ class Enemy {
 
   // Take damage
   takeDamage(amount) {
+    const wasAlive = this.healthBar.getHealth() > 0;
     this.healthBar.damage(amount);
+
+    // Check if enemy just died
+    if (wasAlive && this.healthBar.getHealth() <= 0) {
+      this.isAlive = false;
+      this.markedForRemoval = true;
+
+      // Award points to player
+      if (window.player && this.getScoreValue) {
+        window.player.score += this.getScoreValue();
+      }
+    }
   }
 
   // Get current health
@@ -193,6 +224,11 @@ class Enemy {
   // Check if enemy should be removed
   shouldBeRemoved() {
     return this.markedForRemoval;
+  }
+
+  // Set bullet manager reference
+  setBulletManager(bulletManager) {
+    this.bulletManager = bulletManager;
   }
 
   // Set collision component (called by collision manager)
