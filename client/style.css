@@ -15,7 +15,102 @@ body {
   min-height: 100vh;
   overflow: hidden;
   font-family: 'Arial', sans-serif;
+  font-family: 'Orbitron', 'Exo 2', 'Rajdhani', monospace;
   font-size: 1.6rem; /* 16px */
   background: #1a1a1a;
   color: white;
+}
+.game-text.hidden-text {
+  display: none;
+}
+.game-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.game-canvas.hidden-canvas {
+  width: 0%;
+  height: 0%;
+  opacity: 0;
+  visibility: hidden;
+}
+.game-canvas {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  opacity: 1;
+  visibility: visible;
+  transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.game-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  background: rgba(42, 42, 42, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 4rem 3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+.game-menu.hidden {
+  display: none;
+}
+.game-title {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.2rem;
+}
+.menu-buttons {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+button {
+  background: linear-gradient(145deg, #2a2a2a, #404040);
+  color: white;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 1.2rem 2.4rem;
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  min-width: 150px;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.start-game {
+  background: linear-gradient(145deg, #28a745, #34ce57);
+}
+.start-game:hover {
+  background: linear-gradient(145deg, #34ce57, #28a745);
+}
+.settings {
+  background: linear-gradient(145deg, #ffc107, #ffcd39);
+}
+.settings:hover {
+  background: linear-gradient(145deg, #ffcd39, #ffc107);
+}
+.exit-game {
+  background: linear-gradient(145deg, #dc3545, #e74c3c);
+}
+.exit-game:hover {
+  background: linear-gradient(145deg, #e74c3c, #dc3545);
 }
