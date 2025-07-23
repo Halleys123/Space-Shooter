@@ -18,6 +18,12 @@ let gameState = {
 
 window.gameState = gameState;
 
+// FPS tracking variables
+let fps = 0;
+let lastFrameTime = performance.now();
+let frameCount = 0;
+let fpsUpdateTime = 0;
+
 const player = new Player(ctx, canvas, './assets/sprites/player.png');
 const stage = new Stage(ctx, canvas);
 const blastManager = new BlastManager(ctx);
@@ -69,8 +75,25 @@ document.addEventListener('keydown', (e) => {
     }
   }
 
+  // Help panel toggle (H key)
   if (e.key === 'h' || e.key === 'H') {
-    player.damage(10);
+    // Check if we're in debug mode by seeing if other debug keys work
+    if (e.shiftKey) {
+      // Shift+H for damage (debug function)
+      player.damage(10);
+    } else {
+      // Regular H for help
+      toggleHelpPanel();
+    }
+  }
+
+  // Settings panel (F1 key)
+  if (e.key === 'F1') {
+    e.preventDefault(); // Prevent browser help
+    // Use script.js function to show settings
+    if (typeof showPanel === 'function') {
+      showPanel('settings');
+    }
   }
 
   if (e.key === 'g' || e.key === 'G') {
@@ -137,6 +160,41 @@ canvas.addEventListener('mousemove', (e) => {
   mouse.x = e.clientX - rect.left;
   mouse.y = e.clientY - rect.top;
 });
+
+// Apply graphics settings function for canvas.js
+function applyGraphicsSettings() {
+  if (!window.performanceManager) return;
+  
+  // Get gameSettings from global scope
+  if (typeof window.gameSettings === 'undefined') return;
+  
+  const quality = window.gameSettings.graphics.quality;
+  
+  // Apply graphics quality
+  window.performanceManager.setPerformanceLevel(quality);
+  
+  // Update starfield and particles based on settings
+  const settings = window.performanceManager.getSettings();
+  if (stage && stage.getStarField) {
+    stage.getStarField().setStarCount(settings.starCount);
+    stage.getStarField().enableGlow = settings.enableGlow && window.gameSettings.graphics.particleEffects;
+    stage.getStarField().enableFilters = settings.enableFilters;
+  }
+  
+  // Apply particle effects setting
+  if (blastManager && !window.gameSettings.graphics.particleEffects) {
+    // Reduce particle effects if disabled
+    const currentSettings = window.performanceManager.getSettings();
+    currentSettings.maxParticles.thrust = Math.floor(currentSettings.maxParticles.thrust * 0.2);
+    currentSettings.maxParticles.collision = Math.floor(currentSettings.maxParticles.collision * 0.2);
+    currentSettings.maxParticles.blast = Math.floor(currentSettings.maxParticles.blast * 0.2);
+  } else if (blastManager && window.gameSettings.graphics.particleEffects) {
+    // Restore full particle effects if enabled
+    window.performanceManager.setPerformanceLevel(quality); // Reset to full settings
+  }
+  
+  console.log(`Graphics settings applied - Quality: ${quality}, Particles: ${window.gameSettings.graphics.particleEffects ? 'On' : 'Off'}`);
+}
 
 function handleGameOver() {
   if (gameState.isGameOver) return;
@@ -245,7 +303,66 @@ function updateLeaderboardDisplay() {
   });
 }
 
+function toggleHelpPanel() {
+  const helpPanel = document.querySelector('.help-panel');
+  const canvas = document.getElementById('gameCanvas');
+  const helpHint = document.querySelector('.help-hint');
+
+  if (helpPanel.classList.contains('hidden')) {
+    // Show help panel
+    helpPanel.classList.remove('hidden');
+    canvas.classList.add('hidden-canvas');
+    helpHint.style.display = 'none';
+    gameState.isPaused = true;
+  } else {
+    // Hide help panel
+    helpPanel.classList.add('hidden');
+    canvas.classList.remove('hidden-canvas');
+    helpHint.style.display = 'block';
+    gameState.isPaused = false;
+  }
+}
+
+// Panel event listeners
+document.addEventListener('DOMContentLoaded', function () {
+  // Close panel buttons (only handle help panel here, settings handled by script.js)
+  document.querySelectorAll('.close-panel').forEach((button) => {
+    button.addEventListener('click', function () {
+      const panel = this.getAttribute('data-panel');
+      if (panel === 'help') {
+        toggleHelpPanel();
+      }
+      // Settings panel is handled by script.js
+    });
+  });
+
+  // Back to game buttons
+  document.querySelectorAll('.back-to-game').forEach((button) => {
+    button.addEventListener('click', function () {
+      const panel = this.getAttribute('data-panel');
+      if (panel === 'help') {
+        toggleHelpPanel();
+      }
+    });
+  });
+});
+
 function gameLoop() {
+  // FPS calculation
+  const currentTime = performance.now();
+  const deltaTime = currentTime - lastFrameTime;
+  lastFrameTime = currentTime;
+
+  frameCount++;
+  fpsUpdateTime += deltaTime;
+
+  if (fpsUpdateTime >= 1000) {
+    // Update FPS every second
+    fps = Math.round((frameCount * 1000) / fpsUpdateTime);
+    frameCount = 0;
+    fpsUpdateTime = 0;
+  }
+
   if (gameState.isPaused || gameState.isGameOver) {
     requestAnimationFrame(gameLoop);
     return;
@@ -323,7 +440,24 @@ function gameLoop() {
   ctx.fillStyle = 'white';
   ctx.font = '14px Arial';
 
-  // Performance information
+  // FPS display (if enabled in settings)
+  if (typeof window.gameSettings !== 'undefined' && window.gameSettings.graphics.showFps) {
+    ctx.fillStyle = '#00ffff';
+    ctx.font = 'bold 16px Arial';
+    ctx.fillText(`FPS: ${fps}`, canvas.width - 100, 30);
+
+    // FPS color coding
+    if (fps >= 50) ctx.fillStyle = '#00ff00'; // Green for good FPS
+    else if (fps >= 30) ctx.fillStyle = '#ffff00'; // Yellow for medium FPS
+    else ctx.fillStyle = '#ff0000'; // Red for low FPS
+
+    ctx.fillText(`FPS: ${fps}`, canvas.width - 100, 30);
+  }
+
+  // Performance information (debug display)
+  ctx.fillStyle = 'white';
+  ctx.font = '14px Arial';
+
   const performanceLevel = window.performanceManager
     ? window.performanceManager.performanceLevel
     : 'unknown';
@@ -366,6 +500,15 @@ function gameLoop() {
     10,
     canvas.height - 20
   );
+  
+  // Show particle effects status if gameSettings is available
+  if (typeof gameSettings !== 'undefined') {
+    ctx.fillText(
+      `Particles: ${gameSettings.graphics.particleEffects ? 'ON' : 'OFF'}`,
+      10,
+      canvas.height - 160
+    );
+  }
 
   if (gameState.isPaused) {
     ctx.save();

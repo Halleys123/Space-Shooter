@@ -22,13 +22,18 @@ const particleEffectsCheckbox = document.getElementById('particle-effects');
 const tabButtons = document.querySelectorAll('.tab-button');
 const leaderboardEntries = document.getElementById('leaderboard-entries');
 
-const gameSettings = {
-  masterVolume: 50,
-  musicVolume: 30,
-  sfxVolume: 70,
-  graphicsQuality: 'medium',
-  showFps: true,
-  particleEffects: true,
+// Make gameSettings global so canvas.js can access it
+window.gameSettings = {
+  audio: {
+    masterVolume: 50,
+    musicVolume: 30,
+    sfxVolume: 70,
+  },
+  graphics: {
+    quality: 'medium',
+    showFps: false,
+    particleEffects: true,
+  },
   controls: {
     moveUp: 'W',
     moveDown: 'S',
@@ -37,6 +42,9 @@ const gameSettings = {
     shoot: 'SPACE',
   },
 };
+
+// Also create a local reference for this script
+const gameSettings = window.gameSettings;
 
 const leaderboardData = {
   'all-time': [],
@@ -137,14 +145,21 @@ function initializeSettings() {
     Object.assign(gameSettings, JSON.parse(savedSettings));
   }
 
-  masterVolumeSlider.value = gameSettings.masterVolume;
-  musicVolumeSlider.value = gameSettings.musicVolume;
-  sfxVolumeSlider.value = gameSettings.sfxVolume;
-  graphicsQualitySelect.value = gameSettings.graphicsQuality;
-  showFpsCheckbox.checked = gameSettings.showFps;
-  particleEffectsCheckbox.checked = gameSettings.particleEffects;
+  masterVolumeSlider.value = gameSettings.audio.masterVolume;
+  musicVolumeSlider.value = gameSettings.audio.musicVolume;
+  sfxVolumeSlider.value = gameSettings.audio.sfxVolume;
+  graphicsQualitySelect.value = gameSettings.graphics.quality;
+  showFpsCheckbox.checked = gameSettings.graphics.showFps;
+  particleEffectsCheckbox.checked = gameSettings.graphics.particleEffects;
 
   updateVolumeDisplay();
+  
+  // Apply graphics settings after a delay to ensure canvas.js is loaded
+  setTimeout(() => {
+    if (typeof applyGraphicsSettings === 'function') {
+      applyGraphicsSettings();
+    }
+  }, 500);
 }
 
 function updateVolumeDisplay() {
@@ -163,27 +178,32 @@ function updateVolumeDisplay() {
 }
 
 function saveSettings() {
-  gameSettings.masterVolume = parseInt(masterVolumeSlider.value);
-  gameSettings.musicVolume = parseInt(musicVolumeSlider.value);
-  gameSettings.sfxVolume = parseInt(sfxVolumeSlider.value);
-  gameSettings.graphicsQuality = graphicsQualitySelect.value;
-  gameSettings.showFps = showFpsCheckbox.checked;
-  gameSettings.particleEffects = particleEffectsCheckbox.checked;
+  gameSettings.audio.masterVolume = parseInt(masterVolumeSlider.value);
+  gameSettings.audio.musicVolume = parseInt(musicVolumeSlider.value);
+  gameSettings.audio.sfxVolume = parseInt(sfxVolumeSlider.value);
+  gameSettings.graphics.quality = graphicsQualitySelect.value;
+  gameSettings.graphics.showFps = showFpsCheckbox.checked;
+  gameSettings.graphics.particleEffects = particleEffectsCheckbox.checked;
 
   localStorage.setItem('spaceShooterSettings', JSON.stringify(gameSettings));
 
-  alert('Settings saved successfully!');
+  // Apply settings if canvas functions are available
+  if (typeof applyGraphicsSettings === 'function') {
+    applyGraphicsSettings();
+  }
 
+  console.log('Settings saved and applied:', gameSettings);
+  alert('Settings saved successfully!');
   hidePanel('settings');
 }
 
 function resetSettings() {
-  gameSettings.masterVolume = 50;
-  gameSettings.musicVolume = 30;
-  gameSettings.sfxVolume = 70;
-  gameSettings.graphicsQuality = 'medium';
-  gameSettings.showFps = false;
-  gameSettings.particleEffects = true;
+  gameSettings.audio.masterVolume = 50;
+  gameSettings.audio.musicVolume = 30;
+  gameSettings.audio.sfxVolume = 70;
+  gameSettings.graphics.quality = 'medium';
+  gameSettings.graphics.showFps = false;
+  gameSettings.graphics.particleEffects = true;
 
   initializeSettings();
 

@@ -1,8 +1,9 @@
 /* Settings and Leaderboard Panels CSS */
 
-/* Settings and Leaderboard Panels */
+/* Settings, Leaderboard, and Help Panels */
 .settings-panel,
-.leaderboard-panel {
+.leaderboard-panel,
+.help-panel {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -18,6 +19,81 @@
   max-height: 80vh;
   overflow-y: auto;
   z-index: 1000;
+}
+
+/* Help Hint (Bottom Right) */
+.help-hint {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(10, 10, 30, 0.9);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  z-index: 999;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+  backdrop-filter: blur(3px);
+}
+
+.help-hint kbd {
+  background: rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  color: #00ffff;
+  font-weight: bold;
+}
+
+/* Help Panel Specific Styles */
+.help-content {
+  padding: 2rem 3rem;
+}
+
+.help-section {
+  margin-bottom: 3rem;
+}
+
+.help-section h3 {
+  font-size: 1.8rem;
+  color: #00ffff;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  padding: 0.8rem 0;
+}
+
+.key-icon {
+  background: rgba(0, 255, 255, 0.15);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-family: 'Orbitron', monospace;
+  font-size: 1.2rem;
+  color: #00ffff;
+  font-weight: bold;
+  min-width: 80px;
+  text-align: center;
+  margin-right: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 255, 255, 0.1);
+}
+
+.control-desc {
+  font-size: 1.4rem;
+  color: #ffffff;
+  flex: 1;
 }
 
 /* Panel Header */
@@ -354,4 +430,63 @@ input[type='text']:focus {
   border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(100, 100, 100, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .settings-panel,
+  .leaderboard-panel,
+  .help-panel {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .panel-header {
+    padding: 1.5rem 2rem;
+  }
+
+  .panel-title {
+    font-size: 2rem;
+  }
+
+  .settings-content,
+  .leaderboard-content,
+  .help-content {
+    padding: 1.5rem 2rem;
+  }
+
+  .panel-footer {
+    padding: 1.5rem 2rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .help-hint {
+    bottom: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .help-hint kbd {
+    padding: 1px 4px;
+    font-size: 10px;
+  }
+
+  .key-icon {
+    min-width: 60px;
+    padding: 0.4rem 0.8rem;
+    font-size: 1rem;
+  }
+
+  .control-desc {
+    font-size: 1.2rem;
+  }
+
+  .leaderboard-header,
+  .leaderboard-entry {
+    grid-template-columns: 40px 1fr 80px 80px;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+  }
 }

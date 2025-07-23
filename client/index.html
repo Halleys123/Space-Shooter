@@ -217,6 +217,97 @@
         </div>
     </div>
 
+    <!-- Help Panel -->
+    <div class="help-panel hidden">
+        <div class="panel-header">
+            <h2 class="panel-title">CONTROLS & HELP</h2>
+            <button class="close-panel" data-panel="help">✕</button>
+        </div>
+
+        <div class="help-content">
+            <div class="help-section">
+                <h3>Movement Controls</h3>
+                <div class="control-item">
+                    <span class="key-icon">W</span>
+                    <span class="control-desc">Move Up</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">S</span>
+                    <span class="control-desc">Move Down</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">A</span>
+                    <span class="control-desc">Move Left</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">D</span>
+                    <span class="control-desc">Move Right</span>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h3>Combat Controls</h3>
+                <div class="control-item">
+                    <span class="key-icon">SPACE</span>
+                    <span class="control-desc">Shoot</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">MOUSE</span>
+                    <span class="control-desc">Aim / Rotate Ship</span>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h3>Game Controls</h3>
+                <div class="control-item">
+                    <span class="key-icon">ESC</span>
+                    <span class="control-desc">Pause Game</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">F1</span>
+                    <span class="control-desc">Open Settings</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">H</span>
+                    <span class="control-desc">Show/Hide Help</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">P</span>
+                    <span class="control-desc">Cycle Performance Level</span>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h3>Debug Controls (Testing)</h3>
+                <div class="control-item">
+                    <span class="key-icon">G</span>
+                    <span class="control-desc">Heal Player (+10 HP)</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">Z</span>
+                    <span class="control-desc">Add Score (+1000)</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">N</span>
+                    <span class="control-desc">Force Next Stage</span>
+                </div>
+                <div class="control-item">
+                    <span class="key-icon">B/V/C</span>
+                    <span class="control-desc">Create Explosions</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-footer">
+            <button class="btn-primary back-to-game" data-panel="help">Back to Game</button>
+        </div>
+    </div>
+
+    <!-- Help Hint (Bottom Right) -->
+    <div class="help-hint">
+        <span class="help-text">Press <kbd>H</kbd> for help</span>
+    </div>
+
     <!-- <canvas class='game-canvas hidden-canvas' id='gameCanvas'></canvas> -->
     <canvas class='game-canvas' id='gameCanvas'></canvas>
 
