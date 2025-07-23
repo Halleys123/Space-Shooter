@@ -84,6 +84,30 @@ function setupEventListeners() {
   musicVolumeSlider.addEventListener('input', updateVolumeDisplay);
   sfxVolumeSlider.addEventListener('input', updateVolumeDisplay);
 
+  // Add real-time volume adjustment
+  masterVolumeSlider.addEventListener('input', () => {
+    if (window.audioManager) {
+      gameSettings.audio.masterVolume = parseInt(masterVolumeSlider.value);
+      window.audioManager.updateSettings();
+    }
+  });
+
+  musicVolumeSlider.addEventListener('input', () => {
+    if (window.audioManager) {
+      gameSettings.audio.musicVolume = parseInt(musicVolumeSlider.value);
+      window.audioManager.updateSettings();
+    }
+  });
+
+  sfxVolumeSlider.addEventListener('input', () => {
+    if (window.audioManager) {
+      gameSettings.audio.sfxVolume = parseInt(sfxVolumeSlider.value);
+      window.audioManager.updateSettings();
+      // Play a test sound to preview the volume
+      window.audioManager.playPlayerShoot({ volume: 0.5 });
+    }
+  });
+
   document
     .querySelector('.save-settings')
     .addEventListener('click', saveSettings);
@@ -156,6 +180,13 @@ function initializeSettings() {
     if (typeof applyGraphicsSettings === 'function') {
       applyGraphicsSettings();
     }
+
+    // Initialize audio manager with settings
+    if (window.audioManager) {
+      window.audioManager.initialize();
+      // Start menu music
+      window.audioManager.playMenuMusic();
+    }
   }, 500);
 }
 
@@ -186,6 +217,11 @@ function saveSettings() {
 
   if (typeof applyGraphicsSettings === 'function') {
     applyGraphicsSettings();
+  }
+
+  // Update audio manager settings
+  if (window.audioManager) {
+    window.audioManager.updateSettings();
   }
 
   console.log('Settings saved and applied:', gameSettings);
@@ -234,6 +270,11 @@ function startGame() {
     window.gameState.isGameOver = false;
     window.gameState.currentScore = 0;
   }
+
+  // Switch to game music
+  if (window.audioManager) {
+    window.audioManager.playGameMusic();
+  }
 }
 
 function restartGame() {
@@ -257,6 +298,11 @@ function restartGame() {
     window.gameState.isPaused = false;
     window.gameState.isGameOver = false;
     window.gameState.currentScore = 0;
+  }
+
+  // Switch back to menu music
+  if (window.audioManager) {
+    window.audioManager.playMenuMusic();
   }
 
   window.location.reload();

@@ -215,6 +215,11 @@ class Player {
     );
 
     this.shooting.cooldown = this.shooting.fireRate;
+
+    // Play player shoot sound
+    if (window.audioManager) {
+      window.audioManager.playPlayerShoot();
+    }
   }
 
   setBulletManager(bulletManager) {
@@ -265,10 +270,20 @@ class Player {
 
   heal(amount) {
     this.healthBar.heal(amount);
+
+    // Play powerup sound when healing
+    if (window.audioManager) {
+      window.audioManager.playPowerup();
+    }
   }
 
   takeDamage(amount) {
     this.healthBar.damage(amount);
+
+    // Play player hit sound
+    if (window.audioManager) {
+      window.audioManager.playPlayerHit();
+    }
   }
 
   getCollisionBounds() {

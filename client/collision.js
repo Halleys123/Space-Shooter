@@ -357,6 +357,17 @@ class CollisionManager {
         explosionType,
         explosionSize
       );
+
+      // Play explosion sound
+      if (window.audioManager) {
+        if (explosionType === 'large') {
+          window.audioManager.playExplosion('large');
+        } else if (explosionType === 'small') {
+          window.audioManager.playExplosion('small');
+        } else {
+          window.audioManager.playExplosion('normal');
+        }
+      }
     }
 
     if (comp1.gameObject.getHealth && comp1.gameObject.getHealth() <= 0) {

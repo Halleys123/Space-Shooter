@@ -5,7 +5,7 @@ class Stage {
 
     this.currentStage = 1;
     this.currentCycle = 1;
-    this.totalStages = 10;
+    this.totalStages = 12;
     this.isStageComplete = false;
     this.isTransitioning = false;
     this.transitionTimer = 0;
@@ -26,6 +26,7 @@ class Stage {
         spawnRate: 90,
         maxEnemies: 3,
         duration: 600,
+        isBossStage: false,
       },
       2: {
         name: 'Mixed Formation',
@@ -37,6 +38,7 @@ class Stage {
         spawnRate: 80,
         maxEnemies: 4,
         duration: 720,
+        isBossStage: false,
       },
       3: {
         name: 'Shooter Squadron',
@@ -48,6 +50,7 @@ class Stage {
         spawnRate: 100,
         maxEnemies: 3,
         duration: 900,
+        isBossStage: false,
       },
       4: {
         name: 'Kamikaze Rush',
@@ -59,8 +62,18 @@ class Stage {
         spawnRate: 60,
         maxEnemies: 5,
         duration: 720,
+        isBossStage: false,
       },
       5: {
+        name: 'BOSS BATTLE',
+        description: 'Face the mighty guardian!',
+        enemyTypes: [{ type: BossEnemy, weight: 100 }],
+        spawnRate: 0, // Boss spawns immediately
+        maxEnemies: 1,
+        duration: 1800, // Longer duration for boss fight
+        isBossStage: true,
+      },
+      6: {
         name: 'Chaos Formation',
         description: 'All enemy types mixed',
         enemyTypes: [
@@ -72,8 +85,9 @@ class Stage {
         spawnRate: 70,
         maxEnemies: 4,
         duration: 1080,
+        isBossStage: false,
       },
-      6: {
+      7: {
         name: 'Shooter Barrage',
         description: 'Heavy firepower incoming',
         enemyTypes: [
@@ -83,8 +97,9 @@ class Stage {
         spawnRate: 90,
         maxEnemies: 3,
         duration: 900,
+        isBossStage: false,
       },
-      7: {
+      8: {
         name: 'Zigzag Maze',
         description: 'Unpredictable movement patterns',
         enemyTypes: [
@@ -94,8 +109,9 @@ class Stage {
         spawnRate: 65,
         maxEnemies: 5,
         duration: 840,
+        isBossStage: false,
       },
-      8: {
+      9: {
         name: 'Kamikaze Storm',
         description: 'Overwhelming aggression',
         enemyTypes: [
@@ -105,8 +121,9 @@ class Stage {
         spawnRate: 50,
         maxEnemies: 6,
         duration: 720,
+        isBossStage: false,
       },
-      9: {
+      10: {
         name: 'Elite Squadron',
         description: 'Advanced enemy formations',
         enemyTypes: [
@@ -117,8 +134,9 @@ class Stage {
         spawnRate: 60,
         maxEnemies: 5,
         duration: 1080,
+        isBossStage: false,
       },
-      10: {
+      11: {
         name: 'Final Assault',
         description: "Everything they've got",
         enemyTypes: [
@@ -130,6 +148,16 @@ class Stage {
         spawnRate: 45,
         maxEnemies: 7,
         duration: 1200,
+        isBossStage: false,
+      },
+      12: {
+        name: 'FINAL BOSS',
+        description: 'The ultimate challenge awaits!',
+        enemyTypes: [{ type: BossEnemy, weight: 100 }],
+        spawnRate: 0, // Boss spawns immediately
+        maxEnemies: 1,
+        duration: 2400, // Even longer for final boss
+        isBossStage: true,
       },
     };
 
@@ -162,19 +190,29 @@ class Stage {
         this.createMeteorShower();
       }
     }
+
+    // Play boss music for boss stages
+    if (config.isBossStage && window.audioManager) {
+      window.audioManager.playBossMusic();
+    }
   }
 
   getScaledStageConfig() {
     const baseConfig = this.stageConfigs[this.currentStage];
-    const difficultyMultiplier = 1 + (this.currentCycle - 1) * 0.3;
+    const enemyMultiplier = Math.pow(2, this.currentCycle - 1);
+    const spawnRateMultiplier = 1 + (this.currentCycle - 1) * 0.3;
 
     return {
       ...baseConfig,
       spawnRate: Math.max(
-        20,
-        Math.floor(baseConfig.spawnRate / difficultyMultiplier)
+        15,
+        Math.floor(baseConfig.spawnRate / spawnRateMultiplier)
       ),
-      maxEnemies: Math.floor(baseConfig.maxEnemies * difficultyMultiplier),
+
+      maxEnemies: Math.min(
+        50,
+        Math.floor(baseConfig.maxEnemies * enemyMultiplier)
+      ),
       duration: Math.floor(
         baseConfig.duration * (1 + (this.currentCycle - 1) * 0.2)
       ),
@@ -215,6 +253,16 @@ class Stage {
   updateEnemySpawning(playerPosition) {
     const config = this.getScaledStageConfig();
 
+    // Handle boss stages differently
+    if (config.isBossStage) {
+      // For boss stages, spawn boss immediately if no enemies exist
+      if (this.enemies.length === 0 && this.enemiesSpawned === 0) {
+        this.spawnBoss();
+      }
+      return;
+    }
+
+    // Regular enemy spawning logic
     if (
       this.enemySpawnTimer >= this.nextSpawnTime &&
       this.enemies.length < config.maxEnemies &&
@@ -226,6 +274,32 @@ class Stage {
       const variation = config.spawnRate * 0.3;
       this.nextSpawnTime = config.spawnRate + (Math.random() - 0.5) * variation;
     }
+  }
+
+  spawnBoss() {
+    const config = this.getScaledStageConfig();
+    const bossType = BossEnemy;
+
+    // Spawn boss at the center-top of the screen
+    const spawnX = this.canvas.width / 2 - 60; // Center horizontally (60 is half boss width)
+    const spawnY = -120; // Start above screen
+
+    const boss = new bossType(this.ctx, this.canvas, spawnX, spawnY);
+
+    // Scale boss health based on cycle
+    if (this.currentCycle > 1) {
+      const healthMultiplier = Math.pow(1.5, this.currentCycle - 1);
+      boss.maxHealth = Math.floor(boss.maxHealth * healthMultiplier);
+      boss.healthBar = new HealthBar(boss.maxHealth, 150, 12);
+      boss.healthBar.setOffset(0, -50);
+    }
+
+    this.enemies.push(boss);
+    this.enemiesSpawned++;
+
+    // Create dramatic entrance effect
+    this.starField.startWarpEffect();
+    this.createMeteorShower();
   }
 
   spawnEnemy() {
@@ -277,6 +351,15 @@ class Stage {
   checkStageCompletion() {
     const config = this.getScaledStageConfig();
 
+    // For boss stages, complete when boss is defeated
+    if (config.isBossStage) {
+      if (this.enemies.length === 0 && this.enemiesSpawned > 0) {
+        this.completeStage();
+      }
+      return;
+    }
+
+    // For regular stages, complete when time is up and all enemies are cleared
     if (this.stageTimer >= config.duration && this.enemies.length === 0) {
       this.completeStage();
     }
@@ -287,10 +370,19 @@ class Stage {
     this.isTransitioning = true;
     this.transitionTimer = 0;
 
+    const wasBeatingBoss = this.stageConfigs[this.currentStage].isBossStage;
+
     this.currentStage++;
     if (this.currentStage > this.totalStages) {
       this.currentStage = 1;
       this.currentCycle++;
+    }
+
+    // Switch back to normal game music after beating boss
+    if (wasBeatingBoss && window.audioManager) {
+      setTimeout(() => {
+        window.audioManager.playGameMusic();
+      }, 2000); // Delay to let the victory sound play
     }
   }
 
@@ -311,7 +403,13 @@ class Stage {
   drawStageUI() {
     const config = this.stageConfigs[this.currentStage];
 
-    this.ctx.fillStyle = '#ffffff';
+    // Use different colors for boss stages
+    if (config.isBossStage) {
+      this.ctx.fillStyle = '#ff0000';
+    } else {
+      this.ctx.fillStyle = '#ffffff';
+    }
+
     this.ctx.font = '20px Arial';
     this.ctx.textAlign = 'left';
     this.ctx.fillText(
@@ -320,33 +418,64 @@ class Stage {
       30
     );
 
-    const progressWidth = 200;
-    const progressHeight = 10;
-    const progressX = 20;
-    const progressY = 45;
+    // Only show progress bar for non-boss stages
+    if (!config.isBossStage) {
+      const progressWidth = 200;
+      const progressHeight = 10;
+      const progressX = 20;
+      const progressY = 45;
 
-    const scaledConfig = this.getScaledStageConfig();
-    const progress = Math.min(1, this.stageTimer / scaledConfig.duration);
+      const scaledConfig = this.getScaledStageConfig();
+      const progress = Math.min(1, this.stageTimer / scaledConfig.duration);
 
-    this.ctx.fillStyle = '#333333';
-    this.ctx.fillRect(progressX, progressY, progressWidth, progressHeight);
+      this.ctx.fillStyle = '#333333';
+      this.ctx.fillRect(progressX, progressY, progressWidth, progressHeight);
 
-    this.ctx.fillStyle = '#00ff00';
-    this.ctx.fillRect(
-      progressX,
-      progressY,
-      progressWidth * progress,
-      progressHeight
-    );
+      this.ctx.fillStyle = '#00ff00';
+      this.ctx.fillRect(
+        progressX,
+        progressY,
+        progressWidth * progress,
+        progressHeight
+      );
 
-    this.ctx.strokeStyle = '#ffffff';
-    this.ctx.lineWidth = 1;
-    this.ctx.strokeRect(progressX, progressY, progressWidth, progressHeight);
+      this.ctx.strokeStyle = '#ffffff';
+      this.ctx.lineWidth = 1;
+      this.ctx.strokeRect(progressX, progressY, progressWidth, progressHeight);
+    }
 
     this.ctx.fillStyle = '#ffffff';
     this.ctx.font = '16px Arial';
-    this.ctx.fillText(`Enemies: ${this.enemies.length}`, 20, 80);
-    this.ctx.fillText(`Killed: ${this.enemiesKilled}`, 20, 100);
+
+    const enemyMultiplier = Math.pow(2, this.currentCycle - 1);
+    const scaledConfig = this.getScaledStageConfig();
+
+    this.ctx.fillText(
+      `Enemies: ${this.enemies.length}/${scaledConfig.maxEnemies}`,
+      20,
+      config.isBossStage ? 60 : 80
+    );
+    this.ctx.fillText(
+      `Killed: ${this.enemiesKilled}`,
+      20,
+      config.isBossStage ? 80 : 100
+    );
+
+    if (this.currentCycle > 1) {
+      this.ctx.fillStyle = '#ffff00';
+      this.ctx.fillText(
+        `Enemy Multiplier: ${enemyMultiplier}x`,
+        20,
+        config.isBossStage ? 100 : 120
+      );
+    }
+
+    // Show boss warning
+    if (config.isBossStage) {
+      this.ctx.fillStyle = '#ff0000';
+      this.ctx.font = 'bold 18px Arial';
+      this.ctx.fillText('⚠ BOSS BATTLE ⚠', 20, config.isBossStage ? 120 : 140);
+    }
   }
 
   drawTransition() {
@@ -360,6 +489,11 @@ class Stage {
     const centerX = this.canvas.width / 2;
     const centerY = this.canvas.height / 2;
 
+    const currentConfig =
+      this.stageConfigs[this.currentStage - 1] ||
+      this.stageConfigs[this.totalStages];
+    const nextConfig = this.stageConfigs[this.currentStage];
+
     if (this.currentStage === 1 && this.currentCycle > 1) {
       this.ctx.fillText(
         `CYCLE ${this.currentCycle} COMPLETE!`,
@@ -369,10 +503,33 @@ class Stage {
       this.ctx.font = '24px Arial';
       this.ctx.fillText('Difficulty Increased!', centerX, centerY + 20);
     } else {
-      this.ctx.fillText('STAGE COMPLETE!', centerX, centerY - 40);
-      const config = this.stageConfigs[this.currentStage];
-      this.ctx.font = '24px Arial';
-      this.ctx.fillText(`Next: ${config.name}`, centerX, centerY + 20);
+      // Check if we just completed a boss stage
+      if (currentConfig && currentConfig.isBossStage) {
+        this.ctx.fillStyle = '#ffff00';
+        this.ctx.fillText('BOSS DEFEATED!', centerX, centerY - 40);
+        this.ctx.font = '24px Arial';
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillText('Excellent work, pilot!', centerX, centerY + 20);
+      } else {
+        this.ctx.fillText('STAGE COMPLETE!', centerX, centerY - 40);
+        if (nextConfig) {
+          this.ctx.font = '24px Arial';
+          if (nextConfig.isBossStage) {
+            this.ctx.fillStyle = '#ff0000';
+            this.ctx.fillText(
+              `Next: ${nextConfig.name}`,
+              centerX,
+              centerY + 20
+            );
+          } else {
+            this.ctx.fillText(
+              `Next: ${nextConfig.name}`,
+              centerX,
+              centerY + 20
+            );
+          }
+        }
+      }
     }
 
     const transitionProgress = this.transitionTimer / this.transitionDuration;

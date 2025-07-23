@@ -69,19 +69,27 @@ document.addEventListener('keydown', (e) => {
 
       if (gameState.isPaused) {
         console.log('Game Paused - Press ESC to resume');
+        // Pause music when game is paused
+        if (window.audioManager) {
+          window.audioManager.pauseMusic();
+        }
       } else {
         console.log('Game Resumed');
+        // Resume music when game is unpaused
+        if (window.audioManager) {
+          window.audioManager.resumeMusic();
+        }
       }
     }
   }
 
-  if (e.key === 'h' || e.key === 'H') {
-    if (e.shiftKey) {
-      player.damage(10);
-    } else {
-      toggleHelpPanel();
-    }
-  }
+  // if (e.key === 'h' || e.key === 'H') {
+  //   if (e.shiftKey) {
+  //     player.damage(10);
+  //   } else {
+  //     toggleHelpPanel();
+  //   }
+  // }
 
   if (e.key === 'F1') {
     e.preventDefault();
@@ -91,41 +99,41 @@ document.addEventListener('keydown', (e) => {
     }
   }
 
-  if (e.key === 'g' || e.key === 'G') {
-    player.heal(10);
-  }
+  // if (e.key === 'g' || e.key === 'G') {
+  //   player.heal(10);
+  // }
 
-  if (e.key === 'z') {
-    player.score += 1000;
-  }
+  // if (e.key === 'z') {
+  //   player.score += 1000;
+  // }
 
   if (e.key === 'n' || e.key === 'N') {
     stage.forceNextStage();
   }
 
-  if (e.key === 'b' || e.key === 'B') {
-    blastManager.createExplosion(mouse.x, mouse.y, 'normal', 1);
-  }
+  // if (e.key === 'b' || e.key === 'B') {
+  //   blastManager.createExplosion(mouse.x, mouse.y, 'normal', 1);
+  // }
 
-  if (e.key === 'v' || e.key === 'V') {
-    blastManager.createExplosion(mouse.x, mouse.y, 'large', 1.5);
-  }
+  // if (e.key === 'v' || e.key === 'V') {
+  //   blastManager.createExplosion(mouse.x, mouse.y, 'large', 1.5);
+  // }
 
-  if (e.key === 'c' || e.key === 'C') {
-    blastManager.createEnemyExplosion(mouse.x, mouse.y, 'kamikaze');
-  }
+  // if (e.key === 'c' || e.key === 'C') {
+  //   blastManager.createEnemyExplosion(mouse.x, mouse.y, 'kamikaze');
+  // }
 
-  if (e.key === 'x' || e.key === 'X') {
-    collisionManager.setDebugMode(!collisionManager.debugMode);
-  }
+  // if (e.key === 'x' || e.key === 'X') {
+  //   collisionManager.setDebugMode(!collisionManager.debugMode);
+  // }
 
-  if (e.key === 'm' || e.key === 'M') {
-    stage.getStarField().createMeteor();
-  }
+  // if (e.key === 'm' || e.key === 'M') {
+  //   stage.getStarField().createMeteor();
+  // }
 
-  if (e.key === 't' || e.key === 'T') {
-    stage.getStarField().startWarpEffect();
-  }
+  // if (e.key === 't' || e.key === 'T') {
+  //   stage.getStarField().startWarpEffect();
+  // }
 
   if (e.key === 'p' || e.key === 'P') {
     if (window.performanceManager) {
@@ -414,7 +422,7 @@ function gameLoop() {
 
   player.update(keys, mouse);
 
-  if (!player.isAlive() && !gameState.isGameOver) {
+  if (!player.isAlive && !gameState.isGameOver) {
     handleGameOver();
     return;
   }
@@ -452,11 +460,31 @@ function gameLoop() {
 
                   enemy.markedForRemoval = true;
                   enemy.isAlive = false;
+                } else if (enemy.constructor.name === 'BossEnemy') {
+                  // Boss collision creates larger explosion but doesn't destroy boss
+                  blastManager.createExplosion(
+                    collisionData.point.x,
+                    collisionData.point.y,
+                    'large',
+                    2.0
+                  );
+
+                  player.takeDamage(enemy.damage * 0.7); // Boss does more collision damage
                 }
               }
             },
             onDamageReceived: (other, damage) => {
               console.log(`${enemy.constructor.name} took ${damage} damage`);
+
+              // Create hit effect for boss
+              if (enemy.constructor.name === 'BossEnemy') {
+                blastManager.createExplosion(
+                  enemy.position.x + enemy.width / 2,
+                  enemy.position.y + enemy.height / 2,
+                  'small',
+                  0.8
+                );
+              }
             },
           },
         }
