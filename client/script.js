@@ -831,6 +831,9 @@ class StageManager {
   spawnBoss() {
     const x = canvas.width / 2 - 40;
     enemies.push(new Boss(x, -60));
+    
+    // Play boss music
+    playMusic(ASSETS.audio.bossMusic, 0.4);
   }
 
   nextWave() {
