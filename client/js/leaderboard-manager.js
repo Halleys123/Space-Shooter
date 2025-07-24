@@ -101,6 +101,7 @@ class LeaderboardManager {
             <th>Stage</th>
             <th>Accuracy</th>
             <th>Kills</th>
+            <th>Powerups</th>
             <th>Date</th>
           </tr>
         </thead>
@@ -137,6 +138,7 @@ class LeaderboardManager {
         <td>${entry.stage || 'N/A'}</td>
         <td>${accuracy}</td>
         <td>${entry.enemiesKilled || 0}</td>
+        <td>${entry.powerupsCollected || 0}</td>
         <td>${date}</td>
       </tr>
     `;
