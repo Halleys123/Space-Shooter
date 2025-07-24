@@ -446,38 +446,12 @@
     }
 }
 
-/* Mobile Game UI Scaling */
-@media (hover: none) and (pointer: coarse) {
-    /* Scale down canvas-based UI elements by adding mobile class to body */
-    body.mobile-device {
-        --mobile-ui-scale: 0.6;
-        --mobile-font-scale: 0.7;
-    }
-}
-
-/* Tablet scaling (larger than phone but still touch) */
-@media (hover: none) and (pointer: coarse) and (min-width: 768px) {
-    body.mobile-device {
-        --mobile-ui-scale: 0.75;
-        --mobile-font-scale: 0.8;
-    }
-}
-
-/* Large tablet scaling */
-@media (hover: none) and (pointer: coarse) and (min-width: 1024px) {
-    body.mobile-device {
-        --mobile-ui-scale: 0.85;
-        --mobile-font-scale: 0.9;
-    }
-}
-
 /* Performance optimizations for mobile */
 @media (hover: none) and (pointer: coarse) {
     .mobile-controls * {
         will-change: transform;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
-        -moz-backface-visibility: hidden;
     }
     
     .joystick-stick,
@@ -485,8 +459,5 @@
     .fire-button {
         transform: translateZ(0);
         -webkit-transform: translateZ(0);
-        -moz-transform: translateZ(0);
-        -ms-transform: translateZ(0);
-        -o-transform: translateZ(0);
     }
 }

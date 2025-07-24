@@ -35,7 +35,7 @@ class MobileControlsManager {
     const container = document.getElementById('movement-joystick');
     const stick = document.getElementById('movement-stick');
 
-    console.log('Setting up movement joystick:', { container, stick });
+    // console.log('Setting up movement joystick:', { container, stick });
     if (!container || !stick) {
       console.error('Movement joystick elements not found!');
       return;
@@ -53,7 +53,7 @@ class MobileControlsManager {
 
     const handleStart = (e) => {
       e.preventDefault();
-      console.log('Joystick touch start');
+      //   console.log('Joystick touch start');
       isDragging = true;
       updateCenterPos();
 
@@ -190,7 +190,7 @@ class MobileControlsManager {
   setupFireButton() {
     const fireButton = document.getElementById('fire-button');
 
-    console.log('Setting up fire button:', fireButton);
+    // console.log('Setting up fire button:', fireButton);
     if (!fireButton) {
       console.error('Fire button element not found!');
       return;
@@ -198,14 +198,14 @@ class MobileControlsManager {
 
     const handleStart = (e) => {
       e.preventDefault();
-      console.log('Fire button pressed');
+      //   console.log('Fire button pressed');
       this.controls.fire = true;
       fireButton.style.transform = 'scale(0.95)';
     };
 
     const handleEnd = (e) => {
       e.preventDefault();
-      console.log('Fire button released');
+      //   console.log('Fire button released');
       this.controls.fire = false;
       fireButton.style.transform = 'scale(1)';
     };
@@ -317,11 +317,11 @@ class MobileControlsManager {
   getMobileKeys() {
     const keys = {};
 
-    console.log('Getting mobile keys. Controls state:', {
-      movement: this.controls.movement,
-      rotation: this.controls.rotation,
-      fire: this.controls.fire,
-    });
+    // console.log('Getting mobile keys. Controls state:', {
+    //   movement: this.controls.movement,
+    //   rotation: this.controls.rotation,
+    //   fire: this.controls.fire,
+    // });
 
     if (this.controls.movement.active) {
       // Convert joystick to WASD
