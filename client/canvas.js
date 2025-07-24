@@ -380,11 +380,9 @@ function handleGameOver() {
   if (window.apiService && window.apiService.isAuthenticated()) {
     // Calculate accuracy for session end
     let accuracy = 0;
-    if (gameState.totalEnemyHealth > 0 && gameState.bulletsFired > 0) {
-      accuracy =
-        (gameState.damageDealt * gameState.bulletsFired) /
-        gameState.totalEnemyHealth;
-      accuracy = Math.min(accuracy * 100, 100);
+    if (gameState.totalEnemyHealth > 0) {
+      accuracy = gameState.damageDealt / gameState.totalEnemyHealth;
+      accuracy = Math.min(accuracy, 1);
     }
 
     const sessionData = {
@@ -394,7 +392,7 @@ function handleGameOver() {
       totalPlayTime:
         Math.floor((Date.now() - gameState.gameStartTime) / 1000) || 1,
       enemiesKilled: gameState.enemiesKilled || 0,
-      accuracy: parseFloat(accuracy.toFixed(2)),
+      accuracy: parseFloat(accuracy.toFixed(4)),
       powerupsCollected: gameState.powerUpsCollected || 0,
       endReason: player.isAlive ? 'quit' : 'game-over',
     };
@@ -434,14 +432,12 @@ async function addScoreToLeaderboard(score) {
 
   if (shouldSubmitToBackend && window.apiService) {
     try {
-      // Calculate accuracy: (damageDealt * bulletsFired) / totalEnemyHealth
+      // Calculate accuracy: damageDealt / totalEnemyHealth
       let accuracy = 0;
-      if (gameState.totalEnemyHealth > 0 && gameState.bulletsFired > 0) {
-        accuracy =
-          (gameState.damageDealt * gameState.bulletsFired) /
-          gameState.totalEnemyHealth;
-        // Cap accuracy at 100% and convert to percentage
-        accuracy = Math.min(accuracy * 100, 100);
+      if (gameState.totalEnemyHealth > 0) {
+        accuracy = gameState.damageDealt / gameState.totalEnemyHealth;
+        // Cap accuracy at 100% but keep in 0-1 range
+        accuracy = Math.min(accuracy, 1);
       }
 
       const gameData = {
@@ -457,7 +453,7 @@ async function addScoreToLeaderboard(score) {
           Math.floor((Date.now() - gameState.gameStartTime) / 1000) || 1,
         enemiesKilled: gameState.enemiesKilled || 0,
         powerupsCollected: gameState.powerUpsCollected || 0,
-        accuracy: parseFloat(accuracy.toFixed(2)),
+        accuracy: parseFloat(accuracy.toFixed(4)),
         gameVersion: '1.0.0',
         sessionId: window.apiService.sessionId,
       };

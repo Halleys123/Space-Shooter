@@ -63,7 +63,7 @@ const leaderboardSchema = new Schema<ILeaderboardEntry>(
       type: Number,
       required: [true, 'Accuracy is required'],
       min: [0, 'Accuracy cannot be negative'],
-      max: [100, 'Accuracy cannot exceed 100%'],
+      max: [1, 'Accuracy cannot exceed 1 (100%)'],
     },
     powerupsCollected: {
       type: Number,
@@ -138,7 +138,7 @@ leaderboardSchema.pre('save', function (next) {
   }
 
   
-  if (this.accuracy > 100 || this.accuracy < 0) {
+  if (this.accuracy > 1 || this.accuracy < 0) {
     this.isValid = false;
   }
 

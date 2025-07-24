@@ -128,7 +128,7 @@ export const submitScore = async (
     }
 
     const scorePerSecond = score / playTime;
-    const isValid = scorePerSecond <= 1000 && accuracy <= 100;
+    const isValid = scorePerSecond <= 1000 && accuracy <= 1;
 
     const newEntry = new LeaderboardEntry({
       username: username.trim(),

@@ -33,8 +33,8 @@ const scoreSubmissionValidation = [
     .isInt({ min: 0 })
     .withMessage('Enemies killed must be a non-negative integer'),
   body('accuracy')
-    .isFloat({ min: 0, max: 100 })
-    .withMessage('Accuracy must be between 0 and 100'),
+    .isFloat({ min: 0, max: 1 })
+    .withMessage('Accuracy must be between 0 and 1'),
   body('powerupsCollected')
     .optional()
     .isInt({ min: 0 })
