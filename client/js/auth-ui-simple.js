@@ -30,7 +30,9 @@ class AuthUI {
       this.addButtonEventListener(loginBtn, () => this.showPanel('login'));
     }
     if (registerBtn) {
-      this.addButtonEventListener(registerBtn, () => this.showPanel('register'));
+      this.addButtonEventListener(registerBtn, () =>
+        this.showPanel('register')
+      );
     }
 
     const profileBtn = document.querySelector('.profile-btn');

@@ -16,9 +16,9 @@ class Player {
   };
   score = 0;
   shooting = {
-    fireRate: 10,
+    fireRate: 15,
     cooldown: 0,
-    bulletSpeed: 6, // Reduced from 8 to 6 to reduce tunneling issues
+    bulletSpeed: 6,
     bulletDamage: 25,
     bulletSprite: './assets/sprites/bullet_player.png',
   };

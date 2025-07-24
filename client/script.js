@@ -29,7 +29,7 @@ let leaderboardManager = null;
 // Helper function to add both click and touch events for mobile compatibility
 function addButtonEventListener(element, handler) {
   if (!element) return;
-  
+
   element.addEventListener('click', (e) => {
     console.log('Button clicked:', element.className);
     handler(e);
@@ -158,7 +158,7 @@ function setupEventListeners() {
 
   const saveSettingsButton = document.querySelector('.save-settings');
   const resetSettingsButton = document.querySelector('.reset-settings');
-  
+
   addButtonEventListener(saveSettingsButton, saveSettings);
   addButtonEventListener(resetSettingsButton, resetSettings);
 
@@ -353,10 +353,10 @@ function restartGame() {
     window.gameState.isGameOver = false;
     window.gameState.currentScore = 0;
 
-  // Hide mobile controls when returning to menu
-  if (window.mobileControls) {
-    window.mobileControls.setGameStarted(false);
-  }
+    // Hide mobile controls when returning to menu
+    if (window.mobileControls) {
+      window.mobileControls.setGameStarted(false);
+    }
   }
 
   if (window.audioManager) {

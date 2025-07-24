@@ -10,6 +10,58 @@ ctx.imageSmoothingEnabled = false;
 const keys = {};
 const mouse = { x: 0, y: 0 };
 
+// Mobile UI scaling system
+const mobileUIScaling = {
+  isMobile: false,
+  uiScale: 1,
+  fontScale: 1,
+  
+  init() {
+    // Detect if device is mobile/touch
+    this.isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    if (this.isMobile) {
+      // Add mobile class to body for CSS scaling
+      document.body.classList.add('mobile-device');
+      
+      // Set scaling factors based on screen size
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      const isTablet = Math.min(screenWidth, screenHeight) >= 768;
+      const isLargeTablet = Math.min(screenWidth, screenHeight) >= 1024;
+      
+      if (isLargeTablet) {
+        this.uiScale = 0.85;
+        this.fontScale = 0.9;
+      } else if (isTablet) {
+        this.uiScale = 0.75;
+        this.fontScale = 0.8;
+      } else {
+        this.uiScale = 0.6;
+        this.fontScale = 0.7;
+      }
+      
+      console.log(`Mobile UI scaling initialized: UI=${this.uiScale}, Font=${this.fontScale}`);
+    }
+  },
+  
+  scaleFont(baseSize) {
+    return Math.round(baseSize * this.fontScale);
+  },
+  
+  scaleUI(baseSize) {
+    return Math.round(baseSize * this.uiScale);
+  },
+  
+  setMobileFont(ctx, baseSize, weight = 'normal', family = 'Arial') {
+    const scaledSize = this.scaleFont(baseSize);
+    ctx.font = `${weight} ${scaledSize}px ${family}`;
+  }
+};
+
+// Initialize mobile scaling
+mobileUIScaling.init();
+
 let gameState = {
   isGameStarted: false,
   isPaused: false,
@@ -221,12 +273,12 @@ function drawPauseScreen() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = '#00ffff';
-  ctx.font = 'bold 48px Orbitron';
+  mobileUIScaling.setMobileFont(ctx, 48, 'bold', 'Orbitron');
   ctx.textAlign = 'center';
-  ctx.fillText('GAME PAUSED', canvas.width / 2, canvas.height / 2 - 30);
+  ctx.fillText('GAME PAUSED', canvas.width / 2, canvas.height / 2 - mobileUIScaling.scaleUI(30));
 
-  ctx.font = '24px Orbitron';
-  ctx.fillText('Press ESC to resume', canvas.width / 2, canvas.height / 2 + 30);
+  mobileUIScaling.setMobileFont(ctx, 24, 'normal', 'Orbitron');
+  ctx.fillText('Press ESC to resume', canvas.width / 2, canvas.height / 2 + mobileUIScaling.scaleUI(30));
   ctx.restore();
 }
 
@@ -600,11 +652,11 @@ function gameLoop() {
   // Merge mobile controls with keyboard input
   const mergedKeys = { ...keys };
   let mergedMouse = { ...mouse };
-  
+
   if (window.mobileControls) {
     const mobileKeys = window.mobileControls.getMobileKeys();
     Object.assign(mergedKeys, mobileKeys);
-    
+
     // Override mouse position with mobile rotation if active
     const mobileMouse = window.mobileControls.getMobileMouse(canvas);
     if (mobileMouse) {
@@ -693,14 +745,14 @@ function gameLoop() {
   collisionManager.drawDebug(ctx);
 
   ctx.fillStyle = 'white';
-  ctx.font = '14px Arial';
+  mobileUIScaling.setMobileFont(ctx, 14, 'normal', 'Arial');
 
   if (
     typeof window.gameSettings !== 'undefined' &&
     window.gameSettings.graphics.showFps
   ) {
     ctx.fillStyle = '#00ffff';
-    ctx.font = 'bold 16px Arial';
+    mobileUIScaling.setMobileFont(ctx, 16, 'bold', 'Arial');
 
     // Check if in emergency mode
     const isEmergencyMode =
@@ -714,20 +766,20 @@ function gameLoop() {
       ctx.fillStyle = '#ff4444';
       ctx.fillText(
         `FPS: ${Math.round(currentFps)} [EMERGENCY]`,
-        canvas.width - 180,
-        30
+        canvas.width - mobileUIScaling.scaleUI(180),
+        mobileUIScaling.scaleUI(30)
       );
     } else {
       if (currentFps >= 50) ctx.fillStyle = '#00ff00';
       else if (currentFps >= 30) ctx.fillStyle = '#ffff00';
       else ctx.fillStyle = '#ff0000';
 
-      ctx.fillText(`FPS: ${Math.round(currentFps)}`, canvas.width - 100, 30);
+      ctx.fillText(`FPS: ${Math.round(currentFps)}`, canvas.width - mobileUIScaling.scaleUI(100), mobileUIScaling.scaleUI(30));
     }
   }
 
   ctx.fillStyle = 'white';
-  ctx.font = '14px Arial';
+  mobileUIScaling.setMobileFont(ctx, 14, 'normal', 'Arial');
 
   const performanceLevel = window.performanceManager
     ? window.performanceManager.performanceLevel
@@ -742,56 +794,61 @@ function gameLoop() {
     ? window.performanceManager.getAverageFPS()
     : fps;
 
+  // Calculate responsive positioning for debug info
+  const debugBaseY = canvas.height - mobileUIScaling.scaleUI(200);
+  const debugLineHeight = mobileUIScaling.scaleUI(20);
+  const debugX = mobileUIScaling.scaleUI(10);
+
   // Emergency mode indicator
   if (isEmergencyMode) {
     ctx.fillStyle = '#ff4444';
-    ctx.font = 'bold 14px Arial';
-    ctx.fillText('⚠️ EMERGENCY LOW GRAPHICS MODE', 10, canvas.height - 200);
+    mobileUIScaling.setMobileFont(ctx, 14, 'bold', 'Arial');
+    ctx.fillText('⚠️ EMERGENCY LOW GRAPHICS MODE', debugX, debugBaseY);
     ctx.fillStyle = 'white';
-    ctx.font = '14px Arial';
+    mobileUIScaling.setMobileFont(ctx, 14, 'normal', 'Arial');
   }
 
   ctx.fillText(
     `Performance Level: ${performanceLevel.toUpperCase()}${
       isEmergencyMode ? ' (OVERRIDE)' : ''
     }`,
-    10,
-    canvas.height - 180
+    debugX,
+    debugBaseY + debugLineHeight
   );
   ctx.fillText(
     `Avg FPS: ${Math.round(avgFps)} | Current: ${Math.round(fps)}`,
-    10,
-    canvas.height - 160
+    debugX,
+    debugBaseY + debugLineHeight * 2
   );
   ctx.fillText(
     `Star Count: ${settings.starCount || 'N/A'}`,
-    10,
-    canvas.height - 120
+    debugX,
+    debugBaseY + debugLineHeight * 4
   );
   ctx.fillText(
     `Active Blasts: ${blastManager.getActiveBlasts()}`,
-    10,
-    canvas.height - 100
+    debugX,
+    debugBaseY + debugLineHeight * 5
   );
   ctx.fillText(
     `Active Particles: ${blastManager.getActiveParticles()}`,
-    10,
-    canvas.height - 80
+    debugX,
+    debugBaseY + debugLineHeight * 6
   );
   ctx.fillText(
     `Collision Components: ${collisionManager.collisionComponents.length}`,
-    10,
-    canvas.height - 60
+    debugX,
+    debugBaseY + debugLineHeight * 7
   );
   ctx.fillText(
     `Active Bullets: ${bulletManager.getActiveBullets()}`,
-    10,
-    canvas.height - 40
+    debugX,
+    debugBaseY + debugLineHeight * 8
   );
   ctx.fillText(
     `Stars: ${stage.getStarField().stars.length}`,
-    10,
-    canvas.height - 20
+    debugX,
+    debugBaseY + debugLineHeight * 9
   );
 
   if (typeof window.gameSettings !== 'undefined') {
@@ -799,19 +856,19 @@ function gameLoop() {
       `Particles: ${
         window.gameSettings.graphics.particleEffects ? 'ON' : 'OFF'
       }`,
-      10,
-      canvas.height - 160
+      debugX,
+      debugBaseY + debugLineHeight * 3
     );
   }
 
   // Debug: Show collision detection info
   if (keys['KeyX']) {
     ctx.fillStyle = '#ffff00';
-    ctx.font = '12px Arial';
+    mobileUIScaling.setMobileFont(ctx, 12, 'normal', 'Arial');
     ctx.fillText(
       'Collision Debug Mode - Press X to toggle',
-      10,
-      canvas.height - 200
+      debugX,
+      debugBaseY - mobileUIScaling.scaleUI(20)
     );
 
     // Enable collision debug rendering

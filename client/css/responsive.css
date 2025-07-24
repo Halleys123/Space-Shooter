@@ -4,40 +4,44 @@
 @media (max-width: 768px) {
   .game-menu {
     min-width: 90vw;
-    padding: 3rem 2rem;
-    gap: 2.5rem;
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
   }
 
   .game-title {
-    font-size: 3rem;
+    font-size: 2.2rem;
   }
 
   button {
-    padding: 1.2rem 2rem;
-    font-size: 1.4rem;
-    min-width: 220px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    min-width: 160px;
   }
 
   .button-icon {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
   }
 }
 
 @media (max-width: 480px) {
   .game-menu {
     min-width: 95vw;
-    padding: 2rem 1.5rem;
-    gap: 2rem;
+    padding: 1.5rem 1rem;
+    gap: 1rem;
   }
 
   .game-title {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
   }
 
   button {
-    padding: 1rem 1.5rem;
-    font-size: 1.3rem;
-    min-width: 180px;
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    min-width: 140px;
+  }
+
+  .button-icon {
+    font-size: 1rem;
   }
 }
 

@@ -3,8 +3,8 @@ class HealthBar {
     this.maxHealth = maxHealth;
     this.currentHealth = maxHealth;
     this.previousHealth = maxHealth;
-    this.width = width;
-    this.height = height;
+    this.baseWidth = width;
+    this.baseHeight = height;
     this.displayTimer = 0;
     this.displayTime = 180;
     this.offsetX = 0;
@@ -12,6 +12,23 @@ class HealthBar {
 
     this.frameSprite = new Image();
     this.frameSprite.src = './assets/ui/health_bar_frame.png';
+  }
+
+  // Get scaled dimensions for mobile devices
+  getScaledDimensions() {
+    // Check if mobile scaling is available (from canvas.js)
+    if (typeof window.mobileUIScaling !== 'undefined' && window.mobileUIScaling.isMobile) {
+      return {
+        width: window.mobileUIScaling.scaleUI(this.baseWidth),
+        height: window.mobileUIScaling.scaleUI(this.baseHeight)
+      };
+    }
+    
+    // Fall back to base dimensions
+    return {
+      width: this.baseWidth,
+      height: this.baseHeight
+    };
   }
 
   setHealth(newHealth) {
@@ -48,8 +65,20 @@ class HealthBar {
   draw(ctx, entityX, entityY, entityWidth = 0) {
     if (!this.shouldDisplay()) return;
 
-    const x = entityX + entityWidth / 2 - this.width / 2 + this.offsetX;
-    const y = entityY + this.offsetY;
+    const scaledDimensions = this.getScaledDimensions();
+    const width = scaledDimensions.width;
+    const height = scaledDimensions.height;
+
+    // Scale offset for mobile as well
+    const offsetX = typeof window.mobileUIScaling !== 'undefined' && window.mobileUIScaling.isMobile 
+      ? window.mobileUIScaling.scaleUI(this.offsetX) 
+      : this.offsetX;
+    const offsetY = typeof window.mobileUIScaling !== 'undefined' && window.mobileUIScaling.isMobile 
+      ? window.mobileUIScaling.scaleUI(this.offsetY) 
+      : this.offsetY;
+
+    const x = entityX + entityWidth / 2 - width / 2 + offsetX;
+    const y = entityY + offsetY;
 
     const healthPercentage = this.getHealthPercentage();
 
