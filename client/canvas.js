@@ -34,7 +34,12 @@ let lastFrameTime = performance.now();
 let frameCount = 0;
 let fpsUpdateTime = 0;
 
-let player, stage, blastManager, collisionManager, bulletManager;
+let player,
+  stage,
+  blastManager,
+  collisionManager,
+  bulletManager,
+  powerupManager;
 
 // Initialize game objects
 function initializeGameObjects() {
@@ -43,10 +48,12 @@ function initializeGameObjects() {
   blastManager = new BlastManager(ctx);
   collisionManager = new CollisionManager(blastManager);
   bulletManager = new BulletManager(ctx, canvas, collisionManager);
+  powerupManager = new PowerUpManager(ctx, canvas);
 
   // Make collision manager globally accessible for bullet continuous collision detection
   window.collisionManager = collisionManager;
   window.player = player;
+  window.powerupManager = powerupManager;
 
   player.setBulletManager(bulletManager);
 
@@ -132,6 +139,19 @@ document.addEventListener('keydown', (e) => {
   //   player.score += 1000;
   // }
 
+  // Debug: Spawn powerups for testing
+  // if (e.key === '1') {
+  //   if (powerupManager) powerupManager.spawnPowerup('firerate', mouse.x, mouse.y);
+  // }
+
+  // if (e.key === '2') {
+  //   if (powerupManager) powerupManager.spawnPowerup('health', mouse.x, mouse.y);
+  // }
+
+  // if (e.key === '3') {
+  //   if (powerupManager) powerupManager.spawnPowerup('shield', mouse.x, mouse.y);
+  // }
+
   // if (e.key === 'n' || e.key === 'N') {
   //   stage.forceNextStage();
   // }
@@ -205,6 +225,25 @@ function initializeGame() {
 
   player.healthBar.reset();
   player.score = 0;
+
+  // Clear any active powerup effects
+  if (player.powerupEffects) {
+    // Restore original fire rate if firerate powerup was active
+    if (player.powerupEffects.firerate) {
+      player.shooting.fireRate = player.powerupEffects.firerate.originalValue;
+    }
+    // Restore original max health if shield powerup was active
+    if (player.powerupEffects.shield) {
+      player.healthBar.maxHealth =
+        player.powerupEffects.shield.originalMaxHealth;
+    }
+    delete player.powerupEffects;
+  }
+
+  // Clear powerups from screen
+  if (powerupManager) {
+    powerupManager.clearAll();
+  }
 
   player.health.collisionDamageTimer = 0;
 
@@ -590,7 +629,8 @@ function gameLoop() {
     !stage ||
     !blastManager ||
     !bulletManager ||
-    !collisionManager
+    !collisionManager ||
+    !powerupManager
   ) {
     console.warn('Game objects not initialized, initializing now...');
     initializeGameObjects();
@@ -628,6 +668,10 @@ function gameLoop() {
   stage.update(playerCenter);
   blastManager.update();
   bulletManager.update();
+  powerupManager.update();
+
+  // Check powerup collisions with player
+  powerupManager.checkPlayerCollision(player);
 
   collisionManager.update();
   stage.enemies.forEach((enemy) => {
@@ -694,6 +738,7 @@ function gameLoop() {
   stage.draw();
   player.draw();
   bulletManager.draw();
+  powerupManager.draw();
   blastManager.draw();
 
   collisionManager.drawDebug(ctx);

@@ -179,6 +179,9 @@ class Player {
     this.collisionParticles.update();
 
     this.healthBar.update();
+
+    // Update powerup effects
+    this.updatePowerupEffects();
   }
 
   handleShooting(keys, centerX, centerY) {
@@ -297,5 +300,40 @@ class Player {
 
   setCollisionComponent(component) {
     this.collisionComponent = component;
+  }
+
+  updatePowerupEffects() {
+    if (!this.powerupEffects) return;
+
+    // Update firerate powerup
+    if (this.powerupEffects.firerate) {
+      this.powerupEffects.firerate.timer--;
+      if (this.powerupEffects.firerate.timer <= 0) {
+        // Restore original fire rate
+        this.shooting.fireRate = this.powerupEffects.firerate.originalValue;
+        delete this.powerupEffects.firerate;
+        console.log('Fire rate boost expired');
+      }
+    }
+
+    // Update shield powerup
+    if (this.powerupEffects.shield) {
+      this.powerupEffects.shield.timer--;
+      if (this.powerupEffects.shield.timer <= 0) {
+        // Restore original max health
+        const currentHealth = this.healthBar.getHealth();
+        const originalMaxHealth = this.powerupEffects.shield.originalMaxHealth;
+
+        this.healthBar.maxHealth = originalMaxHealth;
+
+        // If current health exceeds original max health, cap it
+        if (currentHealth > originalMaxHealth) {
+          this.healthBar.setHealth(originalMaxHealth);
+        }
+
+        delete this.powerupEffects.shield;
+        console.log('Shield boost expired');
+      }
+    }
   }
 }

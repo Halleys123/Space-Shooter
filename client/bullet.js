@@ -25,8 +25,14 @@ class Bullet {
       y: -Math.cos(rotation) * speed,
     };
 
-    this.width = 8;
-    this.height = 16;
+    // Different sizes for different bullet types
+    if (owner === 'enemy') {
+      this.width = 12; // Increased from 8
+      this.height = 20; // Increased from 16
+    } else {
+      this.width = 8;
+      this.height = 16;
+    }
 
     this.sprite = new Image();
     this.sprite.src = spriteSource;
@@ -35,6 +41,9 @@ class Bullet {
 
     this.maxLifetime = 180;
     this.lifetime = 0;
+
+    // Bullet trail particles
+    this.trailParticles = new BulletTrailParticleSystem();
   }
 
   update() {
@@ -45,6 +54,19 @@ class Bullet {
 
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
+
+    // Emit trail particles for player bullets
+    if (this.owner === 'player') {
+      this.trailParticles.emit(
+        this.position.x + this.width / 2,
+        this.position.y + this.height / 2,
+        this.rotation,
+        this.owner
+      );
+    }
+
+    // Update trail particles
+    this.trailParticles.update();
 
     // Perform continuous collision detection for fast bullets
     if (this.collisionComponent && this.speed > 5) {
@@ -140,6 +162,9 @@ class Bullet {
 
   draw() {
     if (!this.isActive) return;
+
+    // Draw trail particles first (behind bullet)
+    this.trailParticles.draw(this.ctx);
 
     this.ctx.save();
 

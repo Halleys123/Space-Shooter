@@ -152,12 +152,17 @@ class Stage {
       },
       12: {
         name: 'FINAL BOSS',
-        description: 'The ultimate challenge awaits!',
-        enemyTypes: [{ type: BossEnemy, weight: 100 }],
-        spawnRate: 0,
-        maxEnemies: 1,
+        description: 'The ultimate challenge with reinforcements!',
+        enemyTypes: [
+          { type: BossEnemy, weight: 60 },
+          { type: ZigzagEnemy, weight: 25 },
+          { type: ShooterEnemy, weight: 15 },
+        ],
+        spawnRate: 120, // Slower spawn rate for helpers
+        maxEnemies: 4, // Boss + up to 3 helpers
         duration: 2400,
         isBossStage: true,
+        hasHelpers: true, // Special flag for boss helpers
       },
     };
 
@@ -256,6 +261,23 @@ class Stage {
       if (this.enemies.length === 0 && this.enemiesSpawned === 0) {
         this.spawnBoss();
       }
+
+      // Special logic for final boss stage (stage 12) with helpers
+      if (config.hasHelpers && this.currentStage === 12) {
+        // Spawn helpers during boss fight
+        if (
+          this.enemySpawnTimer >= this.nextSpawnTime &&
+          this.enemies.length < config.maxEnemies &&
+          this.stageTimer > 300 // Wait 5 seconds after boss spawn before helpers
+        ) {
+          this.spawnBossHelper();
+          this.enemySpawnTimer = 0;
+
+          const variation = config.spawnRate * 0.3;
+          this.nextSpawnTime =
+            config.spawnRate + (Math.random() - 0.5) * variation;
+        }
+      }
       return;
     }
 
@@ -293,6 +315,41 @@ class Stage {
 
     this.starField.startWarpEffect();
     this.createMeteorShower();
+  }
+
+  spawnBossHelper() {
+    const config = this.getScaledStageConfig();
+
+    // Don't spawn helpers if boss is dead
+    const hasBoss = this.enemies.some(
+      (enemy) => enemy.constructor.name === 'BossEnemy'
+    );
+    if (!hasBoss) return;
+
+    // Only spawn ZigzagEnemy or ShooterEnemy as helpers
+    const helperTypes = [ZigzagEnemy, ShooterEnemy];
+    const enemyType =
+      helperTypes[Math.floor(Math.random() * helperTypes.length)];
+
+    const spawnX = Math.random() * (this.canvas.width - 100) + 50;
+    const spawnY = -60;
+
+    const enemy = new enemyType(this.ctx, this.canvas, spawnX, spawnY);
+
+    // Scale helper health for current cycle
+    if (this.currentCycle > 1) {
+      const healthMultiplier = Math.pow(1.3, this.currentCycle - 1); // Slightly less scaling than boss
+      enemy.maxHealth = Math.floor(enemy.maxHealth * healthMultiplier);
+      enemy.healthBar = new HealthBar(enemy.maxHealth, 80, 8);
+      enemy.healthBar.setOffset(0, -35);
+    }
+
+    this.enemies.push(enemy);
+    this.enemiesSpawned++;
+
+    console.log(
+      `Boss helper spawned: ${enemy.constructor.name} at stage ${this.currentStage}, cycle ${this.currentCycle}`
+    );
   }
 
   spawnEnemy() {
