@@ -106,23 +106,26 @@ class LeaderboardManager {
           </tr>
         </thead>
         <tbody>
-          ${data.entries.map(entry => this.createLeaderboardEntryHTML(entry)).join('')}
+          ${data.entries
+            .map((entry) => this.createLeaderboardEntryHTML(entry))
+            .join('')}
         </tbody>
       </table>
     `;
-    
+
     entriesContainer.innerHTML = tableHTML;
   }
 
   createLeaderboardEntryHTML(entry) {
     const currentUser = this.api.getCurrentUser();
-    const isCurrentUser = currentUser && entry.username === currentUser.username;
-    
+    const isCurrentUser =
+      currentUser && entry.username === currentUser.username;
+
     const date = new Date(entry.date).toLocaleDateString([], {
       month: 'short',
       day: 'numeric',
     });
-    
+
     const accuracy = entry.accuracy
       ? `${(entry.accuracy * 100).toFixed(1)}%`
       : 'N/A';
