@@ -90,56 +90,56 @@ class LeaderboardManager {
       return;
     }
 
-    // Add header row
-    const headerDiv = document.createElement('div');
-    headerDiv.className = 'leaderboard-header';
-    headerDiv.innerHTML = `
-      <div>Rank</div>
-      <div>Player</div>
-      <div>Score</div>
-      <div>Level</div>
-      <div>Accuracy</div>
-      <div>Kills</div>
-      <div>Date</div>
+    // Create simple table structure
+    const tableHTML = `
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Score</th>
+            <th>Stage</th>
+            <th>Accuracy</th>
+            <th>Kills</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${data.entries.map(entry => this.createLeaderboardEntryHTML(entry)).join('')}
+        </tbody>
+      </table>
     `;
-    entriesContainer.appendChild(headerDiv);
-
-    data.entries.forEach((entry) => {
-      const entryElement = this.createLeaderboardEntry(entry);
-      entriesContainer.appendChild(entryElement);
-    });
+    
+    entriesContainer.innerHTML = tableHTML;
   }
 
-  createLeaderboardEntry(entry) {
-    const entryDiv = document.createElement('div');
-    entryDiv.className = 'leaderboard-entry';
-
+  createLeaderboardEntryHTML(entry) {
     const currentUser = this.api.getCurrentUser();
-    if (currentUser && entry.username === currentUser.username) {
-      entryDiv.classList.add('current-user');
-    }
-
+    const isCurrentUser = currentUser && entry.username === currentUser.username;
+    
     const date = new Date(entry.date).toLocaleDateString([], {
       month: 'short',
       day: 'numeric',
     });
+    
     const accuracy = entry.accuracy
       ? `${(entry.accuracy * 100).toFixed(1)}%`
       : 'N/A';
 
-    entryDiv.innerHTML = `
-      <div class="column-rank">
-        <span class="rank ${this.getRankClass(entry.rank)}">${entry.rank}</span>
-      </div>
-      <div class="column-player">${entry.username}</div>
-      <div class="column-score">${entry.score.toLocaleString()}</div>
-      <div class="column-level">${entry.stage || 'N/A'}</div>
-      <div class="column-accuracy">${accuracy}</div>
-      <div class="column-kills">${entry.enemiesKilled || 0}</div>
-      <div class="column-date">${date}</div>
-    `;
+    const rankClass = this.getRankClass(entry.rank);
+    const rowClass = isCurrentUser ? 'current-user-row' : '';
 
-    return entryDiv;
+    return `
+      <tr class="${rowClass}">
+        <td><span class="rank ${rankClass}">${entry.rank}</span></td>
+        <td class="player-cell">${entry.username}</td>
+        <td class="score-cell">${entry.score.toLocaleString()}</td>
+        <td>${entry.stage || 'N/A'}</td>
+        <td>${accuracy}</td>
+        <td>${entry.enemiesKilled || 0}</td>
+        <td>${date}</td>
+      </tr>
+    `;
   }
 
   getRankClass(rank) {

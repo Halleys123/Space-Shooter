@@ -14,11 +14,22 @@
   padding: 0;
   box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
   backdrop-filter: blur(5px);
-  width: 90%;
-  max-width: 600px;
+  width: 95%;
+  max-width: 1000px;
   max-height: 80vh;
   overflow-y: auto;
   z-index: 1000;
+}
+
+/* Leaderboard panel needs more width for table layout */
+.leaderboard-panel {
+  max-width: 1000px;
+}
+
+/* Settings and other panels keep smaller width */
+.settings-panel,
+.help-panel {
+  max-width: 600px;
 }
 
 /* Help Hint (Bottom Right) */
@@ -853,5 +864,84 @@ input[type='text']:focus {
   .user-info {
     flex-direction: column;
     text-align: center;
+  }
+}
+
+/* User Scores List Styles */
+.user-scores-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+}
+
+.score-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: rgba(0, 188, 212, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 188, 212, 0.2);
+  transition: all 0.3s ease;
+}
+
+.score-entry:hover {
+  background: rgba(0, 188, 212, 0.15);
+  border-color: rgba(0, 188, 212, 0.3);
+}
+
+.score-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.score-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #00bcd4;
+}
+
+.score-details {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #b0bec5;
+}
+
+.score-stats {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: #90a4ae;
+}
+
+.score-stat {
+  background: rgba(0, 188, 212, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 188, 212, 0.2);
+}
+
+.no-scores {
+  text-align: center;
+  padding: 2rem;
+  color: #b0bec5;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .score-entry {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .score-stats {
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 }

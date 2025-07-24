@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { LeaderboardEntry } from '../models/LeaderboardEntry';
+import { User } from '../models/User';
 
 export interface LeaderboardQuery {
   timeFrame?: 'today' | 'this-week' | 'all-time';
@@ -147,6 +148,28 @@ export const submitScore = async (
     });
 
     await newEntry.save();
+
+    // Automatically update user stats if this is from an authenticated user
+    try {
+      const user = await User.findOne({ username: username.trim() });
+      if (user) {
+        // Update user stats automatically
+        user.stats = {
+          totalGamesPlayed: (user.stats?.totalGamesPlayed || 0) + 1,
+          totalPlayTime: (user.stats?.totalPlayTime || 0) + playTime,
+          highestScore: Math.max(user.stats?.highestScore || 0, score),
+          totalEnemiesKilled:
+            (user.stats?.totalEnemiesKilled || 0) + enemiesKilled,
+          bestAccuracy: Math.max(user.stats?.bestAccuracy || 0, accuracy),
+          favoriteWeapon: user.stats?.favoriteWeapon || 'Basic Laser',
+        };
+        await user.save();
+        console.log(`Updated stats for user: ${username}`);
+      }
+    } catch (statsError) {
+      console.error('Failed to update user stats:', statsError);
+      // Don't fail the score submission if stats update fails
+    }
 
     const rank =
       (await LeaderboardEntry.countDocuments({

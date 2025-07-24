@@ -1,6 +1,7 @@
 # Space Shooter Game
 
 A modern web-based space shooter game with user authentication, leaderboards, and backend score tracking.
+Domain - [halleysspaceshooter.netlify.app](https://halleysspaceshooter.netlify.app)
 
 ## Features
 

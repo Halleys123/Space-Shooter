@@ -349,7 +349,7 @@ async function updateUserScoresList(username) {
 
     // Extract the entries array from the response
     const userScores = response?.entries || [];
-    
+
     if (!userScores || !Array.isArray(userScores) || userScores.length === 0) {
       scoresContainer.innerHTML =
         '<div class="no-scores">No scores yet. Play a game to see your scores here!</div>';
@@ -381,7 +381,9 @@ async function updateUserScoresList(username) {
             <span class="score-stat">${
               score.accuracy ? (score.accuracy * 100).toFixed(1) + '%' : 'N/A'
             }</span>
-            <span class="score-stat">${score.metadata?.difficulty || 'Normal'}</span>
+            <span class="score-stat">${
+              score.metadata?.difficulty || 'Normal'
+            }</span>
           </div>
         </div>
       `;
