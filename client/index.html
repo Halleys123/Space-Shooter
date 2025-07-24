@@ -122,6 +122,20 @@
 </head>
 
 <body>
+    <!-- Mobile Development Warning -->
+    <div id="mobile-warning" class="mobile-warning">
+        <div class="warning-content">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-text">
+                <strong>Mobile Experience Under Development</strong>
+                <p>This game is optimized for desktop. Mobile support is currently in development and may have
+                    performance issues.</p>
+                <p><strong>For the best experience, please use a desktop computer.</strong></p>
+            </div>
+            <button id="dismiss-warning" class="dismiss-warning">×</button>
+        </div>
+    </div>
+
     <!-- Simple starfield background -->
     <div class="stars-background">
         <div class="stars"></div>
@@ -628,27 +642,23 @@
 
     <!-- Mobile Controls -->
     <div id="mobile-controls" class="mobile-controls">
-        <!-- Movement Joystick -->
+        <!-- Fire Button (Left Side) -->
+        <div id="fire-button" class="fire-button">
+            <span>🔥</span>
+            <div class="control-label">FIRE</div>
+        </div>
+
+        <!-- Movement Joystick (Right Side) -->
         <div id="movement-joystick" class="joystick-container">
             <div class="joystick-base">
                 <div class="joystick-stick" id="movement-stick"></div>
             </div>
-            <div class="joystick-label">Move</div>
-        </div>
-
-        <!-- Rotation Control -->
-        <div id="rotation-control" class="rotation-container">
-            <div class="rotation-slider" id="rotation-slider">
-                <div class="rotation-knob" id="rotation-knob"></div>
-            </div>
-            <div class="joystick-label">Rotate</div>
+            <div class="control-label">MOVE</div>
         </div>
     </div>
 
     <!-- Fire Button (separate from mobile-controls to avoid overlap) -->
-    <div id="fire-button" class="fire-button">
-        <span>🔥</span>
-    </div>
+    <!-- REMOVED - Now integrated into mobile-controls container -->
 
     <!-- Landscape Orientation Prompt -->
     <div id="landscape-prompt" class="landscape-prompt">
@@ -656,6 +666,7 @@
             <div class="rotate-icon">📱</div>
             <h3>Please Rotate Your Device</h3>
             <p>This game is best played in landscape mode</p>
+            <p><small>Movement: Right joystick | Fire: Left button | Rotation: Tilt device</small></p>
         </div>
     </div>
 

@@ -99,13 +99,64 @@ class MobileControlsManager {
 
   setupGyroControl() {
     if (!window.DeviceOrientationEvent) return;
+
+    // Calibrate gyroscope after a short delay
+    setTimeout(() => {
+      this.calibrateGyroscope();
+    }, 1000);
+
     window.addEventListener('deviceorientation', (e) => {
-      const g = e.gamma || 0;
-      const v = Math.max(-1, Math.min(1, g / 45));
-      this.controls.rotation.value = v;
-      this.controls.rotation.active = Math.abs(v) > 0.1;
+      if (!this.gyroCalibrated) return;
+
+      const gamma = e.gamma || 0; // Left-right tilt (-90 to 90)
+      const beta = e.beta || 0; // Front-back tilt (-180 to 180)
+
+      // Calculate relative tilt from baseline (straight position)
+      const relativeTilt = gamma - this.gyroBaseline.gamma;
+
+      // Dead zone to prevent rotation when device is held straight
+      const deadZone = 5; // degrees
+      if (Math.abs(relativeTilt) < deadZone) {
+        this.controls.rotation.value = 0;
+        this.controls.rotation.active = false;
+        return;
+      }
+
+      // Convert tilt to rotation value (-1 to 1)
+      // Increase sensitivity by reducing the divisor from 45 to 30
+      const rotationValue = Math.max(-1, Math.min(1, relativeTilt / 30));
+
+      this.controls.rotation.value = rotationValue;
+      this.controls.rotation.active = Math.abs(rotationValue) > 0.1;
     });
-    console.log('Gyro control active');
+    console.log('Gyro control active with baseline calibration');
+  }
+
+  calibrateGyroscope() {
+    if (!window.DeviceOrientationEvent) return;
+
+    const calibrationHandler = (e) => {
+      this.gyroBaseline.gamma = e.gamma || 0;
+      this.gyroBaseline.beta = e.beta || 0;
+      this.gyroCalibrated = true;
+      console.log(
+        'Gyroscope calibrated. Baseline gamma:',
+        this.gyroBaseline.gamma
+      );
+      window.removeEventListener('deviceorientation', calibrationHandler);
+    };
+
+    window.addEventListener('deviceorientation', calibrationHandler);
+
+    // Fallback: if no orientation event after 3 seconds, use default baseline
+    setTimeout(() => {
+      if (!this.gyroCalibrated) {
+        this.gyroBaseline = { gamma: 0, beta: 0 };
+        this.gyroCalibrated = true;
+        console.log('Gyroscope calibration timeout - using default baseline');
+        window.removeEventListener('deviceorientation', calibrationHandler);
+      }
+    }, 3000);
   }
 
   setupOrientationCheck() {
@@ -145,12 +196,19 @@ class MobileControlsManager {
     };
   }
 
+  // Method to recalibrate gyroscope baseline
+  recalibrateGyroscope() {
+    this.gyroCalibrated = false;
+    console.log('Recalibrating gyroscope...');
+    this.calibrateGyroscope();
+  }
+
   setGameStarted(started) {
     const m = document.getElementById('mobile-controls'),
       f = document.getElementById('fire-button');
     if (!m) return;
     m.classList[started ? 'add' : 'remove']('game-started');
-    if (f) f.classList[started ? 'add' : 'remove']('game-started');
+    // Fire button is now part of mobile-controls, so no separate handling needed
   }
 }
 

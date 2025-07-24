@@ -177,6 +177,31 @@ function setupEventListeners() {
   if (clearScoresButton) {
     addButtonEventListener(clearScoresButton, clearAllScores);
   }
+
+  // Mobile warning dismiss functionality
+  const dismissWarningButton = document.getElementById('dismiss-warning');
+  if (dismissWarningButton) {
+    addButtonEventListener(dismissWarningButton, () => {
+      const mobileWarning = document.getElementById('mobile-warning');
+      if (mobileWarning) {
+        mobileWarning.style.display = 'none';
+        // Adjust body padding
+        document.body.style.paddingTop = '0';
+        // Store in localStorage so it doesn't show again
+        localStorage.setItem('mobileWarningDismissed', 'true');
+      }
+    });
+  }
+
+  // Check if mobile warning was previously dismissed
+  const mobileWarning = document.getElementById('mobile-warning');
+  if (
+    mobileWarning &&
+    localStorage.getItem('mobileWarningDismissed') === 'true'
+  ) {
+    mobileWarning.style.display = 'none';
+    document.body.style.paddingTop = '0';
+  }
 }
 
 function showPanel(panelType) {

@@ -8,9 +8,9 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 ctx.imageSmoothingEnabled = false;
 // UI scaling based on screen size for all devices (handles high-res small screens)
 const screenSize = Math.min(window.screen.width, window.screen.height);
-const isSmallScreen = screenSize < 768;
+const isSmallScreen = screenSize < 908;
 // Slightly larger scale for small devices to improve visibility
-const uiScale = isSmallScreen ? 0.8 : 1.0;
+const uiScale = isSmallScreen ? 0.6 : 1.0;
 
 const keys = {};
 const mouse = { x: 0, y: 0 };
@@ -568,13 +568,9 @@ function gameLoop() {
     window.performanceManager.updateFPS();
   }
 
-  // Clear canvas and apply mobile UI scaling
+  // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
-  if (uiScale !== 1) {
-    ctx.scale(uiScale, uiScale);
-  }
-
   if (!gameState.isGameStarted) {
     requestAnimationFrame(gameLoop);
     return;
