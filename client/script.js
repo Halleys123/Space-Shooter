@@ -26,6 +26,21 @@ let apiService = null;
 let authUI = null;
 let leaderboardManager = null;
 
+// Helper function to add both click and touch events for mobile compatibility
+function addButtonEventListener(element, handler) {
+  if (!element) return;
+  
+  element.addEventListener('click', (e) => {
+    console.log('Button clicked:', element.className);
+    handler(e);
+  });
+  element.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    console.log('Button touched:', element.className);
+    handler(e);
+  });
+}
+
 window.gameSettings = {
   audio: {
     masterVolume: 50,
@@ -86,8 +101,8 @@ async function initializeComponents() {
 }
 
 function setupEventListeners() {
-  settingsButton.addEventListener('click', () => showPanel('settings'));
-  leaderboardButton.addEventListener('click', async () => {
+  addButtonEventListener(settingsButton, () => showPanel('settings'));
+  addButtonEventListener(leaderboardButton, async () => {
     showPanel('leaderboard');
     if (leaderboardManager) {
       await leaderboardManager.refresh();
@@ -97,14 +112,14 @@ function setupEventListeners() {
   });
 
   closePanelButtons.forEach((button) => {
-    button.addEventListener('click', (e) => {
+    addButtonEventListener(button, (e) => {
       const panelType = e.target.getAttribute('data-panel');
       hidePanel(panelType);
     });
   });
 
   backToMenuButtons.forEach((button) => {
-    button.addEventListener('click', (e) => {
+    addButtonEventListener(button, (e) => {
       const panelType = e.target.getAttribute('data-panel');
       hidePanel(panelType);
 
@@ -141,27 +156,26 @@ function setupEventListeners() {
     }
   });
 
-  document
-    .querySelector('.save-settings')
-    .addEventListener('click', saveSettings);
-  document
-    .querySelector('.reset-settings')
-    .addEventListener('click', resetSettings);
+  const saveSettingsButton = document.querySelector('.save-settings');
+  const resetSettingsButton = document.querySelector('.reset-settings');
+  
+  addButtonEventListener(saveSettingsButton, saveSettings);
+  addButtonEventListener(resetSettingsButton, resetSettings);
 
   tabButtons.forEach((tab) => {
-    tab.addEventListener('click', (e) => {
+    addButtonEventListener(tab, (e) => {
       const tabType = e.target.getAttribute('data-tab');
       switchLeaderboardTab(tabType);
     });
   });
 
-  startButton.addEventListener('click', () => {
+  addButtonEventListener(startButton, () => {
     startGame();
   });
 
   const clearScoresButton = document.querySelector('.clear-scores');
   if (clearScoresButton) {
-    clearScoresButton.addEventListener('click', clearAllScores);
+    addButtonEventListener(clearScoresButton, clearAllScores);
   }
 }
 

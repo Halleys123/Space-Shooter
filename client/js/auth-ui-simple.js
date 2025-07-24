@@ -6,6 +6,17 @@ class AuthUI {
     this.token = localStorage.getItem('gameToken') || null;
   }
 
+  // Helper function to add both click and touch events for mobile compatibility
+  addButtonEventListener(element, handler) {
+    if (!element) return;
+
+    element.addEventListener('click', handler);
+    element.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      handler(e);
+    });
+  }
+
   async initialize() {
     this.bindEvents();
     this.updateUIState();
@@ -16,20 +27,20 @@ class AuthUI {
     const registerBtn = document.querySelector('.register-btn');
 
     if (loginBtn) {
-      loginBtn.addEventListener('click', () => this.showPanel('login'));
+      this.addButtonEventListener(loginBtn, () => this.showPanel('login'));
     }
     if (registerBtn) {
-      registerBtn.addEventListener('click', () => this.showPanel('register'));
+      this.addButtonEventListener(registerBtn, () => this.showPanel('register'));
     }
 
     const profileBtn = document.querySelector('.profile-btn');
     if (profileBtn) {
-      profileBtn.addEventListener('click', () => this.showPanel('profile'));
+      this.addButtonEventListener(profileBtn, () => this.showPanel('profile'));
     }
 
     const logoutBtn = document.querySelector('.logout-btn');
     if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => this.handleLogout());
+      this.addButtonEventListener(logoutBtn, () => this.handleLogout());
     }
 
     const loginForm = document.getElementById('login-form');
@@ -46,20 +57,20 @@ class AuthUI {
     const switchToLogin = document.querySelector('.switch-to-login');
 
     if (switchToRegister) {
-      switchToRegister.addEventListener('click', () => {
+      this.addButtonEventListener(switchToRegister, () => {
         this.hidePanel('login');
         this.showPanel('register');
       });
     }
     if (switchToLogin) {
-      switchToLogin.addEventListener('click', () => {
+      this.addButtonEventListener(switchToLogin, () => {
         this.hidePanel('register');
         this.showPanel('login');
       });
     }
 
     document.querySelectorAll('.close-panel').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
+      this.addButtonEventListener(btn, (e) => {
         const panelType = e.target.getAttribute('data-panel');
         this.hidePanel(panelType);
       });
@@ -67,7 +78,7 @@ class AuthUI {
 
     const viewAllScoresBtn = document.getElementById('view-all-scores');
     if (viewAllScoresBtn) {
-      viewAllScoresBtn.addEventListener('click', () => {
+      this.addButtonEventListener(viewAllScoresBtn, () => {
         this.hidePanel('profile');
 
         if (window.leaderboardManager) {

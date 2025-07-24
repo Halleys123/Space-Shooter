@@ -333,6 +333,23 @@
 
 /* Mobile-friendly help button */
 @media (hover: none) and (pointer: coarse) {
+    /* Ensure all buttons work properly on touch devices */
+    .game-menu button,
+    .start-game,
+    .settings,
+    .leaderboard,
+    .exit-game,
+    .login-btn,
+    .register-btn,
+    .profile-btn,
+    .logout-btn {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
+        user-select: none;
+        -webkit-user-select: none;
+        cursor: pointer;
+    }
+
     .help-button,
     .settings-button,
     .leaderboard-button {
@@ -348,6 +365,8 @@
         padding: 15px 25px;
         font-size: 18px;
         margin: 8px 0;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(0, 255, 255, 0.3);
     }
     
     /* Make panels more touch-friendly */
