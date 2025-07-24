@@ -16,9 +16,9 @@ class Player {
   };
   score = 0;
   shooting = {
-    fireRate: 15,
+    fireRate: 10,
     cooldown: 0,
-    bulletSpeed: 6,
+    bulletSpeed: 9,
     bulletDamage: 25,
     bulletSprite: './assets/sprites/bullet_player.png',
   };
