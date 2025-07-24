@@ -211,7 +211,6 @@ function initializeSettings() {
 
   setTimeout(() => {
     if (typeof applyGraphicsSettings === 'function') {
-      // Safely apply graphics settings only if game objects exist
       try {
         applyGraphicsSettings();
       } catch (error) {
