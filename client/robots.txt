@@ -1,8 +1,2 @@
 User-agent: *
-Disallow: /admin/
-Disallow: /private/
-Disallow: /config/
-Disallow: /api/
 Allow: /
-
-Sitemap: https://halleysspaceshooter.netlify.app/sitemap.xml
