@@ -626,9 +626,44 @@
         </div>
     </div>
 
+    <!-- Mobile Controls -->
+    <div id="mobile-controls" class="mobile-controls">
+        <!-- Movement Joystick -->
+        <div id="movement-joystick" class="joystick-container">
+            <div class="joystick-base">
+                <div class="joystick-stick" id="movement-stick"></div>
+            </div>
+            <div class="joystick-label">Move</div>
+        </div>
+        
+        <!-- Rotation Control -->
+        <div id="rotation-control" class="rotation-container">
+            <div class="rotation-slider" id="rotation-slider">
+                <div class="rotation-knob" id="rotation-knob"></div>
+            </div>
+            <div class="joystick-label">Rotate</div>
+        </div>
+        
+        <!-- Fire Button -->
+        <div id="fire-button" class="fire-button">
+            <span>🔥</span>
+        </div>
+    </div>
+
+    <!-- Landscape Orientation Prompt -->
+    <div id="landscape-prompt" class="landscape-prompt">
+        <div class="landscape-content">
+            <div class="rotate-icon">📱</div>
+            <h3>Please Rotate Your Device</h3>
+            <p>This game is best played in landscape mode</p>
+        </div>
+    </div>
+
 </body>
 <link rel="stylesheet" href="./css/backgrounds.css">
 <link rel="stylesheet" href="./css/panels.css">
+<link rel="stylesheet" href="./css/mobile-controls.css">
+<script src="./mobile-controls.js" defer></script>
 <script src="./particles.js" defer></script>
 <script src="./object-pool.js" defer></script>
 <script src="./performance.js" defer></script>

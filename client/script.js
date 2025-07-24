@@ -338,6 +338,11 @@ function restartGame() {
     window.gameState.isPaused = false;
     window.gameState.isGameOver = false;
     window.gameState.currentScore = 0;
+
+  // Hide mobile controls when returning to menu
+  if (window.mobileControls) {
+    window.mobileControls.setGameStarted(false);
+  }
   }
 
   if (window.audioManager) {

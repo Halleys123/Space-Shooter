@@ -41,6 +41,13 @@
   }
 }
 
+/* Mobile portrait - show landscape prompt instead */
+@media (hover: none) and (pointer: coarse) and (orientation: portrait) and (max-width: 768px) {
+  .game-menu {
+    display: none !important;
+  }
+}
+
 /* Performance optimizations for low-end devices */
 @media (max-resolution: 150dpi), (max-width: 600px) {
   .stars-background {

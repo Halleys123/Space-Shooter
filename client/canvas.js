@@ -206,6 +206,11 @@ function initializeGame() {
   player.control.position.x = canvas.width / 2 - player.visuals.width / 2;
   player.control.position.y = canvas.height - player.visuals.height - 50;
 
+  // Show mobile controls when game starts
+  if (window.mobileControls) {
+    window.mobileControls.setGameStarted(true);
+  }
+
   console.log('Game started!');
 }
 
@@ -284,6 +289,11 @@ function handleGameOver() {
   gameState.isPaused = true;
 
   gameState.currentScore = player.score;
+
+  // Hide mobile controls when game ends
+  if (window.mobileControls) {
+    window.mobileControls.setGameStarted(false);
+  }
 
   addScoreToLeaderboard(gameState.currentScore);
 
@@ -587,7 +597,22 @@ function gameLoop() {
     y: player.control.position.y + player.visuals.height / 2,
   };
 
-  player.update(keys, mouse);
+  // Merge mobile controls with keyboard input
+  const mergedKeys = { ...keys };
+  let mergedMouse = { ...mouse };
+  
+  if (window.mobileControls) {
+    const mobileKeys = window.mobileControls.getMobileKeys();
+    Object.assign(mergedKeys, mobileKeys);
+    
+    // Override mouse position with mobile rotation if active
+    const mobileMouse = window.mobileControls.getMobileMouse(canvas);
+    if (mobileMouse) {
+      mergedMouse = mobileMouse;
+    }
+  }
+
+  player.update(mergedKeys, mergedMouse);
 
   if (!player.isAlive && !gameState.isGameOver) {
     handleGameOver();

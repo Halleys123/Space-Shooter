@@ -1,0 +1,411 @@
+/* Mobile Controls CSS */
+
+/* Hide mobile controls on desktop and until game starts */
+.mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    pointer-events: none;
+    user-select: none;
+    touch-action: none;
+}
+
+/* Show mobile controls on touch devices ONLY when game is started */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-controls.game-started {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 0 20px;
+        height: 200px;
+    }
+}
+
+/* Joystick Container */
+.joystick-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+    touch-action: none;
+}
+
+/* Joystick Base */
+.joystick-base {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    background: radial-gradient(
+        circle at center,
+        rgba(0, 0, 255, 0.2) 0%,
+        rgba(0, 0, 255, 0.1) 40%,
+        transparent 60%
+    );
+    box-shadow: 
+        inset 0 0 20px rgba(0, 100, 255, 0.3),
+        0 0 20px rgba(0, 100, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+/* Joystick Stick */
+.joystick-stick {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(100, 150, 255, 0.6) 70%,
+        rgba(0, 100, 255, 0.8) 100%
+    );
+    transform: translate(-50%, -50%);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    transition: transform 0.1s ease;
+    cursor: grab;
+}
+
+.joystick-stick:active {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Rotation Control */
+.rotation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+    touch-action: none;
+}
+
+.rotation-slider {
+    position: relative;
+    width: 200px;
+    height: 60px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.3) 0%,
+        rgba(255, 255, 0, 0.3) 50%,
+        rgba(0, 255, 0, 0.3) 100%
+    );
+    box-shadow: 
+        inset 0 0 15px rgba(0, 100, 255, 0.3),
+        0 0 15px rgba(0, 100, 255, 0.2);
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+}
+
+.rotation-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(255, 150, 100, 0.6) 70%,
+        rgba(255, 100, 0, 0.8) 100%
+    );
+    transform: translate(-50%, -50%);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    transition: transform 0.1s ease;
+    cursor: grab;
+}
+
+.rotation-knob:active {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Fire Button */
+.fire-button {
+    position: absolute;
+    right: 30px;
+    bottom: 120px;
+    width: 80px;
+    height: 80px;
+    border: 3px solid rgba(255, 100, 100, 0.8);
+    border-radius: 50%;
+    background: radial-gradient(
+        circle at 30% 30%,
+        rgba(255, 200, 200, 0.9) 0%,
+        rgba(255, 100, 100, 0.7) 70%,
+        rgba(200, 0, 0, 0.9) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    pointer-events: auto;
+    touch-action: none;
+    cursor: pointer;
+    box-shadow: 
+        0 6px 16px rgba(255, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    transition: all 0.1s ease;
+    user-select: none;
+}
+
+.fire-button:active {
+    transform: scale(0.95);
+    box-shadow: 
+        0 3px 8px rgba(255, 0, 0, 0.6),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Joystick Labels */
+.joystick-label {
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    text-align: center;
+}
+
+/* Landscape Orientation Prompt */
+.landscape-prompt {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+.landscape-content {
+    padding: 40px;
+    max-width: 400px;
+}
+
+.rotate-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: rotate-device 2s ease-in-out infinite;
+}
+
+@keyframes rotate-device {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+}
+
+.landscape-content h3 {
+    font-size: 24px;
+    margin: 20px 0 10px 0;
+    color: #fff;
+}
+
+.landscape-content p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+/* Show landscape prompt on portrait mobile devices */
+@media (hover: none) and (pointer: coarse) and (orientation: portrait) and (max-width: 768px) {
+    .landscape-prompt {
+        display: flex;
+    }
+    
+    .mobile-controls {
+        display: none !important;
+    }
+    
+    #gameCanvas {
+        display: none !important;
+    }
+    
+    .game-menu {
+        display: none !important;
+    }
+}
+
+/* Mobile landscape menu improvements */
+@media (hover: none) and (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+    .game-menu {
+        min-width: 95vw;
+        max-width: 95vw;
+        padding: 1rem 2rem;
+        gap: 1rem;
+        max-height: 90vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .logo-container {
+        margin-bottom: 0.5rem;
+    }
+    
+    .game-title {
+        font-size: 1.8rem;
+        margin: 0.5rem 0;
+    }
+    
+    .game-logo {
+        max-height: 40px;
+        width: auto;
+    }
+    
+    .menu-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        width: 100%;
+    }
+    
+    .auth-section {
+        grid-column: 1 / -1; /* Span both columns */
+        display: flex;
+        flex-direction: row;
+        gap: 0.8rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .auth-buttons {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+    
+    .user-info-btn {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+    
+    .menu-buttons button {
+        padding: 0.8rem 1rem;
+        font-size: 1.1rem;
+        min-width: 120px;
+        min-height: 44px;
+        flex: 1;
+        white-space: nowrap;
+    }
+    
+    .auth-section button {
+        min-width: 100px;
+        flex: 0 1 auto;
+    }
+    
+    .button-text {
+        font-size: 0.9rem;
+    }
+    
+    .button-icon {
+        font-size: 1.1rem;
+        margin-right: 0.3rem;
+    }
+    
+    .game-info {
+        margin-top: 0.5rem;
+    }
+    
+    .version {
+        font-size: 0.8rem;
+        margin: 0;
+    }
+}
+
+/* Mobile-friendly help button */
+@media (hover: none) and (pointer: coarse) {
+    .help-button,
+    .settings-button,
+    .leaderboard-button {
+        min-height: 44px; /* Apple's recommended minimum touch target */
+        padding: 12px 20px;
+        font-size: 16px;
+        touch-action: manipulation;
+    }
+    
+    /* Increase button sizes in game menu */
+    .game-menu button {
+        min-height: 50px;
+        padding: 15px 25px;
+        font-size: 18px;
+        margin: 8px 0;
+    }
+    
+    /* Make panels more touch-friendly */
+    .settings-panel,
+    .leaderboard-panel,
+    .help-panel {
+        max-height: 85vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Larger close buttons */
+    .close-button {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 20px;
+        padding: 8px;
+    }
+    
+    /* Touch-friendly settings controls */
+    .volume-control {
+        height: 44px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    .volume-control::-webkit-slider-thumb {
+        width: 30px;
+        height: 30px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: #4CAF50;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    
+    .volume-control::-moz-range-thumb {
+        width: 30px;
+        height: 30px;
+        background: #4CAF50;
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+    }
+}
+
+/* Performance optimizations for mobile */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-controls * {
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    
+    .joystick-stick,
+    .rotation-knob,
+    .fire-button {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+}
