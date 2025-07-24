@@ -210,6 +210,12 @@ function applyGraphicsSettings() {
 
   if (typeof window.gameSettings === 'undefined') return;
 
+  // Don't override emergency mode settings
+  if (window.performanceManager.isInEmergencyPerformanceMode()) {
+    console.log('Emergency mode active, skipping manual graphics settings');
+    return;
+  }
+
   const quality = window.gameSettings.graphics.quality;
 
   window.performanceManager.setPerformanceLevel(quality);
@@ -441,6 +447,45 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+// Listen for emergency performance mode changes
+window.addEventListener('performanceEmergency', function(event) {
+  const { isEmergency, fps, settings } = event.detail;
+  
+  if (isEmergency) {
+    console.warn(`Emergency mode activated due to low FPS (${fps.toFixed(1)})`);
+    
+    // Force apply emergency settings to all systems
+    if (stage && stage.getStarField) {
+      stage.getStarField().setStarCount(settings.starCount);
+      stage.getStarField().enableGlow = false;
+      stage.getStarField().enableFilters = false;
+    }
+    
+    // Update blast manager particle limits if possible
+    if (blastManager && blastManager.maxParticles !== undefined) {
+      blastManager.maxParticles = settings.maxParticles.blast;
+    }
+    
+    // Update particle manager limits if they exist
+    if (window.thrustParticles && window.thrustParticles.maxParticles !== undefined) {
+      window.thrustParticles.maxParticles = settings.maxParticles.thrust;
+    }
+    
+    if (window.collisionParticles && window.collisionParticles.maxParticles !== undefined) {
+      window.collisionParticles.maxParticles = settings.maxParticles.collision;
+    }
+    
+    console.log('Emergency graphics settings applied:', settings);
+  } else {
+    console.log(`Emergency mode deactivated, FPS recovered (${fps.toFixed(1)})`);
+    
+    // Restore normal graphics settings
+    applyGraphicsSettings();
+    
+    console.log('Normal graphics settings restored');
+  }
+});
+
 function gameLoop() {
   const currentTime = performance.now();
   const deltaTime = currentTime - lastFrameTime;
@@ -453,6 +498,11 @@ function gameLoop() {
     fps = Math.round((frameCount * 1000) / fpsUpdateTime);
     frameCount = 0;
     fpsUpdateTime = 0;
+  }
+
+  // Update performance manager with FPS data
+  if (window.performanceManager) {
+    window.performanceManager.updateFPS();
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -564,13 +614,21 @@ function gameLoop() {
   ) {
     ctx.fillStyle = '#00ffff';
     ctx.font = 'bold 16px Arial';
-    ctx.fillText(`FPS: ${fps}`, canvas.width - 100, 30);
-
-    if (fps >= 50) ctx.fillStyle = '#00ff00';
-    else if (fps >= 30) ctx.fillStyle = '#ffff00';
-    else ctx.fillStyle = '#ff0000';
-
-    ctx.fillText(`FPS: ${fps}`, canvas.width - 100, 30);
+    
+    // Check if in emergency mode
+    const isEmergencyMode = window.performanceManager && window.performanceManager.isInEmergencyPerformanceMode();
+    const currentFps = window.performanceManager ? window.performanceManager.getCurrentFPS() : fps;
+    
+    if (isEmergencyMode) {
+      ctx.fillStyle = '#ff4444';
+      ctx.fillText(`FPS: ${Math.round(currentFps)} [EMERGENCY]`, canvas.width - 180, 30);
+    } else {
+      if (currentFps >= 50) ctx.fillStyle = '#00ff00';
+      else if (currentFps >= 30) ctx.fillStyle = '#ffff00';
+      else ctx.fillStyle = '#ff0000';
+      
+      ctx.fillText(`FPS: ${Math.round(currentFps)}`, canvas.width - 100, 30);
+    }
   }
 
   ctx.fillStyle = 'white';
@@ -582,11 +640,27 @@ function gameLoop() {
   const settings = window.performanceManager
     ? window.performanceManager.getSettings()
     : {};
+  const isEmergencyMode = window.performanceManager && window.performanceManager.isInEmergencyPerformanceMode();
+  const avgFps = window.performanceManager ? window.performanceManager.getAverageFPS() : fps;
+
+  // Emergency mode indicator
+  if (isEmergencyMode) {
+    ctx.fillStyle = '#ff4444';
+    ctx.font = 'bold 14px Arial';
+    ctx.fillText('⚠️ EMERGENCY LOW GRAPHICS MODE', 10, canvas.height - 200);
+    ctx.fillStyle = 'white';
+    ctx.font = '14px Arial';
+  }
 
   ctx.fillText(
-    `Performance Level: ${performanceLevel.toUpperCase()}`,
+    `Performance Level: ${performanceLevel.toUpperCase()}${isEmergencyMode ? ' (OVERRIDE)' : ''}`,
     10,
-    canvas.height - 140
+    canvas.height - 180
+  );
+  ctx.fillText(
+    `Avg FPS: ${Math.round(avgFps)} | Current: ${Math.round(fps)}`,
+    10,
+    canvas.height - 160
   );
   ctx.fillText(
     `Star Count: ${settings.starCount || 'N/A'}`,

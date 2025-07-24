@@ -68,9 +68,9 @@ class Stage {
         name: 'BOSS BATTLE',
         description: 'Face the mighty guardian!',
         enemyTypes: [{ type: BossEnemy, weight: 100 }],
-        spawnRate: 0, // Boss spawns immediately
+        spawnRate: 0,
         maxEnemies: 1,
-        duration: 1800, // Longer duration for boss fight
+        duration: 1800,
         isBossStage: true,
       },
       6: {
@@ -154,9 +154,9 @@ class Stage {
         name: 'FINAL BOSS',
         description: 'The ultimate challenge awaits!',
         enemyTypes: [{ type: BossEnemy, weight: 100 }],
-        spawnRate: 0, // Boss spawns immediately
+        spawnRate: 0,
         maxEnemies: 1,
-        duration: 2400, // Even longer for final boss
+        duration: 2400,
         isBossStage: true,
       },
     };
@@ -191,7 +191,6 @@ class Stage {
       }
     }
 
-    // Play boss music for boss stages
     if (config.isBossStage && window.audioManager) {
       window.audioManager.playBossMusic();
     }
@@ -253,16 +252,13 @@ class Stage {
   updateEnemySpawning(playerPosition) {
     const config = this.getScaledStageConfig();
 
-    // Handle boss stages differently
     if (config.isBossStage) {
-      // For boss stages, spawn boss immediately if no enemies exist
       if (this.enemies.length === 0 && this.enemiesSpawned === 0) {
         this.spawnBoss();
       }
       return;
     }
 
-    // Regular enemy spawning logic
     if (
       this.enemySpawnTimer >= this.nextSpawnTime &&
       this.enemies.length < config.maxEnemies &&
@@ -280,13 +276,11 @@ class Stage {
     const config = this.getScaledStageConfig();
     const bossType = BossEnemy;
 
-    // Spawn boss at the center-top of the screen
-    const spawnX = this.canvas.width / 2 - 60; // Center horizontally (60 is half boss width)
-    const spawnY = -120; // Start above screen
+    const spawnX = this.canvas.width / 2 - 60;
+    const spawnY = -120;
 
     const boss = new bossType(this.ctx, this.canvas, spawnX, spawnY);
 
-    // Scale boss health based on cycle
     if (this.currentCycle > 1) {
       const healthMultiplier = Math.pow(1.5, this.currentCycle - 1);
       boss.maxHealth = Math.floor(boss.maxHealth * healthMultiplier);
@@ -297,7 +291,6 @@ class Stage {
     this.enemies.push(boss);
     this.enemiesSpawned++;
 
-    // Create dramatic entrance effect
     this.starField.startWarpEffect();
     this.createMeteorShower();
   }
@@ -351,7 +344,6 @@ class Stage {
   checkStageCompletion() {
     const config = this.getScaledStageConfig();
 
-    // For boss stages, complete when boss is defeated
     if (config.isBossStage) {
       if (this.enemies.length === 0 && this.enemiesSpawned > 0) {
         this.completeStage();
@@ -359,7 +351,6 @@ class Stage {
       return;
     }
 
-    // For regular stages, complete when time is up and all enemies are cleared
     if (this.stageTimer >= config.duration && this.enemies.length === 0) {
       this.completeStage();
     }
@@ -378,11 +369,10 @@ class Stage {
       this.currentCycle++;
     }
 
-    // Switch back to normal game music after beating boss
     if (wasBeatingBoss && window.audioManager) {
       setTimeout(() => {
         window.audioManager.playGameMusic();
-      }, 2000); // Delay to let the victory sound play
+      }, 2000);
     }
   }
 
@@ -403,7 +393,6 @@ class Stage {
   drawStageUI() {
     const config = this.stageConfigs[this.currentStage];
 
-    // Use different colors for boss stages
     if (config.isBossStage) {
       this.ctx.fillStyle = '#ff0000';
     } else {
@@ -418,7 +407,6 @@ class Stage {
       30
     );
 
-    // Only show progress bar for non-boss stages
     if (!config.isBossStage) {
       const progressWidth = 200;
       const progressHeight = 10;
@@ -470,7 +458,6 @@ class Stage {
       );
     }
 
-    // Show boss warning
     if (config.isBossStage) {
       this.ctx.fillStyle = '#ff0000';
       this.ctx.font = 'bold 18px Arial';
@@ -503,7 +490,6 @@ class Stage {
       this.ctx.font = '24px Arial';
       this.ctx.fillText('Difficulty Increased!', centerX, centerY + 20);
     } else {
-      // Check if we just completed a boss stage
       if (currentConfig && currentConfig.isBossStage) {
         this.ctx.fillStyle = '#ffff00';
         this.ctx.fillText('BOSS DEFEATED!', centerX, centerY - 40);

@@ -1,6 +1,7 @@
 class PerformanceManager {
   constructor() {
     this.performanceLevel = 'auto';
+    this.originalPerformanceLevel = 'auto';
     this.settings = {
       starCount: 150,
       particleQuality: 'high',
@@ -13,6 +14,19 @@ class PerformanceManager {
         blast: 500,
       },
     };
+
+    // FPS monitoring
+    this.frameCount = 0;
+    this.lastFpsTime = performance.now();
+    this.currentFps = 60;
+    this.fpsHistory = [];
+    this.fpsHistorySize = 10;
+    this.lowFpsThreshold = 30;
+    this.recoveryFpsThreshold = 45;
+    this.isInEmergencyMode = false;
+    this.emergencyModeTimer = 0;
+    this.emergencyModeDuration = 5000; // 5 seconds
+    this.fpsCheckInterval = 1000; // Check FPS every second
 
     this.detectPerformance();
   }
@@ -33,12 +47,15 @@ class PerformanceManager {
 
     if (isMobile || (isLowEndCPU && isLowMemory) || isLowResolution) {
       this.performanceLevel = 'low';
+      this.originalPerformanceLevel = 'low';
       this.applyLowEndSettings();
     } else if (cpuCores <= 6 || memory <= 8) {
       this.performanceLevel = 'medium';
+      this.originalPerformanceLevel = 'medium';
       this.applyMediumSettings();
     } else {
       this.performanceLevel = 'high';
+      this.originalPerformanceLevel = 'high';
       this.applyHighEndSettings();
     }
 
@@ -116,6 +133,107 @@ class PerformanceManager {
   shouldSkipFrame() {
     if (!this.settings.frameSkipping) return false;
     return performance.now() % 2 === 0;
+  }
+
+  // FPS Monitoring Methods
+  updateFPS() {
+    this.frameCount++;
+    const currentTime = performance.now();
+    
+    if (currentTime - this.lastFpsTime >= this.fpsCheckInterval) {
+      this.currentFps = (this.frameCount * 1000) / (currentTime - this.lastFpsTime);
+      this.frameCount = 0;
+      this.lastFpsTime = currentTime;
+      
+      // Add to history
+      this.fpsHistory.push(this.currentFps);
+      if (this.fpsHistory.length > this.fpsHistorySize) {
+        this.fpsHistory.shift();
+      }
+      
+      this.checkPerformanceAdjustment();
+    }
+  }
+
+  checkPerformanceAdjustment() {
+    if (this.fpsHistory.length < 3) return; // Need at least 3 samples
+    
+    const averageFps = this.fpsHistory.reduce((sum, fps) => sum + fps, 0) / this.fpsHistory.length;
+    const currentTime = performance.now();
+    
+    // Check if FPS drops below threshold
+    if (averageFps < this.lowFpsThreshold && !this.isInEmergencyMode) {
+      console.warn(`FPS dropped to ${averageFps.toFixed(1)}, enabling emergency low settings`);
+      this.enableEmergencyMode();
+    }
+    // Check for recovery after emergency mode has been active for minimum duration
+    else if (this.isInEmergencyMode && 
+             averageFps >= this.recoveryFpsThreshold && 
+             currentTime - this.emergencyModeTimer >= this.emergencyModeDuration) {
+      console.log(`FPS recovered to ${averageFps.toFixed(1)}, restoring original settings`);
+      this.disableEmergencyMode();
+    }
+  }
+
+  enableEmergencyMode() {
+    if (this.isInEmergencyMode) return;
+    
+    this.isInEmergencyMode = true;
+    this.emergencyModeTimer = performance.now();
+    
+    // Force ultra-low settings for maximum performance
+    this.settings = {
+      starCount: 25,
+      particleQuality: 'low',
+      enableGlow: false,
+      enableFilters: false,
+      frameSkipping: true,
+      maxParticles: {
+        thrust: 25,
+        collision: 15,
+        blast: 75,
+      },
+    };
+    
+    // Notify other systems about the emergency mode
+    this.notifyEmergencyMode(true);
+  }
+
+  disableEmergencyMode() {
+    if (!this.isInEmergencyMode) return;
+    
+    this.isInEmergencyMode = false;
+    
+    // Restore original performance level settings
+    this.setPerformanceLevel(this.originalPerformanceLevel);
+    
+    // Notify other systems that emergency mode is over
+    this.notifyEmergencyMode(false);
+  }
+
+  notifyEmergencyMode(isEmergency) {
+    // Dispatch custom event for other systems to listen to
+    const event = new CustomEvent('performanceEmergency', {
+      detail: { 
+        isEmergency: isEmergency,
+        fps: this.currentFps,
+        settings: this.settings
+      }
+    });
+    window.dispatchEvent(event);
+  }
+
+  getCurrentFPS() {
+    return this.currentFps;
+  }
+
+  getAverageFPS() {
+    if (this.fpsHistory.length === 0) return this.currentFps;
+    return this.fpsHistory.reduce((sum, fps) => sum + fps, 0) / this.fpsHistory.length;
+  }
+
+  isInEmergencyPerformanceMode() {
+    return this.isInEmergencyMode;
   }
 }
 
