@@ -37,11 +37,28 @@ class Player {
     this.control.position.x = canvas.width / 2;
     this.control.position.y = canvas.height - 150;
 
-    this.sprite = new Image(this.visuals.width, this.visuals.height);
-    this.sprite.src = src;
-    this.sprite.onload = () => {
-      this.draw();
-    };
+    // Try to use preloaded sprite first, fallback to dynamic loading
+    if (window.spritePreloader && window.spritePreloader.hasSprite('player')) {
+      this.sprite = window.spritePreloader.cloneSprite('player');
+      this.spriteLoaded = true;
+      this.spriteError = false;
+    } else {
+      this.sprite = new Image(this.visuals.width, this.visuals.height);
+      this.spriteLoaded = false;
+      this.spriteError = false;
+      
+      this.sprite.onload = () => {
+        this.spriteLoaded = true;
+        this.draw();
+      };
+      
+      this.sprite.onerror = () => {
+        console.error(`Failed to load player sprite: ${src}`);
+        this.spriteError = true;
+      };
+      
+      this.sprite.src = src;
+    }
 
     this.healthBar = new HealthBar(100, 150, 12);
     this.healthBar.setOffset(0, -40);
@@ -234,21 +251,38 @@ class Player {
 
     this.collisionParticles.draw(this.ctx);
 
-    if (!this.sprite || !this.sprite.complete) return;
-
     this.ctx.save();
-    this.ctx.translate(
-      this.control.position.x + this.visuals.width / 2,
-      this.control.position.y + this.visuals.height / 2
-    );
-    this.ctx.rotate(this.control.rotation);
-    this.ctx.drawImage(
-      this.sprite,
-      -this.visuals.width / 2,
-      -this.visuals.height / 2,
-      this.visuals.width,
-      this.visuals.height
-    );
+    
+    if (this.spriteLoaded && !this.spriteError) {
+      this.ctx.translate(
+        this.control.position.x + this.visuals.width / 2,
+        this.control.position.y + this.visuals.height / 2
+      );
+      this.ctx.rotate(this.control.rotation);
+      this.ctx.drawImage(
+        this.sprite,
+        -this.visuals.width / 2,
+        -this.visuals.height / 2,
+        this.visuals.width,
+        this.visuals.height
+      );
+    } else {
+      // Fallback triangle if sprite isn't loaded
+      this.ctx.translate(
+        this.control.position.x + this.visuals.width / 2,
+        this.control.position.y + this.visuals.height / 2
+      );
+      this.ctx.rotate(this.control.rotation);
+      
+      this.ctx.fillStyle = '#00ffff';
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, -this.visuals.height / 2);
+      this.ctx.lineTo(-this.visuals.width / 4, this.visuals.height / 2);
+      this.ctx.lineTo(this.visuals.width / 4, this.visuals.height / 2);
+      this.ctx.closePath();
+      this.ctx.fill();
+    }
+    
     this.ctx.restore();
 
     this.healthBar.draw(

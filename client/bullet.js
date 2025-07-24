@@ -34,8 +34,28 @@ class Bullet {
       this.height = 16;
     }
 
-    this.sprite = new Image();
-    this.sprite.src = spriteSource;
+    // Try to use preloaded sprite first
+    const spriteKey = owner === 'player' ? 'bullet_player' : 'bullet_enemy';
+    if (window.spritePreloader && window.spritePreloader.hasSprite(spriteKey)) {
+      this.sprite = window.spritePreloader.cloneSprite(spriteKey);
+      this.spriteLoaded = true;
+      this.spriteError = false;
+    } else {
+      this.sprite = new Image();
+      this.spriteLoaded = false;
+      this.spriteError = false;
+      
+      this.sprite.onload = () => {
+        this.spriteLoaded = true;
+      };
+      
+      this.sprite.onerror = () => {
+        console.error(`Failed to load bullet sprite: ${spriteSource}`);
+        this.spriteError = true;
+      };
+      
+      this.sprite.src = spriteSource;
+    }
 
     this.collisionComponent = null;
 
@@ -168,7 +188,7 @@ class Bullet {
 
     this.ctx.save();
 
-    if (this.sprite.complete) {
+    if (this.spriteLoaded && !this.spriteError) {
       this.ctx.translate(
         this.position.x + this.width / 2,
         this.position.y + this.height / 2
@@ -182,6 +202,7 @@ class Bullet {
         this.height
       );
     } else {
+      // Fallback rectangle if sprite isn't loaded or failed
       this.ctx.translate(
         this.position.x + this.width / 2,
         this.position.y + this.height / 2

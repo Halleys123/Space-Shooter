@@ -14,8 +14,29 @@ class Enemy {
 
     this.width = 60;
     this.height = 60;
-    this.sprite = new Image();
-    this.sprite.src = spriteSource;
+    
+    // Try to use preloaded sprite first
+    const spriteKey = this.getSpriteKey(spriteSource);
+    if (window.spritePreloader && spriteKey && window.spritePreloader.hasSprite(spriteKey)) {
+      this.sprite = window.spritePreloader.cloneSprite(spriteKey);
+      this.spriteLoaded = true;
+      this.spriteError = false;
+    } else {
+      this.sprite = new Image();
+      this.spriteLoaded = false;
+      this.spriteError = false;
+      
+      this.sprite.onload = () => {
+        this.spriteLoaded = true;
+      };
+      
+      this.sprite.onerror = () => {
+        console.error(`Failed to load enemy sprite: ${spriteSource}`);
+        this.spriteError = true;
+      };
+      
+      this.sprite.src = spriteSource;
+    }
 
     this.maxHealth = 100;
     this.healthBar = new HealthBar(this.maxHealth, 80, 8);
@@ -35,6 +56,18 @@ class Enemy {
     this.collisionComponent = null;
 
     this.bulletManager = null;
+  }
+
+  getSpriteKey(spriteSource) {
+    // Map sprite paths to keys
+    const spriteMap = {
+      './assets/sprites/enemy_basic.png': 'enemy_basic',
+      './assets/sprites/enemy_shooter.png': 'enemy_shooter',
+      './assets/sprites/enemy_zigzag.png': 'enemy_zigzag',
+      './assets/sprites/enemy_kamikaze.png': 'enemy_kamikaze',
+      './assets/sprites/boss.png': 'boss'
+    };
+    return spriteMap[spriteSource] || null;
   }
 
   updateMovement() {
@@ -139,22 +172,31 @@ class Enemy {
   }
 
   draw() {
-    if (!this.isAlive || !this.sprite.complete) return;
-
-    this.ctx.save();
-    this.ctx.translate(
-      this.position.x + this.width / 2,
-      this.position.y + this.height / 2
-    );
-    this.ctx.rotate(this.rotation);
-    this.ctx.drawImage(
-      this.sprite,
-      -this.width / 2,
-      -this.height / 2,
-      this.width,
-      this.height
-    );
-    this.ctx.restore();
+    if (!this.isAlive) return;
+    
+    // Only draw if sprite is loaded successfully
+    if (!this.spriteLoaded || this.spriteError) {
+      // Draw fallback rectangle if sprite failed to load
+      this.ctx.save();
+      this.ctx.fillStyle = '#ff4444';
+      this.ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+      this.ctx.restore();
+    } else {
+      this.ctx.save();
+      this.ctx.translate(
+        this.position.x + this.width / 2,
+        this.position.y + this.height / 2
+      );
+      this.ctx.rotate(this.rotation);
+      this.ctx.drawImage(
+        this.sprite,
+        -this.width / 2,
+        -this.height / 2,
+        this.width,
+        this.height
+      );
+      this.ctx.restore();
+    }
 
     this.healthBar.draw(this.ctx, this.position.x, this.position.y, this.width);
 
@@ -641,31 +683,40 @@ class BossEnemy extends Enemy {
   }
 
   draw() {
-    if (!this.isAlive || !this.sprite.complete) return;
+    if (!this.isAlive) return;
 
-    this.ctx.save();
-
-    if (this.isPerformingSpecialAttack) {
-      this.ctx.shadowColor = '#ff0000';
-      this.ctx.shadowBlur = 20;
+    // Only draw if sprite is loaded successfully
+    if (!this.spriteLoaded || this.spriteError) {
+      // Draw fallback rectangle if sprite failed to load
+      this.ctx.save();
+      this.ctx.fillStyle = '#ff6666';
+      this.ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+      this.ctx.restore();
     } else {
-      this.ctx.shadowColor = '#ffffff';
-      this.ctx.shadowBlur = 10;
-    }
+      this.ctx.save();
 
-    this.ctx.translate(
-      this.position.x + this.width / 2,
-      this.position.y + this.height / 2
-    );
-    this.ctx.rotate(this.rotation);
-    this.ctx.drawImage(
-      this.sprite,
-      -this.width / 2,
-      -this.height / 2,
-      this.width,
-      this.height
-    );
-    this.ctx.restore();
+      if (this.isPerformingSpecialAttack) {
+        this.ctx.shadowColor = '#ff0000';
+        this.ctx.shadowBlur = 20;
+      } else {
+        this.ctx.shadowColor = '#ffffff';
+        this.ctx.shadowBlur = 10;
+      }
+
+      this.ctx.translate(
+        this.position.x + this.width / 2,
+        this.position.y + this.height / 2
+      );
+      this.ctx.rotate(this.rotation);
+      this.ctx.drawImage(
+        this.sprite,
+        -this.width / 2,
+        -this.height / 2,
+        this.width,
+        this.height
+      );
+      this.ctx.restore();
+    }
 
     this.drawBossHealthBar();
 

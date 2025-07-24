@@ -195,6 +195,20 @@ document.addEventListener('keydown', (e) => {
       stage.getStarField().enableFilters = settings.enableFilters;
     }
   }
+
+  // Debug: Check sprite loading status
+  if (e.key === 'r' || e.key === 'R') {
+    if (window.spritePreloader) {
+      window.spritePreloader.diagnoseSprites();
+    }
+  }
+  
+  // Debug: Reload failed sprites
+  if (e.key === 'u' || e.key === 'U') {
+    if (window.spritePreloader) {
+      window.spritePreloader.reloadFailedSprites();
+    }
+  }
 });
 
 document.addEventListener('keyup', (e) => {
