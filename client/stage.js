@@ -158,11 +158,11 @@ class Stage {
           { type: ZigzagEnemy, weight: 25 },
           { type: ShooterEnemy, weight: 15 },
         ],
-        spawnRate: 120, // Slower spawn rate for helpers
-        maxEnemies: 4, // Boss + up to 3 helpers
+        spawnRate: 120,
+        maxEnemies: 4,
         duration: 2400,
         isBossStage: true,
-        hasHelpers: true, // Special flag for boss helpers
+        hasHelpers: true,
       },
     };
 
@@ -262,13 +262,11 @@ class Stage {
         this.spawnBoss();
       }
 
-      // Special logic for final boss stage (stage 12) with helpers
       if (config.hasHelpers && this.currentStage === 12) {
-        // Spawn helpers during boss fight
         if (
           this.enemySpawnTimer >= this.nextSpawnTime &&
           this.enemies.length < config.maxEnemies &&
-          this.stageTimer > 300 // Wait 5 seconds after boss spawn before helpers
+          this.stageTimer > 300
         ) {
           this.spawnBossHelper();
           this.enemySpawnTimer = 0;
@@ -320,13 +318,11 @@ class Stage {
   spawnBossHelper() {
     const config = this.getScaledStageConfig();
 
-    // Don't spawn helpers if boss is dead
     const hasBoss = this.enemies.some(
       (enemy) => enemy.constructor.name === 'BossEnemy'
     );
     if (!hasBoss) return;
 
-    // Only spawn ZigzagEnemy or ShooterEnemy as helpers
     const helperTypes = [ZigzagEnemy, ShooterEnemy];
     const enemyType =
       helperTypes[Math.floor(Math.random() * helperTypes.length)];
@@ -336,9 +332,8 @@ class Stage {
 
     const enemy = new enemyType(this.ctx, this.canvas, spawnX, spawnY);
 
-    // Scale helper health for current cycle
     if (this.currentCycle > 1) {
-      const healthMultiplier = Math.pow(1.3, this.currentCycle - 1); // Slightly less scaling than boss
+      const healthMultiplier = Math.pow(1.3, this.currentCycle - 1);
       enemy.maxHealth = Math.floor(enemy.maxHealth * healthMultiplier);
       enemy.healthBar = new HealthBar(enemy.maxHealth, 80, 8);
       enemy.healthBar.setOffset(0, -35);

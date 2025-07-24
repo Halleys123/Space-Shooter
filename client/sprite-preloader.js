@@ -6,25 +6,20 @@ class SpritePreloader {
     this.isLoading = false;
     this.loadPromise = null;
 
-    // Define all sprites used in the game
     this.spriteList = [
-      // Player sprites
       { key: 'player', path: './assets/sprites/player.png' },
       { key: 'player_shield', path: './assets/sprites/player_shield.png' },
       { key: 'player_thrust', path: './assets/sprites/player_thrust.png' },
 
-      // Enemy sprites
       { key: 'enemy_basic', path: './assets/sprites/enemy_basic.png' },
       { key: 'enemy_shooter', path: './assets/sprites/enemy_shooter.png' },
       { key: 'enemy_zigzag', path: './assets/sprites/enemy_zigzag.png' },
       { key: 'enemy_kamikaze', path: './assets/sprites/enemy_kamikaze.png' },
       { key: 'boss', path: './assets/sprites/boss.png' },
 
-      // Bullet sprites
       { key: 'bullet_player', path: './assets/sprites/bullet_player.png' },
       { key: 'bullet_enemy', path: './assets/sprites/bullet_enemy.png' },
 
-      // Powerup sprites
       {
         key: 'firerate_powerup',
         path: './assets/power-ups/firerate_powerup.png',
@@ -32,13 +27,11 @@ class SpritePreloader {
       { key: 'health_powerup', path: './assets/power-ups/health_powerup.png' },
       { key: 'shield_powerup', path: './assets/power-ups/shield_powerup.png' },
 
-      // Explosion sprites
       { key: 'explosion_1', path: './assets/sprites/explosion_sprite_1.png' },
       { key: 'explosion_2', path: './assets/sprites/explosion_sprite_2.png' },
       { key: 'explosion_3', path: './assets/sprites/explosion_sprite_3.png' },
       { key: 'explosion_4', path: './assets/sprites/explosion_sprite_4.png' },
 
-      // UI sprites
       { key: 'health_bar_frame', path: './assets/ui/health_bar_frame.png' },
       { key: 'life_icon', path: './assets/ui/life_icon.png' },
       {
@@ -59,7 +52,6 @@ class SpritePreloader {
 
     console.log(`Starting to preload ${this.totalCount} sprites...`);
 
-    // Show loading indicator
     const loadingIndicator = document.getElementById('sprite-loading');
     if (loadingIndicator) {
       loadingIndicator.classList.remove('hidden');
@@ -70,7 +62,6 @@ class SpritePreloader {
       let failedSprites = 0;
       const results = [];
 
-      // Show loading progress
       this.updateLoadingProgress(0);
 
       this.spriteList.forEach((spriteInfo, index) => {
@@ -89,7 +80,6 @@ class SpritePreloader {
           if (loadedSprites + failedSprites === this.totalCount) {
             this.isLoading = false;
 
-            // Hide loading indicator
             const loadingIndicator = document.getElementById('sprite-loading');
             if (loadingIndicator) {
               loadingIndicator.classList.add('hidden');
@@ -122,7 +112,6 @@ class SpritePreloader {
           if (loadedSprites + failedSprites === this.totalCount) {
             this.isLoading = false;
 
-            // Hide loading indicator
             const loadingIndicator = document.getElementById('sprite-loading');
             if (loadingIndicator) {
               loadingIndicator.classList.add('hidden');
@@ -140,10 +129,9 @@ class SpritePreloader {
           }
         };
 
-        // Set a timeout for each sprite loading
         setTimeout(() => {
           img.src = spriteInfo.path;
-        }, index * 10); // Stagger loading slightly to prevent overwhelming the browser
+        }, index * 10);
       });
     });
 
@@ -156,7 +144,6 @@ class SpritePreloader {
       `Sprite loading progress: ${percentage}% (${this.loadedCount}/${this.totalCount})`
     );
 
-    // Update any loading screen UI if it exists
     const loadingText = document.querySelector('.loading-text');
     if (loadingText) {
       loadingText.textContent = `Loading sprites... ${percentage}%`;
@@ -171,7 +158,6 @@ class SpritePreloader {
     return this.sprites.has(key);
   }
 
-  // Create a clone of a preloaded sprite
   cloneSprite(key) {
     const original = this.sprites.get(key);
     if (!original) return null;
@@ -181,7 +167,6 @@ class SpritePreloader {
     return clone;
   }
 
-  // Get sprite source path for dynamic loading
   getSpritePath(key) {
     const spriteInfo = this.spriteList.find((sprite) => sprite.key === key);
     return spriteInfo ? spriteInfo.path : null;
@@ -195,7 +180,6 @@ class SpritePreloader {
     return this.totalCount > 0 ? this.loadedCount / this.totalCount : 0;
   }
 
-  // Diagnostic function to check sprite status
   diagnoseSprites() {
     console.log('\n=== SPRITE DIAGNOSTIC REPORT ===');
     console.log(`Total sprites in preloader: ${this.sprites.size}`);
@@ -224,7 +208,6 @@ class SpritePreloader {
     console.log('=== END DIAGNOSTIC REPORT ===\n');
   }
 
-  // Function to manually reload failed sprites
   async reloadFailedSprites() {
     const failedSprites = this.spriteList.filter(
       (spriteInfo) => !this.sprites.has(spriteInfo.key)
@@ -261,10 +244,8 @@ class SpritePreloader {
   }
 }
 
-// Global sprite preloader instance
 window.spritePreloader = new SpritePreloader();
 
-// Preload sprites when the page loads
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('Starting sprite preloading...');
   try {

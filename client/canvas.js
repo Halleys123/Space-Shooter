@@ -6,10 +6,8 @@ ctx.canvas.height = window.innerHeight;
 
 ctx.clearRect(0, 0, canvas.width, canvas.height);
 ctx.imageSmoothingEnabled = false;
-// UI scaling based on screen size for all devices (handles high-res small screens)
 const screenSize = Math.min(window.screen.width, window.screen.height);
 const isSmallScreen = screenSize < 908;
-// Slightly larger scale for small devices to improve visibility
 const uiScale = isSmallScreen ? 0.6 : 1.0;
 
 const keys = {};
@@ -41,7 +39,6 @@ let player,
   bulletManager,
   powerupManager;
 
-// Initialize game objects
 function initializeGameObjects() {
   player = new Player(ctx, canvas, './assets/sprites/player.png');
   stage = new Stage(ctx, canvas);
@@ -50,14 +47,12 @@ function initializeGameObjects() {
   bulletManager = new BulletManager(ctx, canvas, collisionManager);
   powerupManager = new PowerUpManager(ctx, canvas);
 
-  // Make collision manager globally accessible for bullet continuous collision detection
   window.collisionManager = collisionManager;
   window.player = player;
   window.powerupManager = powerupManager;
 
   player.setBulletManager(bulletManager);
 
-  // Set up player collision after objects are created
   const playerCollision = CollisionManager.createForGameObject(
     player,
     'player',
@@ -89,7 +84,6 @@ function initializeGameObjects() {
   player.setCollisionComponent(playerCollision);
 }
 
-// Call initialization function when canvas.js loads
 initializeGameObjects();
 
 document.addEventListener('keydown', (e) => {
@@ -139,7 +133,6 @@ document.addEventListener('keydown', (e) => {
   //   player.score += 1000;
   // }
 
-  // Debug: Spawn powerups for testing
   // if (e.key === '1') {
   //   if (powerupManager) powerupManager.spawnPowerup('firerate', mouse.x, mouse.y);
   // }
@@ -196,14 +189,12 @@ document.addEventListener('keydown', (e) => {
     }
   }
 
-  // Debug: Check sprite loading status
   if (e.key === 'r' || e.key === 'R') {
     if (window.spritePreloader) {
       window.spritePreloader.diagnoseSprites();
     }
   }
 
-  // Debug: Reload failed sprites
   if (e.key === 'u' || e.key === 'U') {
     if (window.spritePreloader) {
       window.spritePreloader.reloadFailedSprites();
@@ -222,7 +213,6 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 function initializeGame() {
-  // Make sure game objects are initialized first
   if (typeof player === 'undefined' || !player) {
     initializeGameObjects();
   }
@@ -240,13 +230,11 @@ function initializeGame() {
   player.healthBar.reset();
   player.score = 0;
 
-  // Clear any active powerup effects
   if (player.powerupEffects) {
-    // Restore original fire rate if firerate powerup was active
     if (player.powerupEffects.firerate) {
       player.shooting.fireRate = player.powerupEffects.firerate.originalValue;
     }
-    // Restore original max health if shield powerup was active
+
     if (player.powerupEffects.shield) {
       player.healthBar.maxHealth =
         player.powerupEffects.shield.originalMaxHealth;
@@ -254,7 +242,6 @@ function initializeGame() {
     delete player.powerupEffects;
   }
 
-  // Clear powerups from screen
   if (powerupManager) {
     powerupManager.clearAll();
   }
@@ -264,7 +251,6 @@ function initializeGame() {
   player.control.position.x = canvas.width / 2 - player.visuals.width / 2;
   player.control.position.y = canvas.height - player.visuals.height - 50;
 
-  // Show mobile controls when game starts
   if (window.mobileControls) {
     window.mobileControls.setGameStarted(true);
   }
@@ -293,7 +279,6 @@ function applyGraphicsSettings() {
 
   if (typeof window.gameSettings === 'undefined') return;
 
-  // Don't override emergency mode settings
   if (window.performanceManager.isInEmergencyPerformanceMode()) {
     console.log('Emergency mode active, skipping manual graphics settings');
     return;
@@ -305,7 +290,6 @@ function applyGraphicsSettings() {
 
   const settings = window.performanceManager.getSettings();
 
-  // Check if stage exists and is initialized before accessing it
   if (typeof stage !== 'undefined' && stage && stage.getStarField) {
     stage.getStarField().setStarCount(settings.starCount);
     stage.getStarField().enableGlow =
@@ -313,7 +297,6 @@ function applyGraphicsSettings() {
     stage.getStarField().enableFilters = settings.enableFilters;
   }
 
-  // Check if blastManager exists before accessing it
   if (
     typeof blastManager !== 'undefined' &&
     blastManager &&
@@ -348,7 +331,6 @@ function handleGameOver() {
 
   gameState.currentScore = player.score;
 
-  // Hide mobile controls when game ends
   if (window.mobileControls) {
     window.mobileControls.setGameStarted(false);
   }
@@ -542,21 +524,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// Listen for emergency performance mode changes
 window.addEventListener('performanceEmergency', function (event) {
   const { isEmergency, fps, settings } = event.detail;
 
   if (isEmergency) {
     console.warn(`Emergency mode activated due to low FPS (${fps.toFixed(1)})`);
 
-    // Force apply emergency settings to all systems (safely)
     if (typeof stage !== 'undefined' && stage && stage.getStarField) {
       stage.getStarField().setStarCount(settings.starCount);
       stage.getStarField().enableGlow = false;
       stage.getStarField().enableFilters = false;
     }
 
-    // Update blast manager particle limits if possible
     if (
       typeof blastManager !== 'undefined' &&
       blastManager &&
@@ -565,7 +544,6 @@ window.addEventListener('performanceEmergency', function (event) {
       blastManager.maxParticles = settings.maxParticles.blast;
     }
 
-    // Update particle manager limits if they exist
     if (
       window.thrustParticles &&
       window.thrustParticles.maxParticles !== undefined
@@ -591,7 +569,6 @@ window.addEventListener('performanceEmergency', function (event) {
       )})`
     );
 
-    // Only restore settings if user manually disabled emergency mode
     try {
       applyGraphicsSettings();
     } catch (error) {
@@ -616,12 +593,10 @@ function gameLoop() {
     fpsUpdateTime = 0;
   }
 
-  // Update performance manager with FPS data
   if (window.performanceManager) {
     window.performanceManager.updateFPS();
   }
 
-  // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   if (!gameState.isGameStarted) {
@@ -637,7 +612,6 @@ function gameLoop() {
     return;
   }
 
-  // Make sure all game objects are initialized before using them
   if (
     !player ||
     !stage ||
@@ -657,7 +631,6 @@ function gameLoop() {
     y: player.control.position.y + player.visuals.height / 2,
   };
 
-  // Merge mobile controls with keyboard input
   const mergedKeys = { ...keys };
   let mergedMouse = { ...mouse };
 
@@ -665,7 +638,6 @@ function gameLoop() {
     const mobileKeys = window.mobileControls.getMobileKeys();
     Object.assign(mergedKeys, mobileKeys);
 
-    // Override mouse position with mobile rotation if active
     const mobileMouse = window.mobileControls.getMobileMouse(canvas);
     if (mobileMouse) {
       mergedMouse = mobileMouse;
@@ -684,7 +656,6 @@ function gameLoop() {
   bulletManager.update();
   powerupManager.update();
 
-  // Check powerup collisions with player
   powerupManager.checkPlayerCollision(player);
 
   collisionManager.update();
@@ -696,8 +667,8 @@ function gameLoop() {
         enemy,
         'enemy',
         {
-          width: enemy.width * 0.9, // Increased from 0.8 to 0.9 for better hit detection
-          height: enemy.height * 0.9, // Increased from 0.8 to 0.9 for better hit detection
+          width: enemy.width * 0.9,
+          height: enemy.height * 0.9,
           damage: enemy.damage,
           callbacks: {
             onCollisionEnter: (other, collisionData) => {
@@ -767,7 +738,6 @@ function gameLoop() {
     ctx.fillStyle = '#00ffff';
     ctx.font = 'bold ' + 16 * uiScale + 'px Arial';
 
-    // Check if in emergency mode
     const isEmergencyMode =
       window.performanceManager &&
       window.performanceManager.isInEmergencyPerformanceMode();
@@ -807,7 +777,6 @@ function gameLoop() {
     ? window.performanceManager.getAverageFPS()
     : fps;
 
-  // Emergency mode indicator
   if (isEmergencyMode) {
     ctx.fillStyle = '#ff4444';
     ctx.font = 'bold 14px Arial';
@@ -869,7 +838,6 @@ function gameLoop() {
     );
   }
 
-  // Debug: Show collision detection info
   if (keys['KeyX']) {
     ctx.fillStyle = '#ffff00';
     ctx.font = 12 * uiScale + 'px Arial';
@@ -879,7 +847,6 @@ function gameLoop() {
       canvas.height - 200
     );
 
-    // Enable collision debug rendering
     if (collisionManager) {
       collisionManager.setDebugMode(true);
       collisionManager.drawDebug(ctx);
@@ -890,7 +857,6 @@ function gameLoop() {
     }
   }
 
-  // Restore context after scaled drawing
   ctx.restore();
   requestAnimationFrame(gameLoop);
 }
