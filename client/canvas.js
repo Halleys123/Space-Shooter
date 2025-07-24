@@ -8,7 +8,7 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 ctx.imageSmoothingEnabled = false;
 const screenSize = Math.min(window.screen.width, window.screen.height);
 const isSmallScreen = screenSize < 908;
-const uiScale = isSmallScreen ? 0.6 : 1.0;
+const uiScale = isSmallScreen ? 0.8 : 1.0;
 
 const keys = {};
 const mouse = { x: 0, y: 0 };
@@ -90,6 +90,18 @@ function initializeGameObjects() {
 
 initializeGameObjects();
 
+// Helper function to check if user is currently typing in an input field
+function isUserTyping() {
+  const activeElement = document.activeElement;
+  return (
+    activeElement &&
+    (activeElement.tagName === 'INPUT' ||
+      activeElement.tagName === 'TEXTAREA' ||
+      activeElement.contentEditable === 'true' ||
+      activeElement.isContentEditable)
+  );
+}
+
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
 
@@ -114,10 +126,13 @@ document.addEventListener('keydown', (e) => {
   }
 
   if (e.key === 'h' || e.key === 'H') {
-    if (e.shiftKey) {
-      player.damage(10);
-    } else {
-      toggleHelpPanel();
+    // Don't trigger help menu if user is typing in an input field
+    if (!isUserTyping()) {
+      if (e.shiftKey) {
+        player.damage(10);
+      } else {
+        toggleHelpPanel();
+      }
     }
   }
 
@@ -457,6 +472,8 @@ async function addScoreToLeaderboard(score) {
         gameVersion: '1.0.0',
         sessionId: window.apiService.sessionId,
       };
+
+      console.log('Submitting game data to backend:', gameData);
 
       await window.apiService.submitScore(gameData);
       console.log('Score submitted to backend successfully');

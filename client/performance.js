@@ -15,7 +15,6 @@ class PerformanceManager {
       },
     };
 
-    // FPS monitoring
     this.frameCount = 0;
     this.lastFpsTime = performance.now();
     this.currentFps = 60;
@@ -25,9 +24,9 @@ class PerformanceManager {
     this.recoveryFpsThreshold = 45;
     this.isInEmergencyMode = false;
     this.emergencyModeTimer = 0;
-    this.emergencyModeDuration = 5000; // 5 seconds
-    this.fpsCheckInterval = 1000; // Check FPS every second
-    this.userManuallyChangedSettings = false; // Track if user changed settings manually
+    this.emergencyModeDuration = 5000;
+    this.fpsCheckInterval = 1000;
+    this.userManuallyChangedSettings = false;
 
     this.detectPerformance();
   }
@@ -35,9 +34,8 @@ class PerformanceManager {
   detectPerformance() {
     const cpuCores = navigator.hardwareConcurrency || 4;
     const screenResolution = screen.width * screen.height;
-    const memory = navigator.deviceMemory || 4; // GB
+    const memory = navigator.deviceMemory || 4;
 
-    // Detect if likely mobile/low-end device
     const isMobile =
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent
@@ -116,10 +114,8 @@ class PerformanceManager {
   }
 
   setPerformanceLevel(level) {
-    // Mark that user manually changed settings
     this.userManuallyChangedSettings = true;
 
-    // If user manually changes settings while in emergency mode, exit emergency mode
     if (this.isInEmergencyMode) {
       console.log(
         'User manually changed graphics settings, exiting emergency mode'
@@ -148,7 +144,6 @@ class PerformanceManager {
     return performance.now() % 2 === 0;
   }
 
-  // FPS Monitoring Methods
   updateFPS() {
     this.frameCount++;
     const currentTime = performance.now();
@@ -159,7 +154,6 @@ class PerformanceManager {
       this.frameCount = 0;
       this.lastFpsTime = currentTime;
 
-      // Add to history
       this.fpsHistory.push(this.currentFps);
       if (this.fpsHistory.length > this.fpsHistorySize) {
         this.fpsHistory.shift();
@@ -170,14 +164,13 @@ class PerformanceManager {
   }
 
   checkPerformanceAdjustment() {
-    if (this.fpsHistory.length < 3) return; // Need at least 3 samples
+    if (this.fpsHistory.length < 3) return;
 
     const averageFps =
       this.fpsHistory.reduce((sum, fps) => sum + fps, 0) /
       this.fpsHistory.length;
     const currentTime = performance.now();
 
-    // Check if FPS drops below threshold
     if (averageFps < this.lowFpsThreshold && !this.isInEmergencyMode) {
       console.warn(
         `FPS dropped to ${averageFps.toFixed(
@@ -186,8 +179,6 @@ class PerformanceManager {
       );
       this.enableEmergencyMode();
     }
-    // DON'T automatically recover from emergency mode - let user decide
-    // Emergency mode will only be disabled when user manually changes settings
   }
 
   enableEmergencyMode() {
@@ -195,9 +186,8 @@ class PerformanceManager {
 
     this.isInEmergencyMode = true;
     this.emergencyModeTimer = performance.now();
-    this.userManuallyChangedSettings = false; // Reset manual change flag
+    this.userManuallyChangedSettings = false;
 
-    // Force ultra-low settings for maximum performance
     this.settings = {
       starCount: 25,
       particleQuality: 'low',
@@ -211,7 +201,6 @@ class PerformanceManager {
       },
     };
 
-    // Notify other systems about the emergency mode
     this.notifyEmergencyMode(true);
   }
 
@@ -220,15 +209,12 @@ class PerformanceManager {
 
     this.isInEmergencyMode = false;
 
-    // Restore original performance level settings
     this.setPerformanceLevel(this.originalPerformanceLevel);
 
-    // Notify other systems that emergency mode is over
     this.notifyEmergencyMode(false);
   }
 
   notifyEmergencyMode(isEmergency) {
-    // Dispatch custom event for other systems to listen to
     const event = new CustomEvent('performanceEmergency', {
       detail: {
         isEmergency: isEmergency,
@@ -256,5 +242,4 @@ class PerformanceManager {
   }
 }
 
-// Global performance manager instance
 window.performanceManager = new PerformanceManager();

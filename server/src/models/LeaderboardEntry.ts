@@ -5,9 +5,9 @@ export interface ILeaderboardEntry extends Document {
   score: number;
   stage: number;
   cycle: number;
-  playTime: number; 
+  playTime: number;
   enemiesKilled: number;
-  accuracy: number; 
+  accuracy: number;
   powerupsCollected: number;
   date: Date;
   isValid: boolean;
@@ -51,7 +51,7 @@ const leaderboardSchema = new Schema<ILeaderboardEntry>(
       type: Number,
       required: [true, 'Play time is required'],
       min: [1, 'Play time must be at least 1 second'],
-      max: [86400, 'Play time cannot exceed 24 hours'], 
+      max: [86400, 'Play time cannot exceed 24 hours'],
     },
     enemiesKilled: {
       type: Number,
@@ -117,27 +117,23 @@ const leaderboardSchema = new Schema<ILeaderboardEntry>(
   }
 );
 
-
-leaderboardSchema.index({ score: -1, date: -1 }); 
-leaderboardSchema.index({ date: -1 }); 
-leaderboardSchema.index({ username: 1, score: -1 }); 
-leaderboardSchema.index({ isValid: 1, score: -1 }); 
+leaderboardSchema.index({ score: -1, date: -1 });
+leaderboardSchema.index({ date: -1 });
+leaderboardSchema.index({ username: 1, score: -1 });
+leaderboardSchema.index({ isValid: 1, score: -1 });
 leaderboardSchema.index({
   'metadata.difficulty': 1,
   score: -1,
-}); 
-
+});
 
 leaderboardSchema.pre('save', function (next) {
-  
   const scorePerSecond = this.score / this.playTime;
-  const maxReasonableScorePerSecond = 1000; 
+  const maxReasonableScorePerSecond = 1000;
 
   if (scorePerSecond > maxReasonableScorePerSecond) {
     this.isValid = false;
   }
 
-  
   if (this.accuracy > 1 || this.accuracy < 0) {
     this.isValid = false;
   }

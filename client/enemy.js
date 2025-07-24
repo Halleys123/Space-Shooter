@@ -246,6 +246,9 @@ class Enemy {
     if (wasAlive && this.healthBar.getHealth() <= 0) {
       this.isAlive = false;
       this.markedForRemoval = true;
+      console.log(
+        `Enemy died: ${this.constructor.name}, isAlive: ${this.isAlive}, markedForRemoval: ${this.markedForRemoval}`
+      );
 
       if (window.player && this.getScoreValue) {
         window.player.score += this.getScoreValue();
@@ -786,6 +789,9 @@ class BossEnemy extends Enemy {
     if (wasAlive && this.healthBar.getHealth() <= 0) {
       this.isAlive = false;
       this.markedForRemoval = true;
+      console.log(
+        `Boss enemy died: ${this.constructor.name}, isAlive: ${this.isAlive}, markedForRemoval: ${this.markedForRemoval}`
+      );
 
       if (
         typeof window.blastManager !== 'undefined' &&

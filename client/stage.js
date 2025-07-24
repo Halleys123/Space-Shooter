@@ -401,6 +401,13 @@ class Stage {
       if (enemy.shouldBeRemoved()) {
         if (!enemy.isAlive) {
           this.enemiesKilled++;
+          // Update global game state
+          if (window.gameState) {
+            window.gameState.enemiesKilled++;
+            console.log(
+              `Kill counted! Stage: ${this.enemiesKilled}, Global: ${window.gameState.enemiesKilled}`
+            );
+          }
         }
         return false;
       }
