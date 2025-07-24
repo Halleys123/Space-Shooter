@@ -184,11 +184,11 @@ npm start
 - **H** - Show/Hide Help
 - **P** - Performance Monitor
 
-### Debug Controls (Development)
+<!-- ### Debug Controls (Development)
 
 - **G** - Heal Player (+10 HP)
 - **Z** - Add Score (+1000)
-- **N** - Force Next Stage
+- **N** - Force Next Stage -->
 
 ## Game Features
 
@@ -199,13 +199,13 @@ npm start
 - User profiles with personal statistics
 - Guest mode with local storage fallback
 
-### Leaderboard System
+<!-- ### Leaderboard System
 
 - Global leaderboards across multiple timeframes
 - Detailed score metrics (level, duration, enemies killed)
 - Personal score history
 - Real-time updates
-- Difficulty-based rankings
+- Difficulty-based rankings -->
 
 ### Scoring System
 
@@ -243,7 +243,7 @@ space-shooter/
 └── package.json         # Root package file
 ```
 
-## Security Features
+<!-- ## Security Features
 
 - **JWT Authentication** - Secure token-based authentication
 - **Password Hashing** - bcrypt with configurable rounds
@@ -251,7 +251,7 @@ space-shooter/
 - **Input Validation** - Validates and sanitizes all inputs
 - **CORS Protection** - Configurable cross-origin policies
 - **Helmet Security** - Security headers and protection
-- **MongoDB Injection Prevention** - Input sanitization
+- **MongoDB Injection Prevention** - Input sanitization -->
 
 ## Development
 
@@ -280,33 +280,35 @@ npm run build
 
 ### Common Issues
 
+<!--
 1. **MongoDB Connection Failed**
 
    - Check MongoDB is running
    - Verify MONGODB_URI in .env file
-   - Check network connectivity
-
+   - Check network connectivity -->
+<!--
 2. **CORS Errors**
 
    - Verify CLIENT_URL in .env matches your frontend URL
-   - Check browser console for specific CORS errors
-
+   - Check browser console for specific CORS errors -->
+<!--
 3. **Authentication Issues**
 
    - Clear browser localStorage
    - Check JWT_SECRET is set in .env
-   - Verify token expiration settings
+   - Verify token expiration settings -->
 
-4. **Game Performance Issues**
+1. **Game Performance Issues**
    - Press 'P' to cycle performance levels
    - Disable particle effects in settings
    - Check browser console for errors
+   <!--
 
 ### Logs and Debugging
 
 - Server logs are output to console
 - Browser console shows client-side errors
-- Check Network tab for API request issues
+- Check Network tab for API request issues -->
 
 ## Contributing
 
@@ -315,11 +317,13 @@ npm run build
 3. Make your changes
 4. Test thoroughly
 5. Submit a pull request
+<!--
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details. -->
 
+<!--
 ## Future Enhancements
 
 - [ ] Multiplayer support
@@ -329,4 +333,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [ ] Mobile app version
 - [ ] Advanced graphics and effects
 - [ ] Tournament mode
-- [ ] Replay system
+- [ ] Replay system -->
