@@ -35,6 +35,9 @@ const blastManager = new BlastManager(ctx);
 const collisionManager = new CollisionManager(blastManager);
 const bulletManager = new BulletManager(ctx, canvas, collisionManager);
 
+// Make collision manager globally accessible for bullet continuous collision detection
+window.collisionManager = collisionManager;
+
 window.player = player;
 
 player.setBulletManager(bulletManager);
@@ -448,41 +451,54 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Listen for emergency performance mode changes
-window.addEventListener('performanceEmergency', function(event) {
+window.addEventListener('performanceEmergency', function (event) {
   const { isEmergency, fps, settings } = event.detail;
-  
+
   if (isEmergency) {
     console.warn(`Emergency mode activated due to low FPS (${fps.toFixed(1)})`);
-    
+
     // Force apply emergency settings to all systems
     if (stage && stage.getStarField) {
       stage.getStarField().setStarCount(settings.starCount);
       stage.getStarField().enableGlow = false;
       stage.getStarField().enableFilters = false;
     }
-    
+
     // Update blast manager particle limits if possible
     if (blastManager && blastManager.maxParticles !== undefined) {
       blastManager.maxParticles = settings.maxParticles.blast;
     }
-    
+
     // Update particle manager limits if they exist
-    if (window.thrustParticles && window.thrustParticles.maxParticles !== undefined) {
+    if (
+      window.thrustParticles &&
+      window.thrustParticles.maxParticles !== undefined
+    ) {
       window.thrustParticles.maxParticles = settings.maxParticles.thrust;
     }
-    
-    if (window.collisionParticles && window.collisionParticles.maxParticles !== undefined) {
+
+    if (
+      window.collisionParticles &&
+      window.collisionParticles.maxParticles !== undefined
+    ) {
       window.collisionParticles.maxParticles = settings.maxParticles.collision;
     }
-    
+
     console.log('Emergency graphics settings applied:', settings);
+    console.log(
+      'Emergency mode will persist until user manually changes graphics settings'
+    );
   } else {
-    console.log(`Emergency mode deactivated, FPS recovered (${fps.toFixed(1)})`);
-    
-    // Restore normal graphics settings
+    console.log(
+      `Emergency mode manually disabled by user (Current FPS: ${fps.toFixed(
+        1
+      )})`
+    );
+
+    // Only restore settings if user manually disabled emergency mode
     applyGraphicsSettings();
-    
-    console.log('Normal graphics settings restored');
+
+    console.log('User-selected graphics settings restored');
   }
 });
 
@@ -545,8 +561,8 @@ function gameLoop() {
         enemy,
         'enemy',
         {
-          width: enemy.width * 0.8,
-          height: enemy.height * 0.8,
+          width: enemy.width * 0.9, // Increased from 0.8 to 0.9 for better hit detection
+          height: enemy.height * 0.9, // Increased from 0.8 to 0.9 for better hit detection
           damage: enemy.damage,
           callbacks: {
             onCollisionEnter: (other, collisionData) => {
@@ -614,19 +630,27 @@ function gameLoop() {
   ) {
     ctx.fillStyle = '#00ffff';
     ctx.font = 'bold 16px Arial';
-    
+
     // Check if in emergency mode
-    const isEmergencyMode = window.performanceManager && window.performanceManager.isInEmergencyPerformanceMode();
-    const currentFps = window.performanceManager ? window.performanceManager.getCurrentFPS() : fps;
-    
+    const isEmergencyMode =
+      window.performanceManager &&
+      window.performanceManager.isInEmergencyPerformanceMode();
+    const currentFps = window.performanceManager
+      ? window.performanceManager.getCurrentFPS()
+      : fps;
+
     if (isEmergencyMode) {
       ctx.fillStyle = '#ff4444';
-      ctx.fillText(`FPS: ${Math.round(currentFps)} [EMERGENCY]`, canvas.width - 180, 30);
+      ctx.fillText(
+        `FPS: ${Math.round(currentFps)} [EMERGENCY]`,
+        canvas.width - 180,
+        30
+      );
     } else {
       if (currentFps >= 50) ctx.fillStyle = '#00ff00';
       else if (currentFps >= 30) ctx.fillStyle = '#ffff00';
       else ctx.fillStyle = '#ff0000';
-      
+
       ctx.fillText(`FPS: ${Math.round(currentFps)}`, canvas.width - 100, 30);
     }
   }
@@ -640,8 +664,12 @@ function gameLoop() {
   const settings = window.performanceManager
     ? window.performanceManager.getSettings()
     : {};
-  const isEmergencyMode = window.performanceManager && window.performanceManager.isInEmergencyPerformanceMode();
-  const avgFps = window.performanceManager ? window.performanceManager.getAverageFPS() : fps;
+  const isEmergencyMode =
+    window.performanceManager &&
+    window.performanceManager.isInEmergencyPerformanceMode();
+  const avgFps = window.performanceManager
+    ? window.performanceManager.getAverageFPS()
+    : fps;
 
   // Emergency mode indicator
   if (isEmergencyMode) {
@@ -653,7 +681,9 @@ function gameLoop() {
   }
 
   ctx.fillText(
-    `Performance Level: ${performanceLevel.toUpperCase()}${isEmergencyMode ? ' (OVERRIDE)' : ''}`,
+    `Performance Level: ${performanceLevel.toUpperCase()}${
+      isEmergencyMode ? ' (OVERRIDE)' : ''
+    }`,
     10,
     canvas.height - 180
   );
@@ -701,6 +731,27 @@ function gameLoop() {
       10,
       canvas.height - 160
     );
+  }
+
+  // Debug: Show collision detection info
+  if (keys['KeyX']) {
+    ctx.fillStyle = '#ffff00';
+    ctx.font = '12px Arial';
+    ctx.fillText(
+      'Collision Debug Mode - Press X to toggle',
+      10,
+      canvas.height - 200
+    );
+
+    // Enable collision debug rendering
+    if (collisionManager) {
+      collisionManager.setDebugMode(true);
+      collisionManager.drawDebug(ctx);
+    }
+  } else {
+    if (collisionManager) {
+      collisionManager.setDebugMode(false);
+    }
   }
 
   requestAnimationFrame(gameLoop);

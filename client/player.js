@@ -1,5 +1,12 @@
 class Player {
-  control = {
+  shooting = {
+    fireRate: 10,
+    cooldown: 0,
+    bulletSpeed: 6, // Reduced from 8 to 6 to reduce tunneling issues
+    bulletDamage: 25,
+    bulletSprite: './assets/sprites/bullet_player.png',
+  };
+  l = {
     position: { x: 0, y: 0 },
     velocity: { x: 0, y: 0 },
     rotation: 0,
@@ -16,7 +23,7 @@ class Player {
   };
   score = 0;
   shooting = {
-    fireRate: 10,
+    fireRate: 2,
     cooldown: 0,
     bulletSpeed: 8,
     bulletDamage: 25,

@@ -40,8 +40,16 @@ class Bullet {
   update() {
     if (!this.isActive) return;
 
+    // Store previous position for continuous collision detection
+    const prevPosition = { x: this.position.x, y: this.position.y };
+
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
+
+    // Perform continuous collision detection for fast bullets
+    if (this.collisionComponent && this.speed > 5) {
+      this.performContinuousCollisionDetection(prevPosition, this.position);
+    }
 
     this.lifetime++;
     if (this.lifetime > this.maxLifetime) {
@@ -58,6 +66,75 @@ class Bullet {
     ) {
       this.markedForRemoval = true;
       this.isActive = false;
+    }
+  }
+
+  performContinuousCollisionDetection(startPos, endPos) {
+    // Check if bullet manager has collision manager access
+    if (!window.collisionManager || !this.collisionComponent) return;
+
+    const dx = endPos.x - startPos.x;
+    const dy = endPos.y - startPos.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // If movement is small, skip continuous detection
+    if (distance < 2) return;
+
+    // Sample points along the bullet's path
+    const samples = Math.ceil(distance / 2); // Check every 2 pixels
+
+    for (let i = 0; i <= samples; i++) {
+      const t = i / samples;
+      const sampleX = startPos.x + dx * t;
+      const sampleY = startPos.y + dy * t;
+
+      // Temporarily update position for collision check
+      const originalPos = { x: this.position.x, y: this.position.y };
+      this.position.x = sampleX;
+      this.position.y = sampleY;
+
+      // Update collision shape position
+      this.collisionComponent.updatePosition();
+
+      // Check for collisions at this sample point
+      const collisionComponents = window.collisionManager.collisionComponents;
+      for (let component of collisionComponents) {
+        if (component === this.collisionComponent || !component.isActive)
+          continue;
+
+        // Check if layers can collide
+        if (
+          !window.collisionManager.canLayersCollide(
+            this.collisionComponent.layer,
+            component.layer
+          )
+        )
+          continue;
+
+        // Perform collision check
+        const collisionResult = window.collisionManager.checkCollision(
+          this.collisionComponent,
+          component
+        );
+        if (collisionResult.collision) {
+          // Collision detected! Set position to collision point and trigger collision
+          this.position.x = sampleX;
+          this.position.y = sampleY;
+          this.collisionComponent.updatePosition();
+
+          // Trigger collision handling
+          window.collisionManager.handleCollision(
+            this.collisionComponent,
+            component,
+            collisionResult
+          );
+          return; // Exit early since collision occurred
+        }
+      }
+
+      // Restore original position if no collision
+      this.position.x = originalPos.x;
+      this.position.y = originalPos.y;
     }
   }
 
@@ -158,12 +235,18 @@ class BulletManager {
         bullet,
         layer,
         {
-          width: bullet.width,
-          height: bullet.height,
+          width: bullet.width * 1.2, // Slightly larger collision box for better hit detection
+          height: bullet.height * 1.2, // Slightly larger collision box for better hit detection
           damage: bullet.damage,
           canReceiveDamage: false,
           callbacks: {
             onCollisionEnter: (other, collisionData) => {
+              console.log(`${layer} collision with ${other.layer}`, {
+                bulletPos: { x: bullet.position.x, y: bullet.position.y },
+                otherPos: other.gameObject.position,
+                damage: bullet.damage,
+              });
+
               if (
                 (layer === 'playerBullet' && other.layer === 'enemy') ||
                 (layer === 'enemyBullet' && other.layer === 'player')
