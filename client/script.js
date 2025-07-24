@@ -211,7 +211,15 @@ function initializeSettings() {
 
   setTimeout(() => {
     if (typeof applyGraphicsSettings === 'function') {
-      applyGraphicsSettings();
+      // Safely apply graphics settings only if game objects exist
+      try {
+        applyGraphicsSettings();
+      } catch (error) {
+        console.warn(
+          'Could not apply graphics settings during initialization:',
+          error
+        );
+      }
     }
 
     if (window.audioManager) {
@@ -248,7 +256,11 @@ function saveSettings() {
   localStorage.setItem('spaceShooterSettings', JSON.stringify(gameSettings));
 
   if (typeof applyGraphicsSettings === 'function') {
-    applyGraphicsSettings();
+    try {
+      applyGraphicsSettings();
+    } catch (error) {
+      console.warn('Could not apply graphics settings:', error);
+    }
   }
 
   if (window.audioManager) {

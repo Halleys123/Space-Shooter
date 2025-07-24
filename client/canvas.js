@@ -29,44 +29,56 @@ let lastFrameTime = performance.now();
 let frameCount = 0;
 let fpsUpdateTime = 0;
 
-const player = new Player(ctx, canvas, './assets/sprites/player.png');
-const stage = new Stage(ctx, canvas);
-const blastManager = new BlastManager(ctx);
-const collisionManager = new CollisionManager(blastManager);
-const bulletManager = new BulletManager(ctx, canvas, collisionManager);
+let player, stage, blastManager, collisionManager, bulletManager;
 
-// Make collision manager globally accessible for bullet continuous collision detection
-window.collisionManager = collisionManager;
+// Initialize game objects
+function initializeGameObjects() {
+  player = new Player(ctx, canvas, './assets/sprites/player.png');
+  stage = new Stage(ctx, canvas);
+  blastManager = new BlastManager(ctx);
+  collisionManager = new CollisionManager(blastManager);
+  bulletManager = new BulletManager(ctx, canvas, collisionManager);
 
-window.player = player;
+  // Make collision manager globally accessible for bullet continuous collision detection
+  window.collisionManager = collisionManager;
+  window.player = player;
 
-player.setBulletManager(bulletManager);
+  player.setBulletManager(bulletManager);
 
-const playerCollision = CollisionManager.createForGameObject(player, 'player', {
-  width: player.visuals.width * 0.6,
-  height: player.visuals.height * 0.6,
-  damage: 25,
-  callbacks: {
-    onCollisionEnter: (other, collisionData) => {
-      console.log('Player collided with:', other.layer);
+  // Set up player collision after objects are created
+  const playerCollision = CollisionManager.createForGameObject(
+    player,
+    'player',
+    {
+      width: player.visuals.width * 0.6,
+      height: player.visuals.height * 0.6,
+      damage: 25,
+      callbacks: {
+        onCollisionEnter: (other, collisionData) => {
+          console.log('Player collided with:', other.layer);
 
-      if (other.layer === 'enemyBullet') {
-        blastManager.createExplosion(
-          collisionData.point.x,
-          collisionData.point.y,
-          'small',
-          0.6
-        );
-      }
-    },
-    onDamageReceived: (other, damage) => {
-      console.log(`Player took ${damage} damage from ${other.layer}`);
-    },
-  },
-});
+          if (other.layer === 'enemyBullet') {
+            blastManager.createExplosion(
+              collisionData.point.x,
+              collisionData.point.y,
+              'small',
+              0.6
+            );
+          }
+        },
+        onDamageReceived: (other, damage) => {
+          console.log(`Player took ${damage} damage from ${other.layer}`);
+        },
+      },
+    }
+  );
 
-collisionManager.addComponent(playerCollision);
-player.setCollisionComponent(playerCollision);
+  collisionManager.addComponent(playerCollision);
+  player.setCollisionComponent(playerCollision);
+}
+
+// Call initialization function when canvas.js loads
+initializeGameObjects();
 
 document.addEventListener('keydown', (e) => {
   keys[e.key] = true;
@@ -171,6 +183,11 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 function initializeGame() {
+  // Make sure game objects are initialized first
+  if (typeof player === 'undefined' || !player) {
+    initializeGameObjects();
+  }
+
   gameState.isGameStarted = true;
   gameState.isPaused = false;
   gameState.isGameOver = false;
@@ -224,14 +241,21 @@ function applyGraphicsSettings() {
   window.performanceManager.setPerformanceLevel(quality);
 
   const settings = window.performanceManager.getSettings();
-  if (stage && stage.getStarField) {
+
+  // Check if stage exists and is initialized before accessing it
+  if (typeof stage !== 'undefined' && stage && stage.getStarField) {
     stage.getStarField().setStarCount(settings.starCount);
     stage.getStarField().enableGlow =
       settings.enableGlow && window.gameSettings.graphics.particleEffects;
     stage.getStarField().enableFilters = settings.enableFilters;
   }
 
-  if (blastManager && !window.gameSettings.graphics.particleEffects) {
+  // Check if blastManager exists before accessing it
+  if (
+    typeof blastManager !== 'undefined' &&
+    blastManager &&
+    !window.gameSettings.graphics.particleEffects
+  ) {
     const currentSettings = window.performanceManager.getSettings();
     currentSettings.maxParticles.thrust = Math.floor(
       currentSettings.maxParticles.thrust * 0.2
@@ -457,15 +481,19 @@ window.addEventListener('performanceEmergency', function (event) {
   if (isEmergency) {
     console.warn(`Emergency mode activated due to low FPS (${fps.toFixed(1)})`);
 
-    // Force apply emergency settings to all systems
-    if (stage && stage.getStarField) {
+    // Force apply emergency settings to all systems (safely)
+    if (typeof stage !== 'undefined' && stage && stage.getStarField) {
       stage.getStarField().setStarCount(settings.starCount);
       stage.getStarField().enableGlow = false;
       stage.getStarField().enableFilters = false;
     }
 
     // Update blast manager particle limits if possible
-    if (blastManager && blastManager.maxParticles !== undefined) {
+    if (
+      typeof blastManager !== 'undefined' &&
+      blastManager &&
+      blastManager.maxParticles !== undefined
+    ) {
       blastManager.maxParticles = settings.maxParticles.blast;
     }
 
@@ -496,7 +524,11 @@ window.addEventListener('performanceEmergency', function (event) {
     );
 
     // Only restore settings if user manually disabled emergency mode
-    applyGraphicsSettings();
+    try {
+      applyGraphicsSettings();
+    } catch (error) {
+      console.warn('Could not restore graphics settings:', error);
+    }
 
     console.log('User-selected graphics settings restored');
   }
@@ -532,6 +564,20 @@ function gameLoop() {
     if (gameState.isPaused && !gameState.isGameOver) {
       drawPauseScreen();
     }
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
+  // Make sure all game objects are initialized before using them
+  if (
+    !player ||
+    !stage ||
+    !blastManager ||
+    !bulletManager ||
+    !collisionManager
+  ) {
+    console.warn('Game objects not initialized, initializing now...');
+    initializeGameObjects();
     requestAnimationFrame(gameLoop);
     return;
   }
