@@ -311,6 +311,11 @@ class Stage {
     this.enemies.push(boss);
     this.enemiesSpawned++;
 
+    // Track total enemy health for accuracy calculation
+    if (window.gameState) {
+      window.gameState.totalEnemyHealth += boss.maxHealth;
+    }
+
     this.starField.startWarpEffect();
     this.createMeteorShower();
   }
@@ -342,6 +347,11 @@ class Stage {
     this.enemies.push(enemy);
     this.enemiesSpawned++;
 
+    // Track total enemy health for accuracy calculation
+    if (window.gameState) {
+      window.gameState.totalEnemyHealth += enemy.maxHealth;
+    }
+
     console.log(
       `Boss helper spawned: ${enemy.constructor.name} at stage ${this.currentStage}, cycle ${this.currentCycle}`
     );
@@ -357,6 +367,11 @@ class Stage {
     const enemy = new enemyType(this.ctx, this.canvas, spawnX, spawnY);
     this.enemies.push(enemy);
     this.enemiesSpawned++;
+
+    // Track total enemy health for accuracy calculation
+    if (window.gameState) {
+      window.gameState.totalEnemyHealth += enemy.maxHealth;
+    }
   }
 
   selectRandomEnemyType(enemyTypes) {

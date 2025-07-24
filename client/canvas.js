@@ -23,6 +23,10 @@ let gameState = {
   gameStartTime: null,
   enemiesKilled: 0,
   powerUpsCollected: 0,
+  // Accuracy tracking
+  bulletsFired: 0,
+  damageDealt: 0,
+  totalEnemyHealth: 0,
 };
 
 window.gameState = gameState;
@@ -226,6 +230,10 @@ function initializeGame() {
   gameState.gameStartTime = Date.now();
   gameState.enemiesKilled = 0;
   gameState.powerUpsCollected = 0;
+  // Reset accuracy tracking
+  gameState.bulletsFired = 0;
+  gameState.damageDealt = 0;
+  gameState.totalEnemyHealth = 0;
 
   player.healthBar.reset();
   player.score = 0;
@@ -255,10 +263,43 @@ function initializeGame() {
     window.mobileControls.setGameStarted(true);
   }
 
+  // Create game session if authenticated
+  if (window.apiService && window.apiService.isAuthenticated()) {
+    createGameSession();
+  }
+
   console.log('Game started!');
 }
 
 window.initializeGame = initializeGame;
+
+async function createGameSession() {
+  try {
+    if (window.apiService && window.apiService.isAuthenticated()) {
+      const difficulty =
+        gameState.difficulty === 'medium'
+          ? 'normal'
+          : gameState.difficulty || 'normal';
+      await window.apiService.createGameSession(difficulty);
+      console.log('Game session created successfully');
+    }
+  } catch (error) {
+    console.error('Failed to create game session:', error);
+    // Continue with the game even if session creation fails
+  }
+}
+
+async function endGameSession(finalData) {
+  try {
+    if (window.apiService && window.apiService.isAuthenticated()) {
+      await window.apiService.endGameSession(finalData);
+      console.log('Game session ended successfully');
+    }
+  } catch (error) {
+    console.error('Failed to end game session:', error);
+    // Don't block the game over flow if session ending fails
+  }
+}
 function drawPauseScreen() {
   ctx.save();
   ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -335,6 +376,32 @@ function handleGameOver() {
     window.mobileControls.setGameStarted(false);
   }
 
+  // End game session before adding score to leaderboard
+  if (window.apiService && window.apiService.isAuthenticated()) {
+    // Calculate accuracy for session end
+    let accuracy = 0;
+    if (gameState.totalEnemyHealth > 0 && gameState.bulletsFired > 0) {
+      accuracy =
+        (gameState.damageDealt * gameState.bulletsFired) /
+        gameState.totalEnemyHealth;
+      accuracy = Math.min(accuracy * 100, 100);
+    }
+
+    const sessionData = {
+      finalScore: gameState.currentScore,
+      finalStage: gameState.currentStage || 1,
+      finalCycle: 1,
+      totalPlayTime:
+        Math.floor((Date.now() - gameState.gameStartTime) / 1000) || 1,
+      enemiesKilled: gameState.enemiesKilled || 0,
+      accuracy: parseFloat(accuracy.toFixed(2)),
+      powerupsCollected: gameState.powerUpsCollected || 0,
+      endReason: player.isAlive ? 'quit' : 'game-over',
+    };
+
+    endGameSession(sessionData);
+  }
+
   addScoreToLeaderboard(gameState.currentScore);
 
   showGameOverLeaderboard();
@@ -367,7 +434,18 @@ async function addScoreToLeaderboard(score) {
 
   if (shouldSubmitToBackend && window.apiService) {
     try {
+      // Calculate accuracy: (damageDealt * bulletsFired) / totalEnemyHealth
+      let accuracy = 0;
+      if (gameState.totalEnemyHealth > 0 && gameState.bulletsFired > 0) {
+        accuracy =
+          (gameState.damageDealt * gameState.bulletsFired) /
+          gameState.totalEnemyHealth;
+        // Cap accuracy at 100% and convert to percentage
+        accuracy = Math.min(accuracy * 100, 100);
+      }
+
       const gameData = {
+        username: playerName,
         score: score,
         stage: gameState.currentStage || 1,
         cycle: 1,
@@ -379,7 +457,9 @@ async function addScoreToLeaderboard(score) {
           Math.floor((Date.now() - gameState.gameStartTime) / 1000) || 1,
         enemiesKilled: gameState.enemiesKilled || 0,
         powerupsCollected: gameState.powerUpsCollected || 0,
-        accuracy: 85.0,
+        accuracy: parseFloat(accuracy.toFixed(2)),
+        gameVersion: '1.0.0',
+        sessionId: window.apiService.sessionId,
       };
 
       await window.apiService.submitScore(gameData);
@@ -396,35 +476,38 @@ async function addScoreToLeaderboard(score) {
     }
   }
 
-  let leaderboardData = JSON.parse(
-    localStorage.getItem('spaceShooterLeaderboard')
-  ) || {
-    'all-time': [],
-    today: [],
-    'this-week': [],
-  };
+  // Only save to local storage if user is NOT authenticated (for local leaderboard viewing)
+  if (!shouldSubmitToBackend) {
+    let leaderboardData = JSON.parse(
+      localStorage.getItem('spaceShooterLeaderboard')
+    ) || {
+      'all-time': [],
+      today: [],
+      'this-week': [],
+    };
 
-  leaderboardData['all-time'].push(newEntry);
-  leaderboardData['all-time'].sort((a, b) => b.score - a.score);
-  leaderboardData['all-time'] = leaderboardData['all-time'].slice(0, 10);
+    leaderboardData['all-time'].push(newEntry);
+    leaderboardData['all-time'].sort((a, b) => b.score - a.score);
+    leaderboardData['all-time'] = leaderboardData['all-time'].slice(0, 10);
 
-  const today = new Date().toISOString().split('T')[0];
-  const todayEntries = leaderboardData['all-time'].filter(
-    (entry) => entry.date === today
-  );
-  leaderboardData.today = todayEntries.slice(0, 10);
+    const today = new Date().toISOString().split('T')[0];
+    const todayEntries = leaderboardData['all-time'].filter(
+      (entry) => entry.date === today
+    );
+    leaderboardData.today = todayEntries.slice(0, 10);
 
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  const weekEntries = leaderboardData['all-time'].filter(
-    (entry) => new Date(entry.date) >= oneWeekAgo
-  );
-  leaderboardData['this-week'] = weekEntries.slice(0, 10);
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const weekEntries = leaderboardData['all-time'].filter(
+      (entry) => new Date(entry.date) >= oneWeekAgo
+    );
+    leaderboardData['this-week'] = weekEntries.slice(0, 10);
 
-  localStorage.setItem(
-    'spaceShooterLeaderboard',
-    JSON.stringify(leaderboardData)
-  );
+    localStorage.setItem(
+      'spaceShooterLeaderboard',
+      JSON.stringify(leaderboardData)
+    );
+  }
 }
 
 async function showGameOverLeaderboard() {

@@ -90,6 +90,20 @@ class LeaderboardManager {
       return;
     }
 
+    // Add header row
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'leaderboard-header';
+    headerDiv.innerHTML = `
+      <div>Rank</div>
+      <div>Player</div>
+      <div>Score</div>
+      <div>Level</div>
+      <div>Accuracy</div>
+      <div>Kills</div>
+      <div>Date</div>
+    `;
+    entriesContainer.appendChild(headerDiv);
+
     data.entries.forEach((entry) => {
       const entryElement = this.createLeaderboardEntry(entry);
       entriesContainer.appendChild(entryElement);
@@ -105,33 +119,33 @@ class LeaderboardManager {
       entryDiv.classList.add('current-user');
     }
 
-    const date = new Date(entry.date).toLocaleDateString();
-
-    const timeText = this.formatPlayTime(entry.playTime);
+    const date = new Date(entry.date).toLocaleDateString([], {
+      month: 'short',
+      day: 'numeric',
+    });
+    const accuracy = entry.accuracy
+      ? `${(entry.accuracy * 100).toFixed(1)}%`
+      : 'N/A';
 
     entryDiv.innerHTML = `
-      <span class="rank ${this.getRankClass(entry.rank)}">${entry.rank}</span>
-      <span class="player-name">${entry.username}</span>
-      <span class="score">${entry.score.toLocaleString()}</span>
-      <span class="additional-info">
-        <div class="score-details">
-          <small>Stage ${entry.stage} • Cycle ${entry.cycle}</small>
-          <small>${entry.accuracy}% accuracy • ${
-      entry.enemiesKilled
-    } kills</small>
-          <small>${timeText} • ${entry.powerupsCollected} powerups</small>
-        </div>
-      </span>
-      <span class="date">${date}</span>
+      <div class="column-rank">
+        <span class="rank ${this.getRankClass(entry.rank)}">${entry.rank}</span>
+      </div>
+      <div class="column-player">${entry.username}</div>
+      <div class="column-score">${entry.score.toLocaleString()}</div>
+      <div class="column-level">${entry.stage || 'N/A'}</div>
+      <div class="column-accuracy">${accuracy}</div>
+      <div class="column-kills">${entry.enemiesKilled || 0}</div>
+      <div class="column-date">${date}</div>
     `;
 
     return entryDiv;
   }
 
   getRankClass(rank) {
-    if (rank === 1) return 'rank-gold';
-    if (rank === 2) return 'rank-silver';
-    if (rank === 3) return 'rank-bronze';
+    if (rank === 1) return 'rank-1';
+    if (rank === 2) return 'rank-2';
+    if (rank === 3) return 'rank-3';
     if (rank <= 10) return 'rank-top10';
     return '';
   }

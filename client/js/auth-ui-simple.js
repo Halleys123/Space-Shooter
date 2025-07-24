@@ -120,6 +120,9 @@ class AuthUI {
         // Update UI state first, then close panel
         this.updateUIState();
 
+        // Load user settings from backend
+        this.loadUserSettingsFromBackend();
+
         // Clear the form
         form.reset();
 
@@ -384,5 +387,44 @@ class AuthUI {
 
   getToken() {
     return this.token;
+  }
+
+  async loadUserSettingsFromBackend() {
+    if (!this.isAuthenticated() || !this.currentUser?.id) return;
+
+    try {
+      const userProfile = await this.api.getUserProfile(this.currentUser.id);
+      if (userProfile.settings) {
+        // Merge backend settings with local settings
+        window.gameSettings.audio.masterVolume = Math.floor(
+          userProfile.settings.masterVolume * 100
+        );
+        window.gameSettings.audio.musicVolume = Math.floor(
+          userProfile.settings.musicVolume * 100
+        );
+        window.gameSettings.audio.sfxVolume = Math.floor(
+          userProfile.settings.sfxVolume * 100
+        );
+        window.gameSettings.graphics.showFps = userProfile.settings.showFPS;
+        window.gameSettings.graphics.particleEffects =
+          userProfile.settings.showParticles;
+
+        // Update localStorage with merged settings
+        localStorage.setItem(
+          'spaceShooterSettings',
+          JSON.stringify(window.gameSettings)
+        );
+
+        // Update UI elements and apply settings
+        if (typeof initializeSettings === 'function') {
+          initializeSettings();
+        }
+
+        console.log('User settings loaded from backend successfully');
+      }
+    } catch (error) {
+      console.error('Failed to load user settings from backend:', error);
+      // Continue with local settings if backend load fails
+    }
   }
 }

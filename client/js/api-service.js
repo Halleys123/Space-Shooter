@@ -97,6 +97,19 @@ class GameAPI {
     return this.currentUser;
   }
 
+  async getUserProfile(userId) {
+    if (!this.isAuthenticated()) {
+      throw new Error('Authentication required');
+    }
+
+    try {
+      const response = await this.makeRequest(`/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch user profile');
+    }
+  }
+
   async getLeaderboard(
     timeFrame = 'all-time',
     difficulty = 'normal',
@@ -120,16 +133,9 @@ class GameAPI {
 
   async submitScore(scoreData) {
     try {
-      const payload = {
-        username: this.currentUser?.username || 'Anonymous',
-        sessionId: this.sessionId,
-        gameVersion: '1.0.0',
-        ...scoreData,
-      };
-
       const response = await this.makeRequest('/leaderboard/submit', {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: JSON.stringify(scoreData),
       });
 
       return response;

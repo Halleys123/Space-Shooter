@@ -119,6 +119,15 @@ class CollisionComponent {
     if (other.canReceiveDamage && other.gameObject.takeDamage) {
       other.gameObject.takeDamage(this.damageAmount);
 
+      // Track damage dealt to enemies for accuracy calculation
+      if (
+        this.layer === 'playerBullet' &&
+        other.layer === 'enemy' &&
+        window.gameState
+      ) {
+        window.gameState.damageDealt += this.damageAmount;
+      }
+
       if (this.onDamageDealt) {
         this.onDamageDealt(other, this.damageAmount);
       }

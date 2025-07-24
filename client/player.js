@@ -236,6 +236,11 @@ class Player {
 
     this.shooting.cooldown = this.shooting.fireRate;
 
+    // Track bullets fired for accuracy calculation
+    if (window.gameState) {
+      window.gameState.bulletsFired++;
+    }
+
     // Play player shoot sound
     if (window.audioManager) {
       window.audioManager.playPlayerShoot();

@@ -193,6 +193,14 @@ function setupEventListeners() {
     });
   }
 
+  // Profile button click handler
+  const profileButton = document.querySelector('.profile-btn');
+  if (profileButton) {
+    addButtonEventListener(profileButton, async () => {
+      await showUserProfile();
+    });
+  }
+
   // Check if mobile warning was previously dismissed
   const mobileWarning = document.getElementById('mobile-warning');
   if (
@@ -217,6 +225,11 @@ function showPanel(panelType) {
         backToMenuButton.textContent = 'Back to Menu';
       }
     }
+  } else if (panelType === 'profile') {
+    const profilePanel = document.querySelector('.profile-panel');
+    if (profilePanel) {
+      profilePanel.classList.remove('hidden');
+    }
   }
 }
 
@@ -225,12 +238,165 @@ function hidePanel(panelType) {
     settingsPanel.classList.add('hidden');
   } else if (panelType === 'leaderboard') {
     leaderboardPanel.classList.add('hidden');
+  } else if (panelType === 'profile') {
+    const profilePanel = document.querySelector('.profile-panel');
+    if (profilePanel) {
+      profilePanel.classList.add('hidden');
+    }
   }
 }
 
 function hideAllPanels() {
   settingsPanel.classList.add('hidden');
   leaderboardPanel.classList.add('hidden');
+  const profilePanel = document.querySelector('.profile-panel');
+  if (profilePanel) {
+    profilePanel.classList.add('hidden');
+  }
+}
+
+async function showUserProfile() {
+  try {
+    if (!authUI || !authUI.isAuthenticated()) {
+      console.warn('User not authenticated');
+      return;
+    }
+
+    // Show the profile panel
+    showPanel('profile');
+
+    // Fetch user stats from backend
+    const currentUser = authUI.getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      console.warn('No current user found');
+      return;
+    }
+
+    const userProfile = await apiService.getUserProfile(currentUser.id);
+    console.log('Fetched user profile:', userProfile);
+
+    // Update the stats display
+    updateProfileStats(userProfile);
+
+    // Fetch and display user's recent scores
+    await updateUserScoresList(currentUser.username);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    // Still show the panel even if stats fetch fails
+    showPanel('profile');
+  }
+}
+
+function updateProfileStats(userProfile) {
+  if (!userProfile || !userProfile.stats) {
+    console.warn('No user stats available');
+    return;
+  }
+
+  const stats = userProfile.stats;
+
+  // Update basic stats
+  const totalGamesEl = document.getElementById('total-games');
+  const bestScoreEl = document.getElementById('best-score');
+  const avgScoreEl = document.getElementById('avg-score');
+  const totalTimeEl = document.getElementById('total-time');
+
+  if (totalGamesEl) totalGamesEl.textContent = stats.gamesPlayed || 0;
+  if (bestScoreEl) bestScoreEl.textContent = stats.bestScore || 0;
+  if (avgScoreEl) avgScoreEl.textContent = stats.averageScore || 0;
+
+  // Convert total time from seconds to hours and minutes
+  if (totalTimeEl) {
+    const totalSeconds = stats.totalTimePlayed || 0;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    if (hours > 0) {
+      totalTimeEl.textContent = `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      totalTimeEl.textContent = `${minutes}m`;
+    } else {
+      totalTimeEl.textContent = '0m';
+    }
+  }
+
+  // Add additional stats if we have elements for them
+  const accuracyEl = document.getElementById('accuracy-stat');
+  if (accuracyEl && stats.accuracy !== undefined) {
+    accuracyEl.textContent = `${(stats.accuracy * 100).toFixed(1)}%`;
+  }
+
+  const totalEnemiesEl = document.getElementById('total-enemies');
+  if (totalEnemiesEl)
+    totalEnemiesEl.textContent = stats.totalEnemiesKilled || 0;
+
+  const totalBulletsEl = document.getElementById('total-bullets');
+  if (totalBulletsEl) totalBulletsEl.textContent = stats.totalBulletsFired || 0;
+
+  const totalPowerupsEl = document.getElementById('total-powerups');
+  if (totalPowerupsEl)
+    totalPowerupsEl.textContent = stats.totalPowerupsCollected || 0;
+
+  console.log('Updated profile stats display');
+}
+
+async function updateUserScoresList(username) {
+  try {
+    // Get user's recent scores from the leaderboard API
+    const response = await apiService.getUserScores(username);
+    const scoresContainer = document.getElementById('user-scores-list');
+
+    if (!scoresContainer) return;
+
+    // Extract the entries array from the response
+    const userScores = response?.entries || [];
+    
+    if (!userScores || !Array.isArray(userScores) || userScores.length === 0) {
+      scoresContainer.innerHTML =
+        '<div class="no-scores">No scores yet. Play a game to see your scores here!</div>';
+      return;
+    }
+
+    // Display up to 5 most recent scores
+    const recentScores = userScores.slice(0, 5);
+    const scoresHTML = recentScores
+      .map((score, index) => {
+        const date = new Date(score.date).toLocaleDateString();
+        const time = new Date(score.date).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        return `
+        <div class="score-entry">
+          <div class="score-info">
+            <div class="score-value">${score.score.toLocaleString()}</div>
+            <div class="score-details">
+              <span class="score-rank">#${index + 1}</span>
+              <span class="score-date">${date} ${time}</span>
+            </div>
+          </div>
+          <div class="score-stats">
+            <span class="score-stat">Stage ${score.stage}</span>
+            <span class="score-stat">Cycle ${score.cycle}</span>
+            <span class="score-stat">${
+              score.accuracy ? (score.accuracy * 100).toFixed(1) + '%' : 'N/A'
+            }</span>
+            <span class="score-stat">${score.metadata?.difficulty || 'Normal'}</span>
+          </div>
+        </div>
+      `;
+      })
+      .join('');
+
+    scoresContainer.innerHTML = scoresHTML;
+  } catch (error) {
+    console.error('Error fetching user scores:', error);
+    const scoresContainer = document.getElementById('user-scores-list');
+    if (scoresContainer) {
+      scoresContainer.innerHTML =
+        '<div class="no-scores">Error loading scores. Try again later.</div>';
+    }
+  }
 }
 
 function initializeSettings() {
@@ -292,6 +458,29 @@ function saveSettings() {
   gameSettings.graphics.particleEffects = particleEffectsCheckbox.checked;
 
   localStorage.setItem('spaceShooterSettings', JSON.stringify(gameSettings));
+
+  // Save settings to backend if authenticated
+  if (window.apiService && window.apiService.isAuthenticated()) {
+    const backendSettings = {
+      masterVolume: gameSettings.audio.masterVolume / 100, // Backend expects 0-1 range
+      sfxVolume: gameSettings.audio.sfxVolume / 100,
+      musicVolume: gameSettings.audio.musicVolume / 100,
+      difficulty: 'normal', // Default difficulty
+      showFPS: gameSettings.graphics.showFps,
+      showParticles: gameSettings.graphics.particleEffects,
+      keyBindings: gameSettings.controls,
+    };
+
+    window.apiService
+      .updateUserSettings(backendSettings)
+      .then(() => {
+        console.log('Settings saved to backend successfully');
+      })
+      .catch((error) => {
+        console.error('Failed to save settings to backend:', error);
+        // Don't block the UI if backend save fails
+      });
+  }
 
   if (typeof applyGraphicsSettings === 'function') {
     try {
