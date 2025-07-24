@@ -24,16 +24,18 @@ class PowerUp {
       this.sprite = new Image();
       this.spriteLoaded = false;
       this.spriteError = false;
-      
+
       this.sprite.onload = () => {
         this.spriteLoaded = true;
       };
-      
+
       this.sprite.onerror = () => {
-        console.error(`Failed to load powerup sprite: ${this.getSpriteSource()}`);
+        console.error(
+          `Failed to load powerup sprite: ${this.getSpriteSource()}`
+        );
         this.spriteError = true;
       };
-      
+
       this.sprite.src = this.getSpriteSource();
     }
 
@@ -206,7 +208,7 @@ class PowerUp {
       this.ctx.beginPath();
       this.ctx.arc(0, 0, this.width / 3, 0, Math.PI * 2);
       this.ctx.fill();
-      
+
       // Draw type letter
       this.ctx.fillStyle = '#ffffff';
       this.ctx.font = 'bold 16px Arial';
@@ -343,7 +345,7 @@ class PowerUpManager {
     const powerup = new PowerUp(this.ctx, this.canvas, x, y);
     // Override the random type selection
     powerup.type = type;
-    
+
     // Try to use preloaded sprite first
     const spriteKey = type + '_powerup';
     if (window.spritePreloader && window.spritePreloader.hasSprite(spriteKey)) {
@@ -355,15 +357,17 @@ class PowerUpManager {
       powerup.sprite.onload = () => {
         powerup.spriteLoaded = true;
       };
-      
+
       powerup.sprite.onerror = () => {
-        console.error(`Failed to load specific powerup sprite: ${powerup.getSpriteSource()}`);
+        console.error(
+          `Failed to load specific powerup sprite: ${powerup.getSpriteSource()}`
+        );
         powerup.spriteError = true;
       };
-      
+
       powerup.sprite.src = powerup.getSpriteSource();
     }
-    
+
     powerup.effects = powerup.getPowerUpEffects();
 
     this.powerups.push(powerup);

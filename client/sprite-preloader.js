@@ -5,40 +5,46 @@ class SpritePreloader {
     this.totalCount = 0;
     this.isLoading = false;
     this.loadPromise = null;
-    
+
     // Define all sprites used in the game
     this.spriteList = [
       // Player sprites
       { key: 'player', path: './assets/sprites/player.png' },
       { key: 'player_shield', path: './assets/sprites/player_shield.png' },
       { key: 'player_thrust', path: './assets/sprites/player_thrust.png' },
-      
+
       // Enemy sprites
       { key: 'enemy_basic', path: './assets/sprites/enemy_basic.png' },
       { key: 'enemy_shooter', path: './assets/sprites/enemy_shooter.png' },
       { key: 'enemy_zigzag', path: './assets/sprites/enemy_zigzag.png' },
       { key: 'enemy_kamikaze', path: './assets/sprites/enemy_kamikaze.png' },
       { key: 'boss', path: './assets/sprites/boss.png' },
-      
+
       // Bullet sprites
       { key: 'bullet_player', path: './assets/sprites/bullet_player.png' },
       { key: 'bullet_enemy', path: './assets/sprites/bullet_enemy.png' },
-      
+
       // Powerup sprites
-      { key: 'firerate_powerup', path: './assets/power-ups/firerate_powerup.png' },
+      {
+        key: 'firerate_powerup',
+        path: './assets/power-ups/firerate_powerup.png',
+      },
       { key: 'health_powerup', path: './assets/power-ups/health_powerup.png' },
       { key: 'shield_powerup', path: './assets/power-ups/shield_powerup.png' },
-      
+
       // Explosion sprites
       { key: 'explosion_1', path: './assets/sprites/explosion_sprite_1.png' },
       { key: 'explosion_2', path: './assets/sprites/explosion_sprite_2.png' },
       { key: 'explosion_3', path: './assets/sprites/explosion_sprite_3.png' },
       { key: 'explosion_4', path: './assets/sprites/explosion_sprite_4.png' },
-      
+
       // UI sprites
       { key: 'health_bar_frame', path: './assets/ui/health_bar_frame.png' },
       { key: 'life_icon', path: './assets/ui/life_icon.png' },
-      { key: 'score_background', path: './assets/sprites/score_background.png' }
+      {
+        key: 'score_background',
+        path: './assets/sprites/score_background.png',
+      },
     ];
   }
 
@@ -69,27 +75,33 @@ class SpritePreloader {
 
       this.spriteList.forEach((spriteInfo, index) => {
         const img = new Image();
-        
+
         img.onload = () => {
           this.sprites.set(spriteInfo.key, img);
           loadedSprites++;
           this.loadedCount = loadedSprites;
-          
+
           results[index] = { success: true, key: spriteInfo.key };
-          this.updateLoadingProgress((loadedSprites + failedSprites) / this.totalCount);
-          
+          this.updateLoadingProgress(
+            (loadedSprites + failedSprites) / this.totalCount
+          );
+
           if (loadedSprites + failedSprites === this.totalCount) {
             this.isLoading = false;
-            
+
             // Hide loading indicator
             const loadingIndicator = document.getElementById('sprite-loading');
             if (loadingIndicator) {
               loadingIndicator.classList.add('hidden');
             }
-            
-            console.log(`Sprite preloading complete: ${loadedSprites} loaded, ${failedSprites} failed`);
+
+            console.log(
+              `Sprite preloading complete: ${loadedSprites} loaded, ${failedSprites} failed`
+            );
             if (failedSprites > 0) {
-              console.warn('Some sprites failed to load, fallbacks will be used');
+              console.warn(
+                'Some sprites failed to load, fallbacks will be used'
+              );
             }
             resolve(results);
           }
@@ -98,21 +110,31 @@ class SpritePreloader {
         img.onerror = () => {
           failedSprites++;
           console.error(`Failed to preload sprite: ${spriteInfo.path}`);
-          results[index] = { success: false, key: spriteInfo.key, path: spriteInfo.path };
-          this.updateLoadingProgress((loadedSprites + failedSprites) / this.totalCount);
-          
+          results[index] = {
+            success: false,
+            key: spriteInfo.key,
+            path: spriteInfo.path,
+          };
+          this.updateLoadingProgress(
+            (loadedSprites + failedSprites) / this.totalCount
+          );
+
           if (loadedSprites + failedSprites === this.totalCount) {
             this.isLoading = false;
-            
+
             // Hide loading indicator
             const loadingIndicator = document.getElementById('sprite-loading');
             if (loadingIndicator) {
               loadingIndicator.classList.add('hidden');
             }
-            
-            console.log(`Sprite preloading complete: ${loadedSprites} loaded, ${failedSprites} failed`);
+
+            console.log(
+              `Sprite preloading complete: ${loadedSprites} loaded, ${failedSprites} failed`
+            );
             if (failedSprites > 0) {
-              console.warn('Some sprites failed to load, fallbacks will be used');
+              console.warn(
+                'Some sprites failed to load, fallbacks will be used'
+              );
             }
             resolve(results);
           }
@@ -130,8 +152,10 @@ class SpritePreloader {
 
   updateLoadingProgress(progress) {
     const percentage = Math.round(progress * 100);
-    console.log(`Sprite loading progress: ${percentage}% (${this.loadedCount}/${this.totalCount})`);
-    
+    console.log(
+      `Sprite loading progress: ${percentage}% (${this.loadedCount}/${this.totalCount})`
+    );
+
     // Update any loading screen UI if it exists
     const loadingText = document.querySelector('.loading-text');
     if (loadingText) {
@@ -151,7 +175,7 @@ class SpritePreloader {
   cloneSprite(key) {
     const original = this.sprites.get(key);
     if (!original) return null;
-    
+
     const clone = new Image();
     clone.src = original.src;
     return clone;
@@ -159,7 +183,7 @@ class SpritePreloader {
 
   // Get sprite source path for dynamic loading
   getSpritePath(key) {
-    const spriteInfo = this.spriteList.find(sprite => sprite.key === key);
+    const spriteInfo = this.spriteList.find((sprite) => sprite.key === key);
     return spriteInfo ? spriteInfo.path : null;
   }
 
@@ -176,15 +200,23 @@ class SpritePreloader {
     console.log('\n=== SPRITE DIAGNOSTIC REPORT ===');
     console.log(`Total sprites in preloader: ${this.sprites.size}`);
     console.log(`Loading status: ${this.isLoading ? 'Loading' : 'Complete'}`);
-    console.log(`Progress: ${this.loadedCount}/${this.totalCount} (${Math.round(this.getLoadingProgress() * 100)}%)`);
-    
+    console.log(
+      `Progress: ${this.loadedCount}/${this.totalCount} (${Math.round(
+        this.getLoadingProgress() * 100
+      )}%)`
+    );
+
     console.log('\nLoaded sprites:');
     this.sprites.forEach((sprite, key) => {
-      console.log(`  ✓ ${key}: ${sprite.complete ? 'Complete' : 'Loading...'} (${sprite.src})`);
+      console.log(
+        `  ✓ ${key}: ${sprite.complete ? 'Complete' : 'Loading...'} (${
+          sprite.src
+        })`
+      );
     });
-    
+
     console.log('\nMissing sprites:');
-    this.spriteList.forEach(spriteInfo => {
+    this.spriteList.forEach((spriteInfo) => {
       if (!this.sprites.has(spriteInfo.key)) {
         console.log(`  ✗ ${spriteInfo.key}: Not loaded (${spriteInfo.path})`);
       }
@@ -194,17 +226,19 @@ class SpritePreloader {
 
   // Function to manually reload failed sprites
   async reloadFailedSprites() {
-    const failedSprites = this.spriteList.filter(spriteInfo => 
-      !this.sprites.has(spriteInfo.key)
+    const failedSprites = this.spriteList.filter(
+      (spriteInfo) => !this.sprites.has(spriteInfo.key)
     );
-    
+
     if (failedSprites.length === 0) {
       console.log('No failed sprites to reload');
       return;
     }
-    
-    console.log(`Attempting to reload ${failedSprites.length} failed sprites...`);
-    
+
+    console.log(
+      `Attempting to reload ${failedSprites.length} failed sprites...`
+    );
+
     for (const spriteInfo of failedSprites) {
       try {
         const img = new Image();

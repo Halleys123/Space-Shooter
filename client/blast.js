@@ -279,7 +279,10 @@ class Blast {
     // Try to use preloaded sprites first
     for (let i = 1; i <= 4; i++) {
       const spriteKey = `explosion_${i}`;
-      if (window.spritePreloader && window.spritePreloader.hasSprite(spriteKey)) {
+      if (
+        window.spritePreloader &&
+        window.spritePreloader.hasSprite(spriteKey)
+      ) {
         this.sprites.push(window.spritePreloader.cloneSprite(spriteKey));
       } else {
         const sprite = new Image();

@@ -202,7 +202,7 @@ document.addEventListener('keydown', (e) => {
       window.spritePreloader.diagnoseSprites();
     }
   }
-  
+
   // Debug: Reload failed sprites
   if (e.key === 'u' || e.key === 'U') {
     if (window.spritePreloader) {

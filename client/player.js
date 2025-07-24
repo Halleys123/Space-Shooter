@@ -46,17 +46,17 @@ class Player {
       this.sprite = new Image(this.visuals.width, this.visuals.height);
       this.spriteLoaded = false;
       this.spriteError = false;
-      
+
       this.sprite.onload = () => {
         this.spriteLoaded = true;
         this.draw();
       };
-      
+
       this.sprite.onerror = () => {
         console.error(`Failed to load player sprite: ${src}`);
         this.spriteError = true;
       };
-      
+
       this.sprite.src = src;
     }
 
@@ -252,7 +252,7 @@ class Player {
     this.collisionParticles.draw(this.ctx);
 
     this.ctx.save();
-    
+
     if (this.spriteLoaded && !this.spriteError) {
       this.ctx.translate(
         this.control.position.x + this.visuals.width / 2,
@@ -273,7 +273,7 @@ class Player {
         this.control.position.y + this.visuals.height / 2
       );
       this.ctx.rotate(this.control.rotation);
-      
+
       this.ctx.fillStyle = '#00ffff';
       this.ctx.beginPath();
       this.ctx.moveTo(0, -this.visuals.height / 2);
@@ -282,7 +282,7 @@ class Player {
       this.ctx.closePath();
       this.ctx.fill();
     }
-    
+
     this.ctx.restore();
 
     this.healthBar.draw(

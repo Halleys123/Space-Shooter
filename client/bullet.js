@@ -44,16 +44,16 @@ class Bullet {
       this.sprite = new Image();
       this.spriteLoaded = false;
       this.spriteError = false;
-      
+
       this.sprite.onload = () => {
         this.spriteLoaded = true;
       };
-      
+
       this.sprite.onerror = () => {
         console.error(`Failed to load bullet sprite: ${spriteSource}`);
         this.spriteError = true;
       };
-      
+
       this.sprite.src = spriteSource;
     }
 

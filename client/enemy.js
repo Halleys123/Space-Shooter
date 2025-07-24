@@ -14,10 +14,14 @@ class Enemy {
 
     this.width = 60;
     this.height = 60;
-    
+
     // Try to use preloaded sprite first
     const spriteKey = this.getSpriteKey(spriteSource);
-    if (window.spritePreloader && spriteKey && window.spritePreloader.hasSprite(spriteKey)) {
+    if (
+      window.spritePreloader &&
+      spriteKey &&
+      window.spritePreloader.hasSprite(spriteKey)
+    ) {
       this.sprite = window.spritePreloader.cloneSprite(spriteKey);
       this.spriteLoaded = true;
       this.spriteError = false;
@@ -25,16 +29,16 @@ class Enemy {
       this.sprite = new Image();
       this.spriteLoaded = false;
       this.spriteError = false;
-      
+
       this.sprite.onload = () => {
         this.spriteLoaded = true;
       };
-      
+
       this.sprite.onerror = () => {
         console.error(`Failed to load enemy sprite: ${spriteSource}`);
         this.spriteError = true;
       };
-      
+
       this.sprite.src = spriteSource;
     }
 
@@ -65,7 +69,7 @@ class Enemy {
       './assets/sprites/enemy_shooter.png': 'enemy_shooter',
       './assets/sprites/enemy_zigzag.png': 'enemy_zigzag',
       './assets/sprites/enemy_kamikaze.png': 'enemy_kamikaze',
-      './assets/sprites/boss.png': 'boss'
+      './assets/sprites/boss.png': 'boss',
     };
     return spriteMap[spriteSource] || null;
   }
@@ -173,13 +177,18 @@ class Enemy {
 
   draw() {
     if (!this.isAlive) return;
-    
+
     // Only draw if sprite is loaded successfully
     if (!this.spriteLoaded || this.spriteError) {
       // Draw fallback rectangle if sprite failed to load
       this.ctx.save();
       this.ctx.fillStyle = '#ff4444';
-      this.ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+      this.ctx.fillRect(
+        this.position.x,
+        this.position.y,
+        this.width,
+        this.height
+      );
       this.ctx.restore();
     } else {
       this.ctx.save();
@@ -690,7 +699,12 @@ class BossEnemy extends Enemy {
       // Draw fallback rectangle if sprite failed to load
       this.ctx.save();
       this.ctx.fillStyle = '#ff6666';
-      this.ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
+      this.ctx.fillRect(
+        this.position.x,
+        this.position.y,
+        this.width,
+        this.height
+      );
       this.ctx.restore();
     } else {
       this.ctx.save();
